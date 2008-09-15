@@ -5,8 +5,6 @@ TODO
 Milestone 1.0 (First Release)
 =============================
 
-- Program EXE, should return the number of failed tests.
-
 - test_basic: The count is WRONG! 
 
 - Rename "big_test" to "test_big" -- to remain consistent with the other

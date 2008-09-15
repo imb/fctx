@@ -1574,11 +1574,6 @@ non-zero number. */
    }
       
 
-/* Returns a reference to the statistics object within the 
-FFT framework. */
-#define _FFT_STAT()  (fft__stat(&fftkern__))
-
-
 /* This is defined at the start of the file. We are undefining it
 here so it doesn't conflict with existing. */
 #if defined(WIN32)
