@@ -1,0 +1,59 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C++ Express 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mkbigtest", "tests\mkbigtest.vcproj", "{21F15237-28FB-47C1-9363-6BEB9ED5FC03}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_big", "tests\test_big.vcproj", "{BAC92346-4778-4393-8D74-F50DAA906184}"
+	ProjectSection(ProjectDependencies) = postProject
+		{21F15237-28FB-47C1-9363-6BEB9ED5FC03} = {21F15237-28FB-47C1-9363-6BEB9ED5FC03}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_basic", "tests\fft_basic.vcproj", "{DE45B4CD-5096-4639-B922-7688B7F27C8F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_money", "tests\test_money.vcproj", "{F386299C-D8BC-4C87-9A5D-7CAA605F10B2}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_count", "tests\test_count.vcproj", "{F81A1BCF-7BAE-429B-8401-38492236BD22}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_fftkern", "tests\test_fftkern.vcproj", "{47124070-47CB-42DF-83E3-B23406AA8E16}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_1suite", "tests\test_1suite.vcproj", "{91AA1189-7039-4C9B-A4D8-F6D7F9261C82}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{21F15237-28FB-47C1-9363-6BEB9ED5FC03}.Debug|Win32.ActiveCfg = Debug|Win32
+		{21F15237-28FB-47C1-9363-6BEB9ED5FC03}.Debug|Win32.Build.0 = Debug|Win32
+		{21F15237-28FB-47C1-9363-6BEB9ED5FC03}.Release|Win32.ActiveCfg = Release|Win32
+		{21F15237-28FB-47C1-9363-6BEB9ED5FC03}.Release|Win32.Build.0 = Release|Win32
+		{BAC92346-4778-4393-8D74-F50DAA906184}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BAC92346-4778-4393-8D74-F50DAA906184}.Debug|Win32.Build.0 = Debug|Win32
+		{BAC92346-4778-4393-8D74-F50DAA906184}.Release|Win32.ActiveCfg = Release|Win32
+		{BAC92346-4778-4393-8D74-F50DAA906184}.Release|Win32.Build.0 = Release|Win32
+		{DE45B4CD-5096-4639-B922-7688B7F27C8F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DE45B4CD-5096-4639-B922-7688B7F27C8F}.Debug|Win32.Build.0 = Debug|Win32
+		{DE45B4CD-5096-4639-B922-7688B7F27C8F}.Release|Win32.ActiveCfg = Release|Win32
+		{DE45B4CD-5096-4639-B922-7688B7F27C8F}.Release|Win32.Build.0 = Release|Win32
+		{F386299C-D8BC-4C87-9A5D-7CAA605F10B2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F386299C-D8BC-4C87-9A5D-7CAA605F10B2}.Debug|Win32.Build.0 = Debug|Win32
+		{F386299C-D8BC-4C87-9A5D-7CAA605F10B2}.Release|Win32.ActiveCfg = Release|Win32
+		{F386299C-D8BC-4C87-9A5D-7CAA605F10B2}.Release|Win32.Build.0 = Release|Win32
+		{F81A1BCF-7BAE-429B-8401-38492236BD22}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F81A1BCF-7BAE-429B-8401-38492236BD22}.Debug|Win32.Build.0 = Debug|Win32
+		{F81A1BCF-7BAE-429B-8401-38492236BD22}.Release|Win32.ActiveCfg = Release|Win32
+		{F81A1BCF-7BAE-429B-8401-38492236BD22}.Release|Win32.Build.0 = Release|Win32
+		{47124070-47CB-42DF-83E3-B23406AA8E16}.Debug|Win32.ActiveCfg = Debug|Win32
+		{47124070-47CB-42DF-83E3-B23406AA8E16}.Debug|Win32.Build.0 = Debug|Win32
+		{47124070-47CB-42DF-83E3-B23406AA8E16}.Release|Win32.ActiveCfg = Release|Win32
+		{47124070-47CB-42DF-83E3-B23406AA8E16}.Release|Win32.Build.0 = Release|Win32
+		{91AA1189-7039-4C9B-A4D8-F6D7F9261C82}.Debug|Win32.ActiveCfg = Debug|Win32
+		{91AA1189-7039-4C9B-A4D8-F6D7F9261C82}.Debug|Win32.Build.0 = Debug|Win32
+		{91AA1189-7039-4C9B-A4D8-F6D7F9261C82}.Release|Win32.ActiveCfg = Release|Win32
+		{91AA1189-7039-4C9B-A4D8-F6D7F9261C82}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

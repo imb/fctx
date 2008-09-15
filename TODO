@@ -1,0 +1,144 @@
+====
+TODO
+====
+
+Milestone 1.0 (First Release)
+=============================
+
+- Program EXE, should return the number of failed tests.
+
+- test_basic: The count is WRONG! 
+
+- Rename "big_test" to "test_big" -- to remain consistent with the other
+  tests.
+
+- When running "big_test", the "elasped time is inmeasurable", but hey,
+  it really is longer than a sigh. 
+
+- Write a "manual" check list to make sure everything is working correctly.
+  Some tests are impossible to test without running it, and requires a manual
+  check.
+
+  - Added a "check.bat" that compiles and executes all the tests in both
+    release and debug mode.
+
+- Revisit the naming scheme? Consider making NUT_SUITE_BEGIN,
+  NUT_TEST_BEGIN, and NUT_CHECK all smaller in some way.
+
+- Better loggers:
+  - minimal ( "." and "!" )
+      - on_cndtn_pass
+      - on_cndtn_fail
+      - on_test_start
+      - on_test_end
+      - on_test_suite_start
+      - on_test_suite_end
+      - on_nut_start
+      - on_nut_end
+  - verbose 
+      - on_cndtn_pass
+      - on_cndtn_fail
+      - on_test_start
+      - on_test_end
+      - on_test_suite_start
+      - on_test_suite_end
+      - on_nut_start
+      - on_nut_end  
+
+- Set the logger? Via the command line. 
+  --logger-minimal      (-lm)
+  --logger-standard     (-ls)
+  --logger-verbose      (-lv)
+
+- When displaying the test failures at the end, it would be nice to
+  indicate what suite/test it failed in.
+
+- Should be able to "include" other test suites from other files. In
+  other words you should be able to do this,
+
+  BEGIN_TEST_SUITE()
+  {
+     #include "test_suite_a.h"
+     #include "test_suite_b.h"
+  }
+  END_TEST_SUITE();
+
+  I think you can do this now, but need to write up a test case.
+
+- Write up documentation.
+  - Finish up the "test_money" class.
+
+- Write a LICENSE file.
+
+- Write a README file.
+  - Include "Goal"
+
+- Write a HACKING file.
+  - Include "Basic Idea"
+
+- Chase down all "###" and "TODO" comments, and fix them.
+
+- Test naming conflicts, what happens when two test suites have the same
+  name??
+
+- Write up a little doco on the "design" of the framework. A HACKING
+  guide.
+
+Milestone 1.1 (Cleanup)
+=======================
+
+- Better command line parsing. 
+  - Need to implement the --help and --version options.
+
+- Test with other compilers
+  - gcc?
+
+- Clean up the code. Consistency throughout.
+
+- Create a sample makefile.
+
+- (P1) Run only a specific test suite by name,
+
+      nut.exe --run-suite some_suite
+
+- (P2) The nut_logger interface should abstract out the parameters it
+  passes using a "nut_logger_params" structure. 
+
+- (P2) The nut_t singleton (nut__) could be rewritten as a stack
+  variable and avoid an extra malloc call. Not going to shave to many
+  seconds, but would remove one less check for a memory tracking
+  application. Hunt down other instances that are using NEW.
+
+- (P3) Make the NList GROWTH rate proportional to its size. The bigger
+  the list, the less it has to grow (i.e. the less likely more stuff
+  will be added). 
+
+- (P3) Remove the coupling between the nut_t, nut_ts_t structures. Not
+  that important, but it would make for a cleaner design.
+
+
+Milestone 1.2
+=============
+
+- (P1) Handle assertions -- keep on "trucking".
+
+- (P1) Handle assertions -- optionally check for them.
+
+- (P1) Handle "crashes" -- keep on "trucking".
+
+- (P1) Handle "crashes" -- optionally confirm a crash?? Might be a
+  completely useless option.
+
+- (P2) Handle different languages for the built-in loggers.
+
+- Figure out a way to have a test case without a test suite?
+
+    NUT_SUITE_BEGIN(Testing)
+    {
+       NUT_CHECK( ok );    // This should fail, with a hint!
+    }
+    NUT_SUITE_END()
+
+- Be able to just create a bunch o' NUT_TEST_BEGIN/NUT_TEST_END's and
+  get an automatic "default test suite" wrapped around it.
+

@@ -1,0 +1,4 @@
+24-09-2008   Ian Blumel   <ian.blumel@gmail.com>
+
+Migrated repository to Bazaar (bzr). Renamed project from "nut" to "fft"
+(FAST, FAST TEST).
