@@ -1,5 +1,0 @@
-24-09-2008   Ian Blumel   <ian.blumel@gmail.com>
-
-* TODO: Updated, it was a wee bit out of date.
-
-* include/fft.h (_FFT_STAT): Removed dead macro.

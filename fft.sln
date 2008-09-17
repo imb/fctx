@@ -18,6 +18,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_fftkern", "tests\test_
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_1suite", "tests\test_1suite.vcproj", "{91AA1189-7039-4C9B-A4D8-F6D7F9261C82}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_fail", "tests\test_fail.vcproj", "{E0E81278-743A-4F68-8823-6023B2246E39}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -52,6 +54,10 @@ Global
 		{91AA1189-7039-4C9B-A4D8-F6D7F9261C82}.Debug|Win32.Build.0 = Debug|Win32
 		{91AA1189-7039-4C9B-A4D8-F6D7F9261C82}.Release|Win32.ActiveCfg = Release|Win32
 		{91AA1189-7039-4C9B-A4D8-F6D7F9261C82}.Release|Win32.Build.0 = Release|Win32
+		{E0E81278-743A-4F68-8823-6023B2246E39}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E0E81278-743A-4F68-8823-6023B2246E39}.Debug|Win32.Build.0 = Debug|Win32
+		{E0E81278-743A-4F68-8823-6023B2246E39}.Release|Win32.ActiveCfg = Release|Win32
+		{E0E81278-743A-4F68-8823-6023B2246E39}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

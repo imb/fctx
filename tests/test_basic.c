@@ -75,18 +75,6 @@ FFT_BEGIN()
   }
   FFT_SUITE_END();
 
-  /* Test a failure. */
-  FFT_SUITE_BEGIN(test_failures)
-  {
-     FFT_TEST_BEGIN(meant_to_fail)
-     {
-        /* Should fail! */
-        fft_chk(0);
-     }
-     FFT_TEST_END();
-  }
-  FFT_SUITE_END();
-
   /* Test the 'filtering' API */
   FFT_SUITE_BEGIN(filtering)
   {

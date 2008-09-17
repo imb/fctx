@@ -15,6 +15,8 @@ the end of the file. */
 #  define _CRT_SECURE_NO_WARNINGS
 #endif
 
+
+
 #include <string.h>
 #include <assert.h>
 #include <stdarg.h>
@@ -175,6 +177,20 @@ fft_real_eq(double v1, double v2)
    return (nbool_t)(fabs(v1 - v2) < DBL_EPSILON);
 }
 
+/* Trying to port the "tick" count code across operating systems.
+For now I only have an "Windows" implementation. The implementation
+should always define the "time" in terms of seconds. */
+#if defined(WIN32)
+#include <windows.h>
+double
+fft_timer(void)
+{
+   unsigned int now = GetTickCount();
+   return now / 1000.0; /* milliseconds -> seconds */
+}
+#else
+#error "No effective timing function for this operating system."
+#endif
 
 /* 
 -------------------------------------------------------- 
@@ -1243,7 +1259,7 @@ struct _fft_standard_logger_t {
    _fft_logger_head;
 
    /* Start time. For now we use the low-accuracy time_t version. */
-   time_t start_time;
+   double start_time;
 
    /* A list of char*'s that needs to be cleaned up. */
    nlist_t *failed_cndtns_list;
@@ -1302,10 +1318,6 @@ fft_standard_logger__on_test_end(fft_logger_i *logger_,
    printf("%s\n", (is_pass) ? "PASS" : "FAIL" );
 }
 
-
-
-
-
 static void
 fft_standard_logger__on_test_suite_start(fft_logger_i *logger_, 
                                          fft_ts_t const *ts)
@@ -1329,7 +1341,7 @@ fft_standard_logger__on_fft_start(fft_logger_i *logger_,
 {
    fft_standard_logger_t *logger = (fft_standard_logger_t*)logger_;
    fft_unused(nk);
-   logger->start_time = time(&(logger->start_time));
+   logger->start_time = fft_timer();
 }
 
 
@@ -1338,12 +1350,12 @@ fft_standard_logger__on_fft_end(fft_logger_i *logger_, fftkern_t const *nk)
 {
    fft_standard_logger_t *logger = (fft_standard_logger_t*)logger_;
    nbool_t is_success =1;
-   time_t end_time =0;
-   time_t elasped_time =0;
+   double end_time =0;
+   double elasped_time =0;
    int num_tests =0;
    int num_passed =0;
 
-   end_time = time(&end_time);
+   end_time = fft_timer();
    
    is_success = nlist__size(logger->failed_cndtns_list) ==0;
 
@@ -1367,9 +1379,9 @@ fft_standard_logger__on_fft_end(fft_logger_i *logger_, fftkern_t const *nk)
    num_passed = fftkern__tst_cnt_passed(nk);
    
    elasped_time = end_time - logger->start_time;
-
+   
    printf(
-      "TESTING %s (%d/%d tests in %d second(s))", 
+      "%s (%d/%d tests in %.6fs)", 
       (is_success) ? "PASSED" : "FAILED",
       num_passed,
       num_tests,

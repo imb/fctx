@@ -1,0 +1,7 @@
+*.ncb
+*.suo
+*.vcproj.*.*.user
+Release
+Debug
+ChangeLog
+diff

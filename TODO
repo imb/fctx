@@ -5,11 +5,6 @@ TODO
 Milestone 1.0 (First Release)
 =============================
 
-- test_basic: The count is WRONG! 
-
-- Rename "big_test" to "test_big" -- to remain consistent with the other
-  tests.
-
 - When running "big_test", the "elasped time is inmeasurable", but hey,
   it really is longer than a sigh. 
 
@@ -85,11 +80,16 @@ Milestone 1.0 (First Release)
 Milestone 1.1 (Cleanup)
 =======================
 
+- Port "fft_timer" to other operating systems.
+
 - Better command line parsing. 
   - Need to implement the --help and --version options.
 
 - Test with other compilers
   - gcc?
+
+- Move all the SLN and VCPROJ files into a sub-directory called "win32",
+  just to seperate the code from the "make files".
 
 - Clean up the code. Consistency throughout.
 

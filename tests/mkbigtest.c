@@ -1,9 +1,14 @@
 /* 
-### write copyright
+====================================================================
+Copyright (c) 2008 Ian Blumel.  All rights reserved.
+
+This software is licensed as described in the file LICENSE, which
+you should have received as part of this distribution.  
+====================================================================
+File: mkbigtest.c
 
 This file will generate a large "unit tests" file which can be used for
 load testing.
-
 */
 
 /* Keep MicroSoft compilers "quiet". */
@@ -14,7 +19,7 @@ load testing.
 /* This should define a fairly reasonably large test file. Files with more 
 unit tests should probably be fragmented. Right now the slow down is 
 basically the time it takes to compile the file. */
-#define NUM_TESTS 256
+#define NUM_TESTS 1024
 
 #define TEST_STRING \
    "This is a really, really really long string that I thought would"\
@@ -29,7 +34,7 @@ main(int argc, char *argv[]) {
    FILE *f = fopen(FILE_NAME, "wt");
    
    if ( f == NULL ) {
-      fprintf(stderr, "unable to open 'big_test.c'");
+      fprintf(stderr, "unable to open 'test_big.c'");
       return 1;
    }
 
@@ -47,11 +52,13 @@ main(int argc, char *argv[]) {
       /* Want to test something with a wee bit of meat to it. */
       fprintf(
          f, 
-         "      fft_chk(strcmp(\"%s_%d\", \"%s_%d\")==0);\n", 
+         "      fft_chk(strcmp(\"%s_%d_%s\", \"%s_%d_%s\")==0);\n", 
          TEST_STRING,
          test_i, 
          TEST_STRING,
-         test_i
+         TEST_STRING,
+         test_i,
+         TEST_STRING
          );
       
       fprintf(f, "    } FFT_TEST_END();\n");
