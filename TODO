@@ -5,12 +5,14 @@ TODO
 Milestone 1.0 (First Release)
 =============================
 
-- Write a "manual" check list to make sure everything is working correctly.
-  Some tests are impossible to test without running it, and requires a manual
-  check.
+- Add a command line "parser" object, 
+  - Parse and keep track of all the command line.
+  - Available via the kernel?
 
-  - Added a "check.bat" that compiles and executes all the tests in both
-    release and debug mode.
+- Set the logger? Via the command line. 
+  --logger-minimal      (-lm)
+  --logger-standard     (-ls)
+  --logger-verbose      (-lv)    
 
 - Better loggers:
   - minimal ( "." and "!" )
@@ -32,14 +34,6 @@ Milestone 1.0 (First Release)
       - on_nut_start
       - on_nut_end  
 
-- Set the logger? Via the command line. 
-  --logger-minimal      (-lm)
-  --logger-standard     (-ls)
-  --logger-verbose      (-lv)
-
-- When displaying the test failures at the end, it would be nice to
-  indicate what suite/test it failed in.
-
 - Should be able to "include" other test suites from other files. In
   other words you should be able to do this,
 
@@ -55,32 +49,44 @@ Milestone 1.0 (First Release)
 - Write up documentation.
   - Finish up the "test_money" class.
 
-- Write a LICENSE file.
-
-- Write a README file.
+- Start a README file.
   - Include "Goal"
-
-- Write a HACKING file.
-  - Include "Basic Idea"
 
 - Chase down all "###" and "TODO" comments, and fix them.
 
 - Test naming conflicts, what happens when two test suites have the same
   name??
 
-- Write up a little doco on the "design" of the framework. A HACKING
-  guide.
-
 Milestone 1.1 (Cleanup)
 =======================
 
-- Port "fft_timer" to other operating systems.
+- (P1) Start a CHANGES file.
 
-- Better command line parsing. 
-  - Need to implement the --help and --version options.
+- (P1) Write a "manual" check list to make sure everything is working
+  correctly.  Some tests are impossible to test without running it, and
+  requires a manual check.
 
-- Test with other compilers
+  - Added a "check.bat" that compiles and executes all the tests in both
+    release and debug mode.
+
+- (P1) Write a HACKING file.
+  - Include "Basic Idea"
+  - Write up a little documentation on the "design" of the framework. A
+    HACKING guide.
+
+- (P1) Port "fct_timer" to other operating systems.
+
+- (P1) Test with other compilers
   - gcc?
+
+- (P1) Start up a "SCONS" project, or at least look into it.
+
+- (P1) Run only a specific test suite by name,
+
+      nut.exe --run-suite some_suite
+
+- (P2) Better command line parsing. 
+  - Need to implement the --help and --version options.
 
 - Move all the SLN and VCPROJ files into a sub-directory called "win32",
   just to seperate the code from the "make files".
@@ -89,28 +95,18 @@ Milestone 1.1 (Cleanup)
 
 - Create a sample makefile.
 
-- (P1) Run only a specific test suite by name,
+MileStone 1.2 (Stabilize)
+========================
 
-      nut.exe --run-suite some_suite
+- Hack, hack, hack until we have a very stable release.
 
-- (P2) The nut_logger interface should abstract out the parameters it
-  passes using a "nut_logger_params" structure. 
 
-- (P2) The nut_t singleton (nut__) could be rewritten as a stack
-  variable and avoid an extra malloc call. Not going to shave to many
-  seconds, but would remove one less check for a memory tracking
-  application. Hunt down other instances that are using NEW.
+Milestone 1.3 (Major Enhancements)
+==================================
 
 - (P3) Make the NList GROWTH rate proportional to its size. The bigger
   the list, the less it has to grow (i.e. the less likely more stuff
   will be added). 
-
-- (P3) Remove the coupling between the nut_t, nut_ts_t structures. Not
-  that important, but it would make for a cleaner design.
-
-
-Milestone 1.2
-=============
 
 - (P1) Handle assertions -- keep on "trucking".
 
