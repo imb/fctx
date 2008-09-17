@@ -12,14 +12,14 @@ Provides a dumping ground for basic tests of fct.
 
 #include "fct.h"
 
-FCT_BEGIN()
+FCT_BGN()
 {
    /* A very simple test suite, it doesn't have any data to 
    setup/teardown. */
-   FCT_SUITE_BEGIN(simple)
+   FCT_SUITE_BGN(simple)
    {
       /* A test, simply check that 1 is still 1. */
-      FCT_TEST_BEGIN(simple__one_is_one)
+      FCT_TEST_BGN(simple__one_is_one)
       {
          fct_chk(1);
       }
@@ -29,13 +29,13 @@ FCT_BEGIN()
 
       /* Test running with a fixture, where we need to setup and 
    teardown data. */
-   FCT_FIXTURE_SUITE_BEGIN(fixture)
+   FCT_FIXTURE_SUITE_BGN(fixture)
    {
       int a =0;
       int b =0; 
       int c =0;
 
-      FCT_SETUP_BEGIN()
+      FCT_SETUP_BGN()
       {
          a =1;
          b =2;
@@ -43,7 +43,7 @@ FCT_BEGIN()
       }
       FCT_SETUP_END();
    
-      FCT_TEARDOWN_BEGIN()
+      FCT_TEARDOWN_BGN()
       {
          a=0;
          b=0;
@@ -51,7 +51,7 @@ FCT_BEGIN()
       }
       FCT_TEARDOWN_END();
        
-      FCT_TEST_BEGIN(fixture__smoke_test)
+      FCT_TEST_BGN(fixture__smoke_test)
       {
          // THE TEST CASE ...
          char const *test_str  = "test_str";
@@ -60,7 +60,7 @@ FCT_BEGIN()
       }
       FCT_TEST_END();
       
-      FCT_TEST_BEGIN(fixture__smoke_test_again)
+      FCT_TEST_BGN(fixture__smoke_test_again)
       {
          fct_chk(1);
       }
@@ -70,15 +70,15 @@ FCT_BEGIN()
   FCT_FIXTURE_SUITE_END()
 
   /* A blank suite shouldn't cause a crash. */
-  FCT_SUITE_BEGIN(blank)
+  FCT_SUITE_BGN(blank)
   {
   }
   FCT_SUITE_END();
 
   /* Test the 'filtering' API */
-  FCT_SUITE_BEGIN(filtering)
+  FCT_SUITE_BGN(filtering)
   {
-     FCT_TEST_BEGIN(filtering__smoke_test)
+     FCT_TEST_BGN(filtering__smoke_test)
      {
         int ok;
 
@@ -102,7 +102,7 @@ FCT_BEGIN()
      }
      FCT_TEST_END();
 
-     FCT_TEST_BEGIN(filtering__blank_or_null_filter_always_passes)
+     FCT_TEST_BGN(filtering__blank_or_null_filter_always_passes)
      {
         int ok;
       

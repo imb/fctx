@@ -208,14 +208,14 @@ at a reasonable size. */
 /* Helper macros for quickly iterating through a list. You should be able
 to do something like,
 
-  NLIST_FOREACH_BEGIN(fct_logger_i, logger, my_list)
+  NLIST_FOREACH_BGN(fct_logger_i, logger, my_list)
   {
      fct_logger__on_blah(logger);
   }
   NLIST_FOREACH_END();
 
 */
-#define NLIST_FOREACH_BEGIN(Type, Var, List)\
+#define NLIST_FOREACH_BGN(Type, Var, List)\
 {\
    if ( List != NULL ) {\
       size_t item_i##Var;\
@@ -700,7 +700,7 @@ fct_ts__tst_cnt_passed(fct_ts_t const *ts)
    assert( ts != NULL );
    assert( !fct_ts__is_end(ts) );
 
-   NLIST_FOREACH_BEGIN(fct_test_t*, test, ts->test_list)
+   NLIST_FOREACH_BGN(fct_test_t*, test, ts->test_list)
    {
       if ( fct_test__is_pass(test) )
       {
@@ -720,7 +720,7 @@ fct_ts__chk_cnt(fct_ts_t const *ts)
 
    assert( ts != NULL );
    
-   NLIST_FOREACH_BEGIN(fct_test_t *, test, ts->test_list)
+   NLIST_FOREACH_BGN(fct_test_t *, test, ts->test_list)
    {
       tally += fct_test__chk_cnt(test);
    }
@@ -884,7 +884,7 @@ fctkern__tst_cnt(fctkern_t const *nk)
    int tally =0;
    assert( nk != NULL );
 
-   NLIST_FOREACH_BEGIN(fct_ts_t *, ts, nk->ts_list)
+   NLIST_FOREACH_BGN(fct_ts_t *, ts, nk->ts_list)
    {
       tally += fct_ts__tst_cnt(ts);
    }
@@ -899,7 +899,7 @@ fctkern__tst_cnt_passed(fctkern_t const *nk)
    int tally =0;
    assert( nk != NULL );
 
-   NLIST_FOREACH_BEGIN(fct_ts_t*, ts, nk->ts_list)
+   NLIST_FOREACH_BGN(fct_ts_t*, ts, nk->ts_list)
    {
       tally += fct_ts__tst_cnt_passed(ts);
    }
@@ -935,7 +935,7 @@ fctkern__chk_cnt(fctkern_t const *nk)
    int tally =0;
    assert( nk != NULL );
 
-   NLIST_FOREACH_BEGIN(fct_ts_t *, ts, nk->ts_list)
+   NLIST_FOREACH_BGN(fct_ts_t *, ts, nk->ts_list)
    {
       tally += fct_ts__chk_cnt(ts);
    }
@@ -971,7 +971,7 @@ fctkern__log_suite_start(fctkern_t *kern, fct_ts_t const *ts)
 {
    assert( kern != NULL );
    assert( ts != NULL );
-   NLIST_FOREACH_BEGIN(fct_logger_i*, logger, kern->logger_list)
+   NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
    {
       fct_logger__on_test_suite_start(logger, ts);
    }
@@ -984,7 +984,7 @@ fctkern__log_suite_end(fctkern_t *kern, fct_ts_t const *ts)
 {
    assert( kern != NULL );
    assert( ts != NULL );
-   NLIST_FOREACH_BEGIN(fct_logger_i*, logger, kern->logger_list)
+   NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
    {
       fct_logger__on_test_suite_end(logger, ts);
    }
@@ -1001,7 +1001,7 @@ fctkern__log_chk(fctkern_t *kern, fctchk_t const *chk)
    assert( kern != NULL );
    assert( chk != NULL );
   
-   NLIST_FOREACH_BEGIN(fct_logger_i*, logger, kern->logger_list)
+   NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
    {
       fct_logger__on_cndtn(logger, chk);
    }
@@ -1015,7 +1015,7 @@ fctkern__log_test_start(fctkern_t *kern, fct_test_t const *test)
 {
    assert( kern != NULL );
    assert( test != NULL );
-   NLIST_FOREACH_BEGIN(fct_logger_i*, logger, kern->logger_list)
+   NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
    {
       fct_logger__on_test_start(logger, test);
    }
@@ -1028,7 +1028,7 @@ fctkern__log_test_end(fctkern_t *kern, fct_test_t const *test)
 {
    assert( kern != NULL );
    assert( test != NULL );
-   NLIST_FOREACH_BEGIN(fct_logger_i*, logger, kern->logger_list)
+   NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
    {
       fct_logger__on_test_end(logger, test);
    }
@@ -1040,7 +1040,7 @@ static void
 fctkern__log_start(fctkern_t *kern)
 {
    assert( kern != NULL );
-   NLIST_FOREACH_BEGIN(fct_logger_i*, logger, kern->logger_list)
+   NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
    {
       fct_logger__on_fct_start(logger, kern);
    }
@@ -1051,7 +1051,7 @@ static void
 fctkern__log_end(fctkern_t *kern)
 {
    assert( kern != NULL );
-   NLIST_FOREACH_BEGIN(fct_logger_i*, logger, kern->logger_list)
+   NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
    {
       fct_logger__on_fct_end(logger, kern);
    }
@@ -1364,7 +1364,7 @@ fct_standard_logger__on_fct_end(fct_logger_i *logger_, fctkern_t const *nk)
       printf("\n--------------------------------------------------------\n");
       printf("FAILED TESTS\n\n");
 
-      NLIST_FOREACH_BEGIN(char *, cndtn_str, logger->failed_cndtns_list)
+      NLIST_FOREACH_BGN(char *, cndtn_str, logger->failed_cndtns_list)
       {
          printf("%s\n", cndtn_str);
       }
@@ -1394,7 +1394,7 @@ fct_standard_logger__del(fct_logger_i *logger_)
 {
    fct_standard_logger_t *logger = (fct_standard_logger_t*)logger_;
 
-   NLIST_FOREACH_BEGIN(char *, cndtn_str, logger->failed_cndtns_list)
+   NLIST_FOREACH_BGN(char *, cndtn_str, logger->failed_cndtns_list)
    {
       free(cndtn_str);
    }
@@ -1436,7 +1436,7 @@ MAGIC MACROS
 ------------------------------------------------------------
 */
 
-#define FCT_BEGIN() \
+#define FCT_BGN() \
 int \
 main(int argc, char *argv[])\
 {\
@@ -1456,7 +1456,7 @@ main(int argc, char *argv[])\
    }\
 }
 
-#define FCT_FIXTURE_SUITE_BEGIN(_NAME_) \
+#define FCT_FIXTURE_SUITE_BGN(_NAME_) \
    {\
       fct_ts_t *ts__ = fct_ts_new( #_NAME_ );\
       fctkern__log_suite_start((&fctkern__), ts__);\
@@ -1488,13 +1488,13 @@ main(int argc, char *argv[])\
 
 
 
-#define FCT_SETUP_BEGIN()\
+#define FCT_SETUP_BGN()\
    if ( fct_ts__is_setup_mode(ts__) ) {
 
 #define FCT_SETUP_END() \
    fct_ts__setup_end(ts__); }
 
-#define FCT_TEARDOWN_BEGIN() \
+#define FCT_TEARDOWN_BGN() \
    if ( fct_ts__is_teardown_mode(ts__) ) {\
 
 #define FCT_TEARDOWN_END() \
@@ -1504,10 +1504,10 @@ main(int argc, char *argv[])\
 
 /* Lets you create a test suite, where maybe you don't want a fixture. We
 do it by 'stubbing' out the setup/teardown logic. */
-#define FCT_SUITE_BEGIN(Name) \
-   FCT_FIXTURE_SUITE_BEGIN(Name) {\
-   FCT_SETUP_BEGIN() {_fct_cmt("stubbed"); } FCT_SETUP_END()\
-   FCT_TEARDOWN_BEGIN() {_fct_cmt("stubbed");} FCT_TEARDOWN_END()\
+#define FCT_SUITE_BGN(Name) \
+   FCT_FIXTURE_SUITE_BGN(Name) {\
+   FCT_SETUP_BGN() {_fct_cmt("stubbed"); } FCT_SETUP_END()\
+   FCT_TEARDOWN_BGN() {_fct_cmt("stubbed");} FCT_TEARDOWN_END()\
 
 #define FCT_SUITE_END() } FCT_FIXTURE_SUITE_END()
 
@@ -1515,7 +1515,7 @@ do it by 'stubbing' out the setup/teardown logic. */
 first determine if the test is the "current" count. Then we have to determine
 if we can pass the filter. Finally we will execute everything so that when a 
 check fails, we can "break" out to the end of the test. */
-#define FCT_TEST_BEGIN(_NAME_) \
+#define FCT_TEST_BGN(_NAME_) \
          {\
             char const *test_name__ = #_NAME_;\
             ++fct_test_num__;\

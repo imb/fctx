@@ -5,18 +5,12 @@ TODO
 Milestone 1.0 (First Release)
 =============================
 
-- When running "big_test", the "elasped time is inmeasurable", but hey,
-  it really is longer than a sigh. 
-
 - Write a "manual" check list to make sure everything is working correctly.
   Some tests are impossible to test without running it, and requires a manual
   check.
 
   - Added a "check.bat" that compiles and executes all the tests in both
     release and debug mode.
-
-- Revisit the naming scheme? Consider making NUT_SUITE_BEGIN,
-  NUT_TEST_BEGIN, and NUT_CHECK all smaller in some way.
 
 - Better loggers:
   - minimal ( "." and "!" )

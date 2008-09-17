@@ -15,21 +15,21 @@ and execution of a test suite.
 
 #include "fct.h"
 
-FCT_BEGIN() 
+FCT_BGN() 
 {
-   FCT_FIXTURE_SUITE_BEGIN("1Suite") 
+   FCT_FIXTURE_SUITE_BGN("1Suite") 
    {
-         FCT_SETUP_BEGIN() 
+         FCT_SETUP_BGN() 
          {
          }
          FCT_SETUP_END();
       
-         FCT_TEARDOWN_BEGIN()
+         FCT_TEARDOWN_BGN()
          {
          }
          FCT_TEARDOWN_END();
 
-         FCT_TEST_BEGIN("1Test")
+         FCT_TEST_BGN("1Test")
          {
             fct_chk( strcmp("a", "b") != 0 );
          }

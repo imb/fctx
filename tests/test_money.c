@@ -41,12 +41,12 @@ UNIT TESTS
 -----------------------------------------------------------------------
 */
 
-FCT_BEGIN() 
+FCT_BGN() 
 {
    
-   FCT_SUITE_BEGIN(money_simple)
+   FCT_SUITE_BGN(money_simple)
    {
-      FCT_TEST_BEGIN(money_new_del__basic)
+      FCT_TEST_BGN(money_new_del__basic)
       {
          Money_t *m = money_new();
          fct_chk(m != NULL);
@@ -54,7 +54,7 @@ FCT_BEGIN()
       }
       FCT_TEST_END();
 
-      FCT_TEST_BEGIN(money_del__with_null)
+      FCT_TEST_BGN(money_del__with_null)
       {
          /* Supply NULL to money_del, and make sure it does nothing. */
          money__del(NULL);

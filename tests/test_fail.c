@@ -12,14 +12,14 @@ This code is designed to fail. It runs tests to confirm that failure conditions 
 
 #include "fct.h"
 
-FCT_BEGIN()
+FCT_BGN()
 {
    /* A very simple test suite, it doesn't have any data to 
    setup/teardown. */
-   FCT_SUITE_BEGIN(should_fail)
+   FCT_SUITE_BGN(should_fail)
    {
       /* A test, simply check that 1 is still 1. */
-      FCT_TEST_BEGIN(false is fail)
+      FCT_TEST_BGN(false is fail)
       {
          fct_chk(0);
       }

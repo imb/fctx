@@ -13,8 +13,8 @@ This simply tests the kernal creation and destruction.
 
 #include "fct.h"
 
-FCT_BEGIN() {
-   FCT_FIXTURE_SUITE_BEGIN(Test_1Suite) {
+FCT_BGN() {
+   FCT_FIXTURE_SUITE_BGN(Test_1Suite) {
 
    } FCT_FIXTURE_SUITE_END();
 } FCT_END();

@@ -14,11 +14,11 @@ TODO - Run this in verbose mode.
 
 #include "fct.h"
 
-FCT_BEGIN()
+FCT_BGN()
 {
    /* An empty test suite that doesn't have any tests within
    it, then confirm that at our count is still zero. */
-   FCT_SUITE_BEGIN(empty)
+   FCT_SUITE_BGN(empty)
    {
    }
    FCT_SUITE_END();
@@ -26,9 +26,9 @@ FCT_BEGIN()
 
    /* Now run a suite again, but place one test in it. Then confirm with
    our gut check. */
-   FCT_SUITE_BEGIN(one_test)
+   FCT_SUITE_BGN(one_test)
    {
-      FCT_TEST_BEGIN(check_one_test)
+      FCT_TEST_BGN(check_one_test)
       {
       }
       FCT_TEST_END();
@@ -39,9 +39,9 @@ FCT_BEGIN()
 
    /* Now again, but with two checks. The gut check should return 3 for the
    number of tests. */
-   FCT_SUITE_BEGIN(one_test_again)
+   FCT_SUITE_BGN(one_test_again)
    {
-      FCT_TEST_BEGIN(check_one_test_again)
+      FCT_TEST_BGN(check_one_test_again)
       {
          fct_chk(1);
          fct_chk(1);
