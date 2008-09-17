@@ -8,6 +8,26 @@ Milestone 1.0 (First Release)
 - Add a command line "parser" object, 
   - Parse and keep track of all the command line.
   - Available via the kernel?
+  - Track "prefixes" in this same object!
+
+  - Use a table to specify and store results. 
+
+    {[FLAG|STORE], "long-opt", "short-opt", def_buf, def_flag, buffer, flag}
+
+    Either we have flags (on/off) or we are storing arguments. The type
+    is defined by the first parameter, the "option" defines the second
+    field.  The buffer|flag is a union, which could be either one,
+    depending on the type of "option" defined in the table...
+
+    Store default buffer, or flag results in there. 
+    
+    FLAG_TRUE or FLAG_FALSE or FLAG_STORE.
+
+  - Walk through the argc, argv "chunking" them up based on the table
+    specifications above.
+
+  - fft_prsr__is_flag("option")
+    fft_prsr__get("option", value, FFT_PRSR_MAX_OPT_LEN);
 
 - Set the logger? Via the command line. 
   --logger-minimal      (-lm)
