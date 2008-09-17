@@ -5,8 +5,8 @@ TODO: Copyright
 TODO: Description ... emulates the testing a "Money" class. 
 */
 
-/* Include the FFT Unit Test framework. */
-#include "fft.h"
+/* Include the FCT Unit Test framework. */
+#include "fct.h"
 
 /* 
 -----------------------------------------------------------------------
@@ -41,29 +41,29 @@ UNIT TESTS
 -----------------------------------------------------------------------
 */
 
-FFT_BEGIN() 
+FCT_BEGIN() 
 {
    
-   FFT_SUITE_BEGIN(money_simple)
+   FCT_SUITE_BEGIN(money_simple)
    {
-      FFT_TEST_BEGIN(money_new_del__basic)
+      FCT_TEST_BEGIN(money_new_del__basic)
       {
          Money_t *m = money_new();
-         fft_chk(m != NULL);
+         fct_chk(m != NULL);
          money__del(m);
       }
-      FFT_TEST_END();
+      FCT_TEST_END();
 
-      FFT_TEST_BEGIN(money_del__with_null)
+      FCT_TEST_BEGIN(money_del__with_null)
       {
          /* Supply NULL to money_del, and make sure it does nothing. */
          money__del(NULL);
       }
-      FFT_TEST_END();
+      FCT_TEST_END();
    }
-   FFT_SUITE_END();
+   FCT_SUITE_END();
 
 
 
 }
-FFT_END();
+FCT_END();

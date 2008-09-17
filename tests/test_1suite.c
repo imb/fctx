@@ -13,30 +13,30 @@ and execution of a test suite.
 
 */
 
-#include "fft.h"
+#include "fct.h"
 
-FFT_BEGIN() 
+FCT_BEGIN() 
 {
-   FFT_FIXTURE_SUITE_BEGIN("1Suite") 
+   FCT_FIXTURE_SUITE_BEGIN("1Suite") 
    {
-         FFT_SETUP_BEGIN() 
+         FCT_SETUP_BEGIN() 
          {
          }
-         FFT_SETUP_END();
+         FCT_SETUP_END();
       
-         FFT_TEARDOWN_BEGIN()
+         FCT_TEARDOWN_BEGIN()
          {
          }
-         FFT_TEARDOWN_END();
+         FCT_TEARDOWN_END();
 
-         FFT_TEST_BEGIN("1Test")
+         FCT_TEST_BEGIN("1Test")
          {
-            fft_chk( strcmp("a", "b") != 0 );
+            fct_chk( strcmp("a", "b") != 0 );
          }
-         FFT_TEST_END();
+         FCT_TEST_END();
 
    } 
-   FFT_FIXTURE_SUITE_END();
+   FCT_FIXTURE_SUITE_END();
 
 } 
-FFT_END();
+FCT_END();

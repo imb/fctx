@@ -10,24 +10,24 @@ File: test_fail.c
 This code is designed to fail. It runs tests to confirm that failure conditions are failing properly.
 */
 
-#include "fft.h"
+#include "fct.h"
 
-FFT_BEGIN()
+FCT_BEGIN()
 {
    /* A very simple test suite, it doesn't have any data to 
    setup/teardown. */
-   FFT_SUITE_BEGIN(should_fail)
+   FCT_SUITE_BEGIN(should_fail)
    {
       /* A test, simply check that 1 is still 1. */
-      FFT_TEST_BEGIN(false is fail)
+      FCT_TEST_BEGIN(false is fail)
       {
-         fft_chk(0);
+         fct_chk(0);
       }
-      FFT_TEST_END();
+      FCT_TEST_END();
    }
-   FFT_SUITE_END();
+   FCT_SUITE_END();
 
 }
-FFT_END();
+FCT_END();
 
 

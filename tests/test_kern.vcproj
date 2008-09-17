@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="test_fftkern"
+	Name="test_kern"
 	ProjectGUID="{47124070-47CB-42DF-83E3-B23406AA8E16}"
-	RootNamespace="test_fftkern"
+	RootNamespace="test_kern"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -87,7 +87,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="$(OutDir)\test_fftkern.exe"
+				CommandLine="$(OutDir)\test_kern.exe"
 			/>
 		</Configuration>
 		<Configuration
@@ -176,7 +176,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\test_fftkern.c"
+				RelativePath=".\test_kern.c"
 				>
 			</File>
 		</Filter>
