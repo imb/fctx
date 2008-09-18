@@ -5,6 +5,56 @@ TODO
 Milestone 1.0 (First Release)
 =============================
 
+
+- Write up documentation.
+  - Finish up the "test_money" class.
+
+- Start a README file.
+  - Include "Goal"
+
+- Chase down all "###" and "TODO" comments, and fix them.
+
+- Test naming conflicts, what happens when two test suites have the same
+  name??
+
+Milestone 1.1 (Cleanup)
+=======================
+
+- (P1) Start a CHANGES file.
+
+- (P1) Write a "manual" check list to make sure everything is working
+  correctly.  Some tests are impossible to test without running it, and
+  requires a manual check.
+
+  - Added a "check.bat" that compiles and executes all the tests in both
+    release and debug mode.
+
+- (P1) Write a HACKING file.
+  - Include "Basic Idea"
+  - Write up a little documentation on the "design" of the framework. A
+    HACKING guide.
+
+- (P1) Port "fct_timer" to other operating systems. Use plain ole time()
+  until I figure something else out.
+
+- (P1) Test with other compilers
+  - gcc?
+
+- (P1) Start up a "SCONS" project, or at least look into it.
+
+- Move all the SLN and VCPROJ files into a sub-directory called "win32",
+  just to seperate the code from the "make files".
+
+MileStone 1.2 (Command Line Args)
+=================================
+
+- (P2) Better command line parsing. 
+  - Need to implement the --help and --version options.
+
+- (P1) Run only a specific test suite by name,
+
+      nut.exe --run-suite some_suite
+
 - Add a command line "parser" object, 
   - Parse and keep track of all the command line.
   - Available via the kernel?
@@ -54,71 +104,7 @@ Milestone 1.0 (First Release)
       - on_nut_start
       - on_nut_end  
 
-- Should be able to "include" other test suites from other files. In
-  other words you should be able to do this,
-
-  BEGIN_TEST_SUITE()
-  {
-     #include "test_suite_a.h"
-     #include "test_suite_b.h"
-  }
-  END_TEST_SUITE();
-
-  I think you can do this now, but need to write up a test case.
-
-- Write up documentation.
-  - Finish up the "test_money" class.
-
-- Start a README file.
-  - Include "Goal"
-
-- Chase down all "###" and "TODO" comments, and fix them.
-
-- Test naming conflicts, what happens when two test suites have the same
-  name??
-
-Milestone 1.1 (Cleanup)
-=======================
-
-- (P1) Start a CHANGES file.
-
-- (P1) Write a "manual" check list to make sure everything is working
-  correctly.  Some tests are impossible to test without running it, and
-  requires a manual check.
-
-  - Added a "check.bat" that compiles and executes all the tests in both
-    release and debug mode.
-
-- (P1) Write a HACKING file.
-  - Include "Basic Idea"
-  - Write up a little documentation on the "design" of the framework. A
-    HACKING guide.
-
-- (P1) Port "fct_timer" to other operating systems.
-
-- (P1) Test with other compilers
-  - gcc?
-
-- (P1) Start up a "SCONS" project, or at least look into it.
-
-- (P1) Run only a specific test suite by name,
-
-      nut.exe --run-suite some_suite
-
-- (P2) Better command line parsing. 
-  - Need to implement the --help and --version options.
-
-- Move all the SLN and VCPROJ files into a sub-directory called "win32",
-  just to seperate the code from the "make files".
-
-- Clean up the code. Consistency throughout.
-
-- Create a sample makefile.
-
-MileStone 1.2 (Stabilize)
-========================
-
-- Hack, hack, hack until we have a very stable release.
+- Write up some rules for creating your own custom logger.
 
 
 Milestone 1.3 (Major Enhancements)

@@ -1,8 +1,15 @@
 /*
+====================================================================
+Copyright (c) 2008 Ian Blumel.  All rights reserved.
+
+This software is licensed as described in the file LICENSE, which
+you should have received as part of this distribution.  
+====================================================================
 File: test_money.c
 
-TODO: Copyright
-TODO: Description ... emulates the testing a "Money" class. 
+Emulates the testing a "Money" class. This is an example of testing
+with something that is a little more "Real World". At least it 
+corresponds to the oft written about class.
 */
 
 /* Include the FCT Unit Test framework. */

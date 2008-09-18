@@ -9,6 +9,9 @@ you should have received as part of this distribution.
 File: fct.h
 */
 
+#if !defined(FCT_INCLUDED__IMB)
+#define FCT_INCLUDED__IMB
+
 /* Define this to remove unneeded WIN32 warnings. We will undefine this at
 the end of the file. */
 #if defined(WIN32) && !defined(_CRT_SECURE_NO_WARNINGS)
@@ -1593,3 +1596,4 @@ here so it doesn't conflict with existing. */
 #endif
 
 
+#endif /* !FCT_INCLUDED__IMB */
