@@ -12,8 +12,6 @@ Milestone 1.0 (First Release)
 - Start a README file.
   - Include "Goal"
 
-- Chase down all "###" and "TODO" comments, and fix them.
-
 - Test naming conflicts, what happens when two test suites have the same
   name??
 

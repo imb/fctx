@@ -817,8 +817,6 @@ fctkern_init(fctkern_t *nk, int argc, char *argv[])
    standard_logger = (fct_logger_i*) fct_standard_logger__new();
    assert( standard_logger != NULL && "no memory!");
 
-   /* TODO: create other loggers, based on command line args. */
-
    fctkern__add_logger(nk, standard_logger);   
    standard_logger = NULL;   /* Owned by the nk list. */
 

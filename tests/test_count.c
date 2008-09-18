@@ -9,7 +9,8 @@ you should have received as part of this distribution.
 Tests "counting" of various elements of a unit test framework. For
 example the number of tests, the number of checks, &etc.
 
-TODO - Run this in verbose mode.
+TODO - Run this in verbose mode. This is currently waiting for 
+the verbose mode to be released. 
 */
 
 #include "fct.h"
