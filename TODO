@@ -5,9 +5,10 @@ TODO
 Milestone 1.0 (First Release)
 =============================
 
-
 - Write up documentation.
   - Finish up the "test_money" class.
+  - Write Quick Start
+  - Write notes about a Fixture test suite.
 
 - Start a README file.
   - Include "Goal"
@@ -17,6 +18,33 @@ Milestone 1.0 (First Release)
 
 Milestone 1.1 (Cleanup)
 =======================
+
+- (P1) Problem with fixtures and resetting values...
+
+   FCT_FIXTURE_SUITE_BGN(money_fixture)
+   {
+      /* These objects are common to each test. */
+      money_t *m12CHF =NULL;
+      money_t *m14CHF =NULL;;
+
+      FCT_SETUP_BGN()
+      {
+
+   consider that after we switch state to "teardown" mode, we will come
+   to the start, and NULLify the contenst of m12CHF and m14CHF. We need
+   a way to make sure we don't re-initiallize the variables.
+   
+    - Start the for loop at the FCT_SETUP_BGN __NOT__ at the
+      FCT_FIXTURE_SUITE_BGN...?
+
+        -- Tried this, it does not work as easily as all that. The main
+        problem is the tracking of braces, and the fact that we never
+        "Kick" out of that for loop when it is part of the SETUP_BGN
+        macro.
+
+    - The working solution is to have a data declartion scope outside of
+      the FIXTURE suite (see test_money.c). Not great, but good enough
+      to postphone the fix to a future release.
 
 - (P1) Start a CHANGES file.
 
@@ -44,6 +72,46 @@ Milestone 1.1 (Cleanup)
   just to seperate the code from the "make files".
 
 MileStone 1.2 (Command Line Args)
+=================================  
+
+- (P1) Expand the "chk" interface (also expand the test_money example to
+  use it).
+
+  - fct_eq_*
+    These will compare two "fundamental" objects together and return
+    true if they 
+
+     - fct_eq_str("a", "b");
+     - fct_eq_int(1, 2);
+     - fct_eq_dbl(1., 1.2);
+
+     - fct_neq_str("a", "b");
+     - fct_neq_int(...
+     - fct_neq_dbl(...
+
+     - consider "longs", "void*" (see below), floats, &etc.
+       - Maybe build the types out of macros, and create happy versions
+         of some of the common ones?
+
+     - (optional) a generic compare...
+     
+         fct_eq(
+             void*, void*, 
+             int (*eq)(void*, void*), 
+             void (*repr)(char *buffer, size_t len));
+
+         fct_eq(money, money, money_eq, money_repr);
+
+         Could display
+
+             "<money 12 CDN> != <money 14 CDN>"
+
+          where the repr function build the "<money ..>" objects.
+
+
+
+
+MileStone 1.3 (Command Line Args)
 =================================
 
 - (P2) Better command line parsing. 
@@ -105,7 +173,7 @@ MileStone 1.2 (Command Line Args)
 - Write up some rules for creating your own custom logger.
 
 
-Milestone 1.3 (Major Enhancements)
+Milestone 1.4 (Major Enhancements)
 ==================================
 
 - (P3) Make the NList GROWTH rate proportional to its size. The bigger
