@@ -1378,16 +1378,25 @@ fct_standard_logger__on_fct_end(fct_logger_i *logger_, fctkern_t const *nk)
 
    num_tests = fctkern__tst_cnt(nk);
    num_passed = fctkern__tst_cnt_passed(nk);
-   
-   elasped_time = end_time - logger->start_time;
-   
+
    printf(
-      "%s (%d/%d tests in %.6fs)", 
+      "%s (%d/%d tests", 
       (is_success) ? "PASSED" : "FAILED",
       num_passed,
-      num_tests,
-      elasped_time
-      );
+      num_tests
+   );
+
+   
+   elasped_time = end_time - logger->start_time;
+   if ( elasped_time > 0.0000001 )
+   {
+      printf(" in %.6fs)\n", elasped_time);
+   }
+   else
+   {
+      /* Don't bother displaying the time to execute. */
+      printf(")\n");
+   }
 }
 
 static void
@@ -1549,59 +1558,6 @@ check fails, we can "break" out to the end of the test. */
          }
 
 
-/* This macro is used to workaround the data-declaration problem with
-FIXTURE test suites. The problems stems from the fact that we can not
-currently declare AND reuse any variables as in the following,
-
-  FCT_FIXTURE_SUITE_BGN(obj_fixture)
-  {
-      obj_t *obj; // <- I am reset through each pass of the FSM 
-      FCT_SETUP_BGN()
-
-each time the Finite State Machine rolls through the test suite, it 
-will get an entirely NEW value for the obj pointer. This means we
-can't work with the same data in the SETUP and TEARDOWN blocks.
-
-The solution is a bit of a placebo, in so far as we declare a block
-outside of the FIXTURE's scope as in,
-   
-   FCT_FIXTURE_SUITE_DECL()
-   {
-      obj_t *obj;
-      FCT_FIXTURE_SUITE_BGN(obj_fixture)
-      {
-         FCT_SETUP_BGN()
-         {
-            obj = obj_new();
-         }
-         FCT_SETUP_END()
-         FCT_TEARDOWN_BGN()
-         {
-            obj__del(obj);
-            obj =NULL;
-         }
-         FCT_TEARDOWN_END();
-
-         FCT_TEST_BGN(do_test)
-         {
-            fct_chk( obj__is_something_true(obj) );
-         }
-         FCT_TEST_END();
-      }
-      FCT_FIXTURE_END()
-   }
-  
-now we have a pointer to an "obj" that remains consistent through
-each loop of the FSM. This allows the setup, teardown, and test blocks
-to all modify the same data pointer.
-
-Look up the TEST SUITE object (fct_ts_t) for more infomation about the 
-FSM.
-
-This is a workaround until we can find a better solution in a later
-release.
-*/
-#define FCT_FIXTURE_SUITE_DECL() 
 
 /*
 ---------------------------------------------------------

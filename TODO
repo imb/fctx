@@ -7,6 +7,9 @@ Milestone 1.0 (First Release)
 
 - Write up documentation.
   - Finish up the "test_money" class.
+    - Need to write tests for "MoneyBag".
+    - Create an imoney interface, to abstract the concept of "money".
+
   - Write Quick Start
   - Write notes about a Fixture test suite.
 
@@ -18,33 +21,6 @@ Milestone 1.0 (First Release)
 
 Milestone 1.1 (Cleanup)
 =======================
-
-- (P1) Problem with fixtures and resetting values...
-
-   FCT_FIXTURE_SUITE_BGN(money_fixture)
-   {
-      /* These objects are common to each test. */
-      money_t *m12CHF =NULL;
-      money_t *m14CHF =NULL;;
-
-      FCT_SETUP_BGN()
-      {
-
-   consider that after we switch state to "teardown" mode, we will come
-   to the start, and NULLify the contenst of m12CHF and m14CHF. We need
-   a way to make sure we don't re-initiallize the variables.
-   
-    - Start the for loop at the FCT_SETUP_BGN __NOT__ at the
-      FCT_FIXTURE_SUITE_BGN...?
-
-        -- Tried this, it does not work as easily as all that. The main
-        problem is the tracking of braces, and the fact that we never
-        "Kick" out of that for loop when it is part of the SETUP_BGN
-        macro.
-
-    - The working solution is to have a data declartion scope outside of
-      the FIXTURE suite (see test_money.c). Not great, but good enough
-      to postphone the fix to a future release.
 
 - (P1) Start a CHANGES file.
 
