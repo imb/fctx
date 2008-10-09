@@ -13,12 +13,10 @@ File: fct.h
 #define FCT_INCLUDED__IMB
 
 /* Define this to remove unneeded WIN32 warnings. We will undefine this at
-the end of the file. */
+the end of the file so as not to interfere with your build. */
 #if defined(WIN32) && !defined(_CRT_SECURE_NO_WARNINGS)
 #  define _CRT_SECURE_NO_WARNINGS
 #endif
-
-
 
 #include <string.h>
 #include <assert.h>
@@ -36,9 +34,9 @@ the end of the file. */
 #define FCT_TRUE   1
 #define FCT_FALSE  0
 
-/* Forward declarations. The following forward declarations are required because
-there is a inter-relationship between certain objects that just can not be 
-untwined. */
+/* Forward declarations. The following forward declarations are required
+because there is a inter-relationship between certain objects that 
+just can not be untwined. */
 typedef struct _fct_logger_i fct_logger_i;
 typedef struct _fct_standard_logger_t fct_standard_logger_t;
 typedef struct _fct_minimal_logger_t fct_minimal_logger_t;
@@ -84,17 +82,12 @@ fct_logger__on_fct_end(fct_logger_i *logger, fctkern_t const *kern);
 
 /* This is just a little trick to let me put comments inside of macros. I
 really only want to bother with this when we are "unwinding" the macros
-for debugging purposes.
-*/
+for debugging purposes. */
 #if defined(FCT_CONF_UNWIND)
 #	define _fct_cmt(string)		{char*_=string;} 
 #else
 #	define _fct_cmt(string)
 #endif
-
-/* To help with debugging macros as well, some primitive print statements
-go a long way.
-*/
 
 /* 
 -------------------------------------------------------- 
@@ -102,7 +95,7 @@ UTILITIES
 -------------------------------------------------------- 
 */
 
-/* Utility for truncated string copies. */
+/* Utility for truncated, safe string copies. */
 static void
 fct_safe_str_cpy(char *dst, char const *src, size_t num)
 {
@@ -211,7 +204,7 @@ at a reasonable size. */
 /* Helper macros for quickly iterating through a list. You should be able
 to do something like,
 
-  NLIST_FOREACH_BGN(fct_logger_i, logger, my_list)
+  NLIST_FOREACH_BGN(fct_logger_i*, logger, my_list)
   {
      fct_logger__on_blah(logger);
   }
@@ -270,7 +263,7 @@ nlist__del(nlist_t *list, void (*on_del)(void*))
    if ( list == NULL ) { return; }
 
    /* Walk through the list applying the destroy function, if it was 
-   defined */
+   defined. */
    if ( on_del != NULL )
    {
       for ( itm_i =0; itm_i != list->used_itm_num; ++itm_i )
@@ -396,8 +389,9 @@ list of failed and passed checks.
 */
 
 struct _fct_test_t {
-   /* List of failed and passed "checks" (fctchk_t). 
-   XXX - Might be wiser to keep these as one list? */
+   /* List of failed and passed "checks" (fctchk_t). Two seperate
+   lists make it faster to determine how many checks passed and how
+   many checks failed. */
    nlist_t *failed_chks;
    nlist_t *passed_chks;
 
@@ -440,8 +434,6 @@ fct_test__add(fct_test_t *test, fctchk_t *chk)
    assert( test != NULL );
    assert( chk != NULL );
 
-   /* XXX - Better to have one list, and let the "chk" object track 
-   its state? */
    if ( fctchk__is_pass(chk) )
    {
       nlist__append(test->passed_chks, (void*)chk);
@@ -495,16 +487,13 @@ start      |                              [if no more tests]
                       +-----------<---------------+ 
 */    
 enum ts_mode {
-   ts_mode_cnt,       // To setup when done counting.
-   ts_mode_setup,       // To test when done setup.
-   ts_mode_teardown,    // To ending mode, when no more tests.
-   ts_mode_test,        // To tear down mode.
-   ts_mode_ending,      // To ... 
-   ts_mode_end          // .. The End.
+   ts_mode_cnt,         /* To setup when done counting. */
+   ts_mode_setup,       /* To test when done setup. */
+   ts_mode_teardown,    /* To ending mode, when no more tests. */
+   ts_mode_test,        /* To tear down mode. */
+   ts_mode_ending,      /* To ... */
+   ts_mode_end          /* .. The End. */
 };
-
-#define fct__logger_list(ZUT) ((ZUT)->logger_list)
-#define fct__prefix_list(ZUT) ((ZUT)->prefix_list)
 
 /* Types of modes the test could be in. */
 typedef enum {
@@ -562,7 +551,8 @@ fct_ts__del(fct_ts_t *ts) {
 }
 
 /* Flag a test suite as complete. It will no longer accept any more tests. */
-#define fct_ts__end(ts)               ((ts)->mode == ts_mode_end)
+#define fct_ts__end(_TS_)  ((_TS_)->mode == ts_mode_end)
+
 
 static nbool_t
 fct_ts__is_more_tests(fct_ts_t const *ts) {
@@ -578,6 +568,7 @@ fct_ts__test_begin(fct_ts_t *ts) {
    assert( !fct_ts__is_end(ts) );
    ++(ts->curr_test_num);
 }
+
 
 /* Takes OWNERSHIP of a test object, and warehouses it for later stat
 generation. */
@@ -653,8 +644,8 @@ fct_ts__teardown_end(fct_ts_t *ts)
 
 /* Flags the end of the counting, and proceeding to the first setup. 
 Consider the special case when a test suite has NO tests in it, in
-that case we will have a current count that is less than zero, 
-in which case we can skip right to 'ending'. */
+that case we will have a current count that is zero, in which case
+we can skip right to 'ending'. */
 static void
 fct_ts__cnt_end(fct_ts_t *ts)
 {
@@ -694,6 +685,7 @@ fct_ts__tst_cnt(fct_ts_t const *ts)
    return nlist__size(ts->test_list);
 }
 
+
 /* Returns the # of tests in the TS object that passed. */
 static int
 fct_ts__tst_cnt_passed(fct_ts_t const *ts)
@@ -731,6 +723,7 @@ fct_ts__chk_cnt(fct_ts_t const *ts)
    return tally;
 }
 
+
 /* 
 -------------------------------------------------------- 
 FCT KERNAL
@@ -755,6 +748,7 @@ struct _fctkern_t
    testing process. */
    nlist_t *ts_list;
 };
+
 
 /* Returns the number of filters defined for the fct kernal. */
 #define fctkern__filter_cnt(_NK_) (nlist__size((_NK_)->prefix_list))
@@ -792,6 +786,7 @@ fctkern__add_prefix_filter(fctkern_t const *fct, char const *prefix_filter)
 
    nlist__append(fct->prefix_list, (void*)filter);
 }
+
 
 /* Parses the command line and sets up the framework. The argc and argv 
 should be directly from the program's  main. */
@@ -842,7 +837,7 @@ fctkern__add_ts(fctkern_t *nk, fct_ts_t *ts) {
 
 
 
-/* Returns FCT_TRUE if the supplied `test_name` passes the filters set on
+/* Returns FCT_TRUE if the supplied test_name passes the filters set on
 this test suite. If there are no filters, we return FCT_TRUE always. */
 static nbool_t
 fctkern__pass_filter(fctkern_t *nk, char const *test_name) {
@@ -878,7 +873,7 @@ fctkern__pass_filter(fctkern_t *nk, char const *test_name) {
 }
 
 
-/* Returns the # of tests that were performed. */
+/* Returns the number of tests that were performed. */
 static int
 fctkern__tst_cnt(fctkern_t const *nk)
 {
@@ -893,7 +888,7 @@ fctkern__tst_cnt(fctkern_t const *nk)
    return tally;
 }
 
-/* Returns the # of tests that passed. */
+/* Returns the number of tests that passed. */
 static int
 fctkern__tst_cnt_passed(fctkern_t const *nk)
 {
@@ -909,7 +904,8 @@ fctkern__tst_cnt_passed(fctkern_t const *nk)
    return tally;
 }
 
-/* Returns the # Of tests that failed. */
+
+/* Returns the number of tests that failed. */
 static int
 fctkern__tst_cnt_failed(fctkern_t const *nk)
 {
@@ -929,7 +925,7 @@ fctkern__tst_cnt_failed(fctkern_t const *nk)
 }
 
 
-/* Returns the # of checks made throughout the entire test. */
+/* Returns the number of checks made throughout the entire test. */
 static int
 fctkern__chk_cnt(fctkern_t const *nk)
 {
@@ -967,6 +963,7 @@ fctkern__final(fctkern_t *fct)
    nlist__del(fct->ts_list, fct_ts__del);
 }
 
+
 static void
 fctkern__log_suite_start(fctkern_t *kern, fct_ts_t const *ts)
 {
@@ -993,9 +990,6 @@ fctkern__log_suite_end(fctkern_t *kern, fct_ts_t const *ts)
 }
 
 
-/* Called whenever a check is made in a test. The `cndtn` is the test in string format,
-it must not be NULL. The `file` and `lineno` parameters correspond to the 
-__FILE__ and __LINE__ pre-processor macros. */
 static void
 fctkern__log_chk(fctkern_t *kern, fctchk_t const *chk)
 {
@@ -1048,6 +1042,7 @@ fctkern__log_start(fctkern_t *kern)
    NLIST_FOREACH_END();
 }
 
+
 static void
 fctkern__log_end(fctkern_t *kern)
 {
@@ -1058,6 +1053,7 @@ fctkern__log_end(fctkern_t *kern)
    }
    NLIST_FOREACH_END();
 }
+
 
 /*
 -----------------------------------------------------------
@@ -1165,6 +1161,7 @@ fct_logger__on_test_suite_end(fct_logger_i *logger, fct_ts_t const *ts)
    }
 }
 
+
 static void
 fct_logger__on_cndtn(fct_logger_i *logger, fctchk_t const *chk)
 {
@@ -1266,6 +1263,7 @@ struct _fct_standard_logger_t {
    nlist_t *failed_cndtns_list;
 };
 
+
 /* When a failure occurrs, we will record the details so we can display
 them when the log "finishes" up. */
 static void
@@ -1307,6 +1305,7 @@ fct_standard_logger__on_test_start(fct_logger_i *logger_,
    printf("%s ... ", fct_test__name(test));
 }
 
+
 static void
 fct_standard_logger__on_test_end(fct_logger_i *logger_, 
                                    fct_test_t const *test)
@@ -1315,9 +1314,9 @@ fct_standard_logger__on_test_end(fct_logger_i *logger_,
    fct_unused(logger_);
 
    is_pass = fct_test__is_pass(test);
-
    printf("%s\n", (is_pass) ? "PASS" : "FAIL" );
 }
+
 
 static void
 fct_standard_logger__on_test_suite_start(fct_logger_i *logger_, 
@@ -1335,6 +1334,7 @@ fct_standard_logger__on_test_suite_end(fct_logger_i *logger_,
    fct_unused(logger_);
    fct_unused(ts);
 }
+
 
 static void
 fct_standard_logger__on_fct_start(fct_logger_i *logger_, 
@@ -1399,6 +1399,7 @@ fct_standard_logger__on_fct_end(fct_logger_i *logger_, fctkern_t const *nk)
    }
 }
 
+
 static void
 fct_standard_logger__del(fct_logger_i *logger_)
 {
@@ -1413,6 +1414,7 @@ fct_standard_logger__del(fct_logger_i *logger_)
    free(logger);
    logger_ =NULL;
 }
+
 
 fct_standard_logger_t *
 fct_standard_logger__new(void)
@@ -1521,7 +1523,7 @@ do it by 'stubbing' out the setup/teardown logic. */
 
 #define FCT_SUITE_END() } FCT_FIXTURE_SUITE_END()
 
-/* A depending on whether or not we are counting the tests, we will have to 
+/* Depending on whether or not we are counting the tests, we will have to 
 first determine if the test is the "current" count. Then we have to determine
 if we can pass the filter. Finally we will execute everything so that when a 
 check fails, we can "break" out to the end of the test. */
@@ -1563,6 +1565,9 @@ check fails, we can "break" out to the end of the test. */
 ---------------------------------------------------------
 CHECKING MACROS
 ---------------------------------------------------------- 
+
+For now we only have the one "positive" check macro. In the future I plan
+to add more macros that check for different types of common conditions.
 */
 
 #define fct_chk(_CNDTN_) \
@@ -1582,7 +1587,7 @@ GUT CHECK MACROS
 ---------------------------------------------------------- 
 
 The following macros are used to help check the "guts" of
-the Nut, and to confirm that it all works according to spec.
+the FCT, and to confirm that it all works according to spec.
 */
 
 /* Generates a message to STDERR and exits the application with a 
@@ -1597,11 +1602,16 @@ non-zero number. */
    }
       
 
+/*
+---------------------------------------------------------
+CLOSING STATEMENTS
+---------------------------------------------------------- 
+*/
+
 /* This is defined at the start of the file. We are undefining it
 here so it doesn't conflict with existing. */
 #if defined(WIN32)
 #   undef _CRT_SECURE_NO_WARNINGS
 #endif
-
 
 #endif /* !FCT_INCLUDED__IMB */

@@ -17,26 +17,32 @@ and execution of a test suite.
 
 FCT_BGN() 
 {
-   FCT_FIXTURE_SUITE_BGN("1Suite") 
-   {
-         FCT_SETUP_BGN() 
+      { 
+         void *data =NULL;
+         FCT_FIXTURE_SUITE_BGN("1Suite") 
          {
-         }
-         FCT_SETUP_END();
-      
-         FCT_TEARDOWN_BGN()
-         {
-         }
-         FCT_TEARDOWN_END();
+               FCT_SETUP_BGN() 
+               {
+                  data = malloc(sizeof(10));
+               }
+               FCT_SETUP_END();
+            
+               FCT_TEARDOWN_BGN()
+               {
+                  free(data);
+                  data =NULL;
+               }
+               FCT_TEARDOWN_END();
 
-         FCT_TEST_BGN("1Test")
-         {
-            fct_chk( strcmp("a", "b") != 0 );
-         }
-         FCT_TEST_END();
+               FCT_TEST_BGN("1Test")
+               {
+                  fct_chk( strcmp("a", "b") != 0 );
+               }
+               FCT_TEST_END();
 
-   } 
-   FCT_FIXTURE_SUITE_END();
+         } 
+         FCT_FIXTURE_SUITE_END();
+      }
 
 } 
 FCT_END();
