@@ -7,3 +7,5 @@ ChangeLog
 diff
 test_big.c
 *.i
+*.exe
+.sconsign.dblite

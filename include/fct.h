@@ -252,11 +252,13 @@ nlist_new(void)
    return list;
 }
 
+typedef void (*on_del_t)(void*);
+
 /* Cleans up list, and applies `on_del` to each item in the list. 
 If on_del is NULL, it will not be applied. If `list` is NULL this
 function does nothing. */
 static void
-nlist__del(nlist_t *list, void (*on_del)(void*))
+nlist__del(nlist_t *list, on_del_t on_del)
 {
    size_t itm_i =0;
 
@@ -457,8 +459,8 @@ static void
 fct_test__del(fct_test_t *test)
 {
    if (test == NULL ) { return; }
-   nlist__del(test->passed_chks, fctchk__del);
-   nlist__del(test->failed_chks, fctchk__del);
+   nlist__del(test->passed_chks, (on_del_t)fctchk__del);
+   nlist__del(test->failed_chks, (on_del_t)fctchk__del);
 }
 
 
@@ -501,7 +503,7 @@ typedef enum {
    fct_test_status_FAILURE
 } fct_test_status;
 
-typedef struct _fct_ts_t fct_ts_t;
+
 struct _fct_ts_t {
    /* For counting our 'current' test number, and the total number of 
    tests. */
@@ -733,9 +735,7 @@ The "fctkern" is a singleton that is defined throughout the
 system. 
 */
 
-typedef struct _fctkern_t fctkern_t;
-struct _fctkern_t
-{
+struct _fctkern_t {
    /* This is an list of loggers that can be used in the fct system. 
    You/ can attach _MAX_LOGGERS to any framework. */
    nlist_t *logger_list;
@@ -955,12 +955,12 @@ fctkern__final(fctkern_t *fct)
 {
    if ( fct == NULL ) { return; }
 
-   nlist__del(fct->logger_list, fct_logger__del);
+   nlist__del(fct->logger_list, (on_del_t)fct_logger__del);
 
    /* The prefix list is a list of malloc'd strings. */
-   nlist__del(fct->prefix_list, free);
+   nlist__del(fct->prefix_list, (on_del_t)free);
 
-   nlist__del(fct->ts_list, fct_ts__del);
+   nlist__del(fct->ts_list, (on_del_t)fct_ts__del);
 }
 
 
@@ -1252,7 +1252,6 @@ STANDARD LOGGER
 -----------------------------------------------------------
 */
 
-typedef struct _fct_standard_logger_t fct_standard_logger_t;
 struct _fct_standard_logger_t {
    _fct_logger_head;
 

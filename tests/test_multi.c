@@ -18,3 +18,4 @@ FCT_BGN()
 #include "test_multi_suite_b.h"
 }
 FCT_END();
+

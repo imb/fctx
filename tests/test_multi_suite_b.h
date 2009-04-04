@@ -30,3 +30,4 @@ FCT_SUITE_BGN(multi_b)
    FCT_TEST_END();
 }
 FCT_SUITE_END()
+
