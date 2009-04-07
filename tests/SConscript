@@ -9,28 +9,41 @@
 # 
 # file: SConscript
 
+import subprocess
 import os
 
+# =====
 # Setup
+# =====
 
 Repository("tests")
 env = Environment(CPPPATH=["..\include"])
 
-# Standard Tests
+# ======================
+# Compile Standard Tests
+# ======================
 
-env.Program("test_basic.c")
-env.Program("test_1suite.c")
-env.Program("test_count.c")
-env.Program("test_kern.c")
-env.Program("test_fail.c")
-env.Program("test_money.c")
-env.Program("test_multi.c")
+# List file names and whether or not they are supposed to pass.
+files = {
+  "test_basic":True,
+  "test_1suite":True,
+  "test_count":True,
+  "test_kern":True,
+  "test_fail":False,
+  "test_money":True,
+  "test_multi":True,
+}
+
+programs = []
+for f in files.keys():
+   fname = "%s.c" % (f)
+   p = env.Program(fname)
+   programs.append(p)
 
 # Tests involves building a program first. Really we can do this
 # via the python WITHIN the SCONS script, but this is also an 
 # exercise in learning what we can do with SCONS.
 
-import os
 def run_mkbigtest(target=None, source=None, env=None):
    dir_, prgm = os.path.split(target[0].abspath)
    cwd = os.getcwd()
@@ -43,3 +56,36 @@ env.AddPostAction(mkbigtest, run_mkbigtest)
 
 test_big = env.Program("test_big.c")
 Depends(test_big, mkbigtest)
+
+# Add it to the testing list.
+files["test_big"] = True
+programs.append(test_big)
+
+# ==================
+# Run Standard Tests
+# ==================
+
+# Command task based on http://www.scons.org/wiki/UnitTests, and apparently
+# inspired by the Boost V2 system. This will set a file stamp if the test
+# ran correctly (the target), thus ensuring that tests don't repeat 
+# themselves unless they have been rebuilt. The "is_pass" was added
+# to allow me to make sure failing tests continue to fail (as they are
+# supposed to), and passing tests pass.
+def run_unit_test(target=None, source=None, env=None, is_pass=True):
+    app = str(source[0].abspath)
+    out = str(target[0])
+    ok = subprocess.call(app) == 0
+    if (is_pass and ok) or (not is_pass and not ok):
+        open(out, "w").write("PASSED\n")
+
+# Load up our programs. Use a lambda to help us pass along another argument.
+for p in programs:
+   n, _0 = os.path.splitext(str(p[0]))
+   is_pass = files[n] 
+   cmd = Command(
+       "%s.passed" % (n), 
+       p,
+       lambda env=None, target=None, source=None, is_pass=is_pass: \
+           run_unit_test(target, source, env, is_pass)
+   )
+   Alias(n, cmd)
