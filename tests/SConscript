@@ -32,6 +32,7 @@ files = {
   "test_fail":False,
   "test_money":True,
   "test_multi":True,
+  "test_two_names":True,
 }
 
 programs = []
