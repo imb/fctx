@@ -60,16 +60,10 @@ What follows an overly simple example of testing.
 
   /* Include your API. In this case we are going to test strcmp. */
   #include <string.h>
-    FCT_VERY_QUICK(Testing)
-    {
-       FCT_CHECK( ok );    // This should fail, with a hint!
-    }
-    FCT_SUITE_END()
 
   /* Now lets define our testing scope. */
   FCT_BGN()
   {
-
      /* A simple test case. No setup/teardown. */
      FCT_SUITE_BGN(simple)
      {
