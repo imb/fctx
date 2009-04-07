@@ -161,5 +161,8 @@ associated with generating tests in C and C++.
 Building
 --------
 
-Its just a header, simply include into your test file, and run the compiler.
+Its just a header, simply include into your test file, and run the compiler. 
 
+To build the tests distributed with this package you will need to install
+SCONS. From the "fct" directory run "scons", and it will compile and execute
+each of the test programs within the "tests" subdirectory.
