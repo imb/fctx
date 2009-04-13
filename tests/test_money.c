@@ -132,7 +132,7 @@ money_eq(money_t const *money1, money_t const *money2)
    This also catches the case when they are both NULL. */
    if ( money1 == money2 ) 
    {
-      return TRUE; 
+      return 1; 
    }
 
    /* If money1 XOR money2 are NULL, then we kick out. */
@@ -141,7 +141,7 @@ money_eq(money_t const *money1, money_t const *money2)
       || (money1 != NULL && money2 == NULL) 
       )
    {
-      return FALSE;
+      return 0;
    }
 
    /* At this point we shouldn't have any NULL money objects. */
@@ -151,7 +151,7 @@ money_eq(money_t const *money1, money_t const *money2)
    is_same_amt = money__amount(money1) == money__amount(money2);
    if ( !is_same_amt )
    {
-      return FALSE;
+      return 0;
    }
 
    is_same_curr = money_curr_eq(money1, money2);
