@@ -173,20 +173,49 @@ fct_real_eq(double v1, double v2)
    return (nbool_t)(fabs(v1 - v2) < DBL_EPSILON);
 }
 
-/* Trying to port the "tick" count code across operating systems.
-For now I only have an "Windows" implementation. The implementation
-should always define the "time" in terms of seconds. */
-#if defined(WIN32)
-#include <windows.h>
-double
-fct_timer(void)
-{
-   unsigned int now = GetTickCount();
-   return now / 1000.0; /* milliseconds -> seconds */
+/* 
+-------------------------------------------------------- 
+TIMER
+-------------------------------------------------------- 
+*/
+
+typedef struct _fct_timer_t fct_timer_t;
+struct _fct_timer_t {
+    clock_t start;
+    clock_t stop;
+    double duration;
+};
+
+
+static void
+fct_timer__init(fct_timer_t *timer) {
+    assert(timer != NULL);
+    memset(timer, 0, sizeof(fct_timer_t));
 }
-#else
-#error "No effective timing function for this operating system."
-#endif
+
+
+static void
+fct_timer__start(fct_timer_t *timer) {
+    assert(timer != NULL);
+    timer->start = clock();
+}
+
+
+static void
+fct_timer__stop(fct_timer_t *timer) {
+    assert(timer != NULL);
+    timer->stop = clock();
+    timer->duration = (double) (timer->stop - timer->start) / CLOCKS_PER_SEC;
+}
+
+
+/* Returns the time in seconds. */
+static double
+fct_timer__duration(fct_timer_t *timer) {
+    assert( timer != NULL );
+    return timer->duration;   
+}
+
 
 /* 
 -------------------------------------------------------- 
@@ -1256,7 +1285,7 @@ struct _fct_standard_logger_t {
    _fct_logger_head;
 
    /* Start time. For now we use the low-accuracy time_t version. */
-   double start_time;
+   fct_timer_t timer;
 
    /* A list of char*'s that needs to be cleaned up. */
    nlist_t *failed_cndtns_list;
@@ -1341,7 +1370,7 @@ fct_standard_logger__on_fct_start(fct_logger_i *logger_,
 {
    fct_standard_logger_t *logger = (fct_standard_logger_t*)logger_;
    fct_unused(nk);
-   logger->start_time = fct_timer();
+   fct_timer__start(&(logger->timer));
 }
 
 
@@ -1355,8 +1384,8 @@ fct_standard_logger__on_fct_end(fct_logger_i *logger_, fctkern_t const *nk)
    int num_tests =0;
    int num_passed =0;
 
-   end_time = fct_timer();
-   
+   fct_timer__stop(&(logger->timer));
+     
    is_success = nlist__size(logger->failed_cndtns_list) ==0;
 
    if (  !is_success )
@@ -1385,8 +1414,7 @@ fct_standard_logger__on_fct_end(fct_logger_i *logger_, fctkern_t const *nk)
       num_tests
    );
 
-   
-   elasped_time = end_time - logger->start_time;
+   elasped_time = fct_timer__duration(&(logger->timer));
    if ( elasped_time > 0.0000001 )
    {
       printf(" in %.6fs)\n", elasped_time);
@@ -1435,6 +1463,8 @@ fct_standard_logger__new(void)
 
    logger->failed_cndtns_list = nlist_new();
    assert( logger->failed_cndtns_list != NULL );
+   
+   fct_timer__init(&(logger->timer));
 
    return logger;
 }
