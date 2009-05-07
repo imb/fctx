@@ -5,6 +5,8 @@ TODO
 Milestone 1.1 (Cleanup)
 =======================
 
+- (P1) Add a FCT_VERSION scheme.
+
 - (P1) Start a CHANGES file.
 
 - (P1) Write a "manual" check list to make sure everything is working
