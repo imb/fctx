@@ -18,28 +18,24 @@ Milestone 1.1 (Cleanup)
   - Include "Basic Idea"
   - Write up a little documentation on the "design" of the framework. A
     HACKING guide.
-
-- (P1) Port "fct_timer" to other operating systems. Use plain ole time()
-  until I figure something else out.
-
-- (P1) Test with other compilers
-  - gcc?
+  - Implement and document how to "extend" you own logger.
 
 - (P2) Start up a more involved documentation project.
 
-- (P1) Start up a "SCONS" project, or at least look into it.
-
-- (P1) Implement and document how to "extend" you own logger.
+- (P1) Start up a "CMAKE" project, or at least look into it. I am not
+  happy with the existing SCONS project.
 
 - (P2) Clean up the low-budget memory checks. THe ones that use 
 
      assert( var != NULL && "out of memory!");
 
-  becaues those aren't with us during a release! We need to be able to
-  play well in a test environment that may be stressing the system.
+  because those aren't with us during a release! We need to be able to
+  play well in a test environment that may be stressing the system. Maybe
+  enable a "kill_if" system.
 
 - Move all the SLN and VCPROJ files into a sub-directory called "win32",
-  just to seperate the code from the "make files".
+  just to seperate the code from the "make files". If CMAKE is successful,
+  use CMAKE to generate the project files (and still keep them in the repo).
 
 
 MileStone 1.2 (Easier Use)
