@@ -24,9 +24,6 @@ Milestone 1.1 (Cleanup)
 
 - (P2) Start up a more involved documentation project.
 
-- (P1) Start up a "CMAKE" project, or at least look into it. I am not
-  happy with the existing SCONS project.
-
 - (P2) Clean up the low-budget memory checks. THe ones that use 
 
      assert( var != NULL && "out of memory!");
