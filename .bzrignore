@@ -10,3 +10,9 @@ test_big.c
 *.exe
 .sconsign.dblite
 *.passed
+CMakeCache.txt
+*.cmake
+Makefile
+CMakeFiles
+Testing
+tests/CMakeFiles

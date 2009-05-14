@@ -155,8 +155,41 @@ associated with generating tests in C and C++.
 Building
 --------
 
-Its just a header, simply include into your test file, and run the compiler. 
+Build your Own Test Suite
+-------------------------
 
-To build the tests distributed with this package you will need to install
-SCONS. From the "fct" directory run "scons", and it will compile and execute
-each of the test programs within the "tests" subdirectory.
+To build your own test suite: Its just a header, include into your test 
+file, and run the compiler. 
+
+Build the FCT Tests
+-------------------
+
+To build the tests themselves: use CMAKE (http://www.cmake.org/). On Linux
+or similar system do something like this (from the root source directory),
+
+   mkdir build
+   cd build
+   cmake ../
+
+At this point you should have a Makefile in your "build" directory. 
+Type "make help" for a list of targets.
+
+On a Win32 Machine it depends what you want to ultimately work with. 
+The following example illustrates creating a Visual Studio 9 solution.
+
+   mkdir msw
+   cd msw
+   cmake -G"Visual Studio 9 2008" ..\
+
+At this point you should have a FCT.sln file within your MSW directory.
+If you wanted to generate a different project, type:
+
+   cmake --help
+
+To get list of generators. For example, if you wanted to use MinGW, 
+you could do something like,
+
+   mkdir mingw
+   cmake -G"MinGW Makefiles" ..\
+
+and now you will have a Makefile configured to compile with MinGW.
