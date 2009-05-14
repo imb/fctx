@@ -5,12 +5,8 @@ TODO
 Milestone 1.1 (Cleanup)
 =======================
 
-- (P1) Write a "manual" check list to make sure everything is working
-  correctly.  Some tests are impossible to test without running it, and
-  requires a manual check.
-
-  - Added a "check.bat" that compiles and executes all the tests in both
-    release and debug mode.
+- (P1) Need to specify flags for RELEASE and DEBUG configurations. Namely 
+  for the makefile generated files that come from CMAKE.
 
 - (P1) Write a HACKING file.
   - Include "Basic Idea"
