@@ -44,6 +44,11 @@ File: fct.h
 #if !defined(FCT_INCLUDED__IMB)
 #define FCT_INCLUDED__IMB
 
+#define FCT_VERSION_STR   "1.1.0"
+#define FCT_VERSION_MAJOR 1
+#define FCT_VERSION_MINOR 1
+#define FCT_VERSION_MICRO 0
+
 /* Define this to remove unneeded WIN32 warnings. We will undefine this at
 the end of the file so as not to interfere with your build. */
 #if defined(WIN32) && !defined(_CRT_SECURE_NO_WARNINGS)

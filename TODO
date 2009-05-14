@@ -5,10 +5,6 @@ TODO
 Milestone 1.1 (Cleanup)
 =======================
 
-- (P1) Add a FCT_VERSION scheme.
-
-- (P1) Start a CHANGES file.
-
 - (P1) Write a "manual" check list to make sure everything is working
   correctly.  Some tests are impossible to test without running it, and
   requires a manual check.
@@ -24,17 +20,13 @@ Milestone 1.1 (Cleanup)
 
 - (P2) Start up a more involved documentation project.
 
-- (P2) Clean up the low-budget memory checks. THe ones that use 
+- (P2) Clean up the low-budget memory checks. The ones that use 
 
      assert( var != NULL && "out of memory!");
 
   because those aren't with us during a release! We need to be able to
   play well in a test environment that may be stressing the system. Maybe
   enable a "kill_if" system.
-
-- Move all the SLN and VCPROJ files into a sub-directory called "win32",
-  just to seperate the code from the "make files". If CMAKE is successful,
-  use CMAKE to generate the project files (and still keep them in the repo).
 
 
 MileStone 1.2 (Easier Use)

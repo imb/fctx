@@ -1,0 +1,8 @@
++++++++++++
+FCT Changes
++++++++++++
+
+Whats new in FCT 1.1
+====================
+
+ - CMAKE used for building the FCT tests.
