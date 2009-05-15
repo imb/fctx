@@ -145,7 +145,7 @@ fct_safe_str_cpy(char *dst, char const *src, size_t num)
 
 /* Isolate the snprintf implemenation. */
 int 
-fct_snprintf(char *buffer, size_t buffer_len, char *format, ...)
+fct_snprintf(char *buffer, size_t buffer_len, char const *format, ...)
 {
    int count =0;
    va_list args;
