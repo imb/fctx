@@ -41,6 +41,23 @@ ADD_CUSTOM_COMMAND(
     )	
 ADD_EXECUTABLE(test_big test_big.c)
 
+# The test_cpp_basic.cpp is the same test_basic.c code, but it is 
+# compiled using the C++ compiler. 
+ADD_CUSTOM_COMMAND(
+	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/test_cpp_basic.cpp
+	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/test_basic.c ${CMAKE_CURRENT_BINARY_DIR}/test_cpp_basic.cpp
+	DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/test_basic.c
+	)
+ADD_CUSTOM_TARGET(
+	generate_test_cpp_basic
+       	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/test_cpp_basic.cpp
+	) 
+ADD_EXECUTABLE(test_cpp_basic ${CMAKE_CURRENT_BINARY_DIR}/test_cpp_basic.cpp)
+SET_SOURCE_FILES_PROPERTIES(
+	${CMAKE_CURRENT_BINARY_DIR}/test_cpp_basic.cpp 
+	PROPERTIES GENERATED 1
+	)
+
 # -------
 # TESTING 
 # -------
@@ -58,3 +75,5 @@ ADD_TEST(run_test_big test_big)
 # The following tests confirm that failure happens.
 ADD_TEST(run_test_fail test_fail)
 SET_TESTS_PROPERTIES(run_test_fail PROPERTIES WILL_FAIL TRUE) 
+
+ADD_TEST(run_test_cpp_basic test_cpp_basic)
