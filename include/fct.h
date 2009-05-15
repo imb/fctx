@@ -307,10 +307,10 @@ struct _nlist_t
 static nlist_t *
 nlist_new(void)
 {
-   nlist_t *list = calloc(1, sizeof(nlist_t));
+   nlist_t *list = (nlist_t*)calloc(1, sizeof(nlist_t));
    assert( list != NULL && "memory check");
 
-   list->itm_list = malloc(sizeof(void*)*FCT_LIST_START_SIZE);
+   list->itm_list = (void**)malloc(sizeof(void*)*FCT_LIST_START_SIZE);
    assert( list->itm_list != NULL && "memory check");
 
    list->avail_itm_num =FCT_LIST_START_SIZE;
@@ -376,7 +376,7 @@ nlist__append(nlist_t *list, void *itm)
    if ( list->used_itm_num == list->avail_itm_num )
    {
       list->avail_itm_num = list->avail_itm_num*FCT_LIST_GROWTH_FACTOR;
-      list->itm_list = realloc(
+      list->itm_list = (void**)realloc(
          list->itm_list, sizeof(void*)*list->avail_itm_num
          );
       assert( list->itm_list != NULL && "memory check");
@@ -424,7 +424,7 @@ fctchk_new(char const *cndtn, char const *file, int lineno, nbool_t is_pass)
    assert( file != NULL );
    assert( lineno > 0 );
    
-   chk = calloc(1, sizeof(fctchk_t));
+   chk = (fctchk_t*)calloc(1, sizeof(fctchk_t));
    assert( chk != NULL && "out of memory");
    if ( chk == NULL ) { return NULL; }
 
@@ -473,7 +473,7 @@ static fct_test_t*
 fct_test_new(char const *name) {
    fct_test_t *test =NULL;
 
-   test = malloc(sizeof(fct_test_t));
+   test = (fct_test_t*)malloc(sizeof(fct_test_t));
    assert( test != NULL && "out of memory");
    
    fct_safe_str_cpy(test->name, name, FCT_MAX_NAME);
@@ -600,7 +600,7 @@ struct _fct_ts_t {
 static fct_ts_t *
 fct_ts_new(char const *name) {
    fct_ts_t *ts =NULL;
-   ts = calloc(1, sizeof(fct_ts_t));
+   ts = (fct_ts_t*)calloc(1, sizeof(fct_ts_t));
    assert( ts != NULL );
 
    fct_safe_str_cpy(ts->name, name, FCT_MAX_NAME);
@@ -846,7 +846,7 @@ fctkern__add_prefix_filter(fctkern_t const *fct, char const *prefix_filter)
    /* First we make a copy of the prefix, then we store it away
    in our little list. */
    filter_len = strlen(prefix_filter);
-   filter = malloc(sizeof(char)*(filter_len+1));
+   filter = (char*)malloc(sizeof(char)*(filter_len+1));
    strncpy(filter, prefix_filter, filter_len);
    filter[filter_len] = '\0';
 
@@ -1301,7 +1301,8 @@ fct_minimal_logger__del(fct_logger_i *self)
 static fct_minimal_logger_t *
 fct_minimal_logger__new(void)
 {
-   fct_minimal_logger_t *self = calloc(1,sizeof(fct_minimal_logger_t));
+   fct_minimal_logger_t *self = (fct_minimal_logger_t*)\
+				calloc(1,sizeof(fct_minimal_logger_t));
    if ( self == NULL ) { return NULL; }
 
    fct_logger__init((fct_logger_i*)self);
@@ -1344,7 +1345,7 @@ fct_standard_logger__on_cndtn(fct_logger_i *logger_, fctchk_t const *chk)
    {
       /* For now we will truncate the string to some set amount, later
       we can work out a dynamic string object. */
-      char *str = malloc(sizeof(char)*FCT_MAX_LOG_LINE);
+      char *str = (char*)malloc(sizeof(char)*FCT_MAX_LOG_LINE);
       assert( str != NULL );
       
       fct_snprintf(
@@ -1483,7 +1484,9 @@ fct_standard_logger__del(fct_logger_i *logger_)
 fct_standard_logger_t *
 fct_standard_logger__new(void)
 {
-   fct_standard_logger_t *logger = calloc(1, sizeof(fct_standard_logger_t));
+   fct_standard_logger_t *logger = (fct_standard_logger_t *)calloc(
+		   1, sizeof(fct_standard_logger_t)
+		   );
    if ( logger == NULL ) 
    { 
       return NULL; 
