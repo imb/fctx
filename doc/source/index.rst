@@ -1,4 +1,4 @@
-Welcome to FCT's documentation!
+Welcome to FCT's Documentation!
 ===============================
 
 Contents:

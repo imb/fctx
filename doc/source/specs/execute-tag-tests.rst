@@ -21,7 +21,7 @@ can also run _all_ the tests.
 Current Workaround
 ------------------
  
-The current workaround involves partioning the tests based on a series of
+The current workaround involves partitioning the tests based on a series of
 files. This only works if you want to form major groupings like "critical" and
 "non-critical". It will involve creating 5 files: 3 source files and 2 header
 files. You will have the following,
@@ -32,7 +32,7 @@ files. You will have the following,
   1. "run_non_critical_tests.c": Executes all non-critical tests.
   1. "run_all.c": Runs both critical and non-critical tests.
  
-The trick here is in how you define your implemenation files. If you look at
+The trick here is in how you define your implementation files. If you look at
 the existing FCT "test_multi.c" as an example you will see you can do something
 like this for, "run_critical.c",
 
@@ -78,65 +78,65 @@ test. The only part that needs a little work is figuring out if we should
 create a new macro for "inserting"  a tag on a test, or if we should add the
 tag to the "test definition". 
  
-  1. Create a new FCT_TAGTEST_BGN  macro, that takes an extra field for tags.
- 
-     .. code-block: c 
+Create a new FCT_TAGTEST_BGN with extra parameters
+..................................................
 
-	  FCT_TAGTEST_BGN(test_strcmp, "critical,string")
-	  {
-	     char const *test_str  = "test_str";
-	     fct_chk( strcmp(test_str, "test") != 0);
-	     fct_chk( strcmp(test_str, "test_str") == 0);
-	  }
-	  FCT_TEST_END();
- 
-    - Pros:  Implementation is easy, because the code used to "skip" a test is
-      within the FCT_TAGTEST_BGN macro. 
-    - Cons:  Not very extensible, and FCT_TAGTEST_BGN  is starting to getting
-      annoying to type. ;-)
- 
- 
-  2. Adding a new FCT_TAG macro.
- 
-     .. code-block:: c
- 
-	  FCT_TEST_BGN(test_strcmp)
-	  {  
-		FCT_TAG("critical, string");
-	     char const *test_str  = "test_str";
-	     fct_chk( strcmp(test_str, "test") != 0);
-	     fct_chk( strcmp(test_str, "test_str") == 0);
-	  }
-	  FCT_TEST_END();
- 
- 
-     - Pros: Does not effect existing FCT_TEST_BGN  macro. Clearly marks out
-       TAGing process.
-     - Cons:  Implemenation is a bit tricker, and the  FCT_TAG  macro is not
-       "Forced"  to be the first line?
- 
- 
-  3. Add a generic "parametization"  of tests. I  am using "FCT_ATEST_BGN"
-where the "A"  signals attributed. This option allows us to accept more
-attributes in the future.
+.. code-block: c 
 
-    .. code-block:: c
+        FCT_TAGTEST_BGN(test_strcmp, "critical,string")
+	{
+	    char const *test_str  = "test_str";
+	    fct_chk( strcmp(test_str, "test") != 0);
+	    fct_chk( strcmp(test_str, "test_str") == 0);
+	}
+	FCT_TEST_END();
  
-	  FCT_ATEST_BGN(test_strcmp, "tag=critical,string;author=Ian")
-	  {
-	     char const *test_str  = "test_str";
-	     fct_chk( strcmp(test_str, "test") != 0);
-	     fct_chk( strcmp(test_str, "test_str") == 0);
-	  }
-	  FCT_TEST_END();
+- Pros:  Implementation is easy, because the code used to "skip" a test is
+  within the FCT_TAGTEST_BGN macro. 
+- Cons:  Not very extensible, and FCT_TAGTEST_BGN  is starting to getting
+  annoying to type. ;-)
  
  
-    - Pros: Implemenation is easier, and the tagging process is extensible.
-    - Cons:  Specifying parameters with ","  and ";"  could lead to errors. May
-      be able to use some macro slicing to make it less error prone. 
+Add a New FCT_TAG Macro
+........................
+
+The code would look something like this,
  
-So far I  perfer Option 3 but if do allow generic attributes, we should
-consider that::
+.. code-block:: c
+ 
+    FCT_TEST_BGN(test_strcmp)
+    {  
+	FCT_TAG("critical, string");
+	char const *test_str  = "test_str";
+	fct_chk( strcmp(test_str, "test") != 0);
+	fct_chk( strcmp(test_str, "test_str") == 0);
+    }
+    FCT_TEST_END();
+ 
+ 
+- Pros: Does not effect existing FCT_TEST_BGN  macro. Clearly marks out TAGing
+  process.
+- Cons:  Implementation is a bit tricker, and the  FCT_TAG  macro is not
+  "Forced"  to be the first line?
+
+Generic Parameterization
+........................ 
+ 
+This involves adding a generic "parametrization"  of tests. I  am using
+"FCT_ATEST_BGN" where the "A"  signals attributed. This option allows us to
+accept more attributes in the future.
+
+.. code-block:: c
+ 
+      FCT_ATEST_BGN(test_strcmp, "tag=critical,string;author=Ian")
+      {
+	 char const *test_str  = "test_str";
+	 fct_chk( strcmp(test_str, "test") != 0);
+	 fct_chk( strcmp(test_str, "test_str") == 0);
+      }
+      FCT_TEST_END();
+
+If we end up with generic attributes, we should consider that::
  
     "tag=critical" ";" "tag=string"
  
@@ -154,7 +154,12 @@ some project standards, as in,
     #define AUTH_IB "author=ib"
     FCT_ATEST_BGN(test_strcmp, CRIT_TAG ";" STR_TAG ";" AUTH_IB)
  
-This way you can reduce the chance of accidently mispelling "critical". 
+This way you can reduce the chance of accidentally misspelling "critical". 
+ 
+- Pros: Implementation is easier, and the tagging process is extensible.
+- Cons:  Specifying parameters with ","  and ";"  could lead to errors. May be
+  able to use some macro slicing to make it less error prone. 
+
  
 Invoking from the Command Line
 ------------------------------
@@ -170,5 +175,5 @@ with something like::
  
   mytest.exe --run-attr=tag:critical,author:ib
  
-which would run all critical tests writen by "ib".
+which would run all critical tests written by "ib".
 
