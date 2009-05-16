@@ -24,6 +24,8 @@ Milestone 1.1 (Cleanup)
   play well in a test environment that may be stressing the system. Maybe
   enable a "kill_if" system.
 
+- (P2) Start a "boilerplate" file.
+
 
 MileStone 1.2 (Easier Use)
 ==========================
