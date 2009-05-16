@@ -1,5 +1,5 @@
-Welcome to FCT's Documentation!
-===============================
+Welcome to FCTest's Documentation!
+==================================
 
 Specifications
 --------------

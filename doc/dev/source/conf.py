@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# FCT documentation build configuration file, created by
+# FCTest documentation build configuration file, created by
 # sphinx-quickstart on Thu May 14 22:14:19 2009.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -37,7 +37,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'FCT'
+project = u'FCTest'
 copyright = u'2009, Ian Blumel'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -158,7 +158,7 @@ html_static_path = ['_static']
 #html_file_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'FCTdoc'
+htmlhelp_basename = 'FCTestdoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -172,7 +172,7 @@ htmlhelp_basename = 'FCTdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'FCT.tex', u'FCT Documentation',
+  ('index', 'FCTest.tex', u'FCTest Documentation',
    u'Ian Blumel', 'manual'),
 ]
 
