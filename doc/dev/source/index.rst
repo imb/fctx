@@ -1,18 +1,16 @@
 Welcome to FCT's Documentation!
 ===============================
 
-Contents:
+Specifications
+--------------
 
 .. toctree:: 
-   :glob:
-     
-     spec*
+   :maxdepth: 2
+ 
+   spec-0100
 
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. * :ref:`genindex`
+.. * :ref:`modindex`
+.. * :ref:`search`
 
