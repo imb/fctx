@@ -3,10 +3,11 @@ Welcome to FCT's Documentation!
 
 Contents:
 
-.. toctree::
-   :maxdepth: 2
+.. toctree:: 
+   :glob:
+     
+     spec*
 
-   specs/index
 
 Indices and tables
 ==================

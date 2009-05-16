@@ -16,3 +16,5 @@ Makefile
 CMakeFiles
 Testing
 tests/CMakeFiles
+doc/dev/build
+build

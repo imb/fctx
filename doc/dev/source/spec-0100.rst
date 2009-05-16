@@ -1,9 +1,8 @@
-Execute a Subset of Tests Based on a Tag
-========================================
+SPEC0100: Execute a Subset of Tests Based on a Tag
+==================================================
  
   :Reference: https://blueprints.launchpad.net/fctest/+spec/execute-tag-tests
-  :Version: $Revision$
-  :Last Modified: $Date$
+  :Type: Specification
   :Author: Ian Blumel <ian DOT blumel at gmail DOT com>
   :Status: Active
 
