@@ -5,9 +5,6 @@ TODO
 Milestone 1.1 (Cleanup)
 =======================
 
-- (P1) Need to specify flags for RELEASE and DEBUG configurations. Namely 
-  for the makefile generated files that come from CMAKE.
-
 - (P1) Write a HACKING file.
   - Include "Basic Idea"
   - Write up a little documentation on the "design" of the framework. A
