@@ -8,6 +8,7 @@ Specifications
    :maxdepth: 2
  
    spec-0100
+   spec-0101
 
 
 .. * :ref:`genindex`
