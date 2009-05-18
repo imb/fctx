@@ -2,7 +2,7 @@
 
 REM Command file for Sphinx documentation
 
-set SPHINXBUILD=sphinx-build
+set SPHINXBUILD=%PYTHONHOME%\scripts\sphinx-build
 set ALLSPHINXOPTS=-d build/doctrees %SPHINXOPTS% source
 if NOT "%PAPER%" == "" (
 	set ALLSPHINXOPTS=-D latex_paper_size=%PAPER% %ALLSPHINXOPTS%
