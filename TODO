@@ -9,22 +9,8 @@ Milestone 1.1 (Cleanup)
   - Include "Basic Idea"
   - Write up a little documentation on the "design" of the framework. A
     HACKING guide.
-
 - (P2) Start up a more involved documentation project.
-
-- (P2) Clean up the low-budget memory checks. The ones that use 
-
-     assert( var != NULL && "out of memory!");
-
-  because those aren't with us during a release! We need to be able to
-  play well in a test environment that may be stressing the system. Maybe
-  enable a "kill_if" system.
-
 - (P2) Start a "boilerplate" file.
-
-
-
-
 
 MileStone 1.3 (Command Line Args)
 =================================
