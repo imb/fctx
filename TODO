@@ -9,7 +9,6 @@ Milestone 1.1 (Cleanup)
   - Include "Basic Idea"
   - Write up a little documentation on the "design" of the framework. A
     HACKING guide.
-  - Implement and document how to "extend" you own logger.
 
 - (P2) Start up a more involved documentation project.
 
