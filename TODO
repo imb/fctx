@@ -24,58 +24,7 @@ Milestone 1.1 (Cleanup)
 - (P2) Start a "boilerplate" file.
 
 
-MileStone 1.2 (Easier Use)
-==========================
 
-- (P1) Expand the "chk" interface (also expand the test_money example to
-  use it).
-
-  - fct_eq_*
-    These will compare two "fundamental" objects together and return
-    true if they 
-
-     - fct_eq_str("a", "b");
-     - fct_eq_int(1, 2);
-     - fct_eq_dbl(1., 1.2);
-
-     - fct_neq_str("a", "b");
-     - fct_neq_int(...
-     - fct_neq_dbl(...
-
-     - consider "longs", "void*" (see below), floats, &etc.
-       - Maybe build the types out of macros, and create happy versions
-         of some of the common ones?
-
-     - (optional) a generic compare...
-     
-         fct_eq(
-             void*, void*, 
-             int (*eq)(void*, void*), 
-             void (*repr)(char *buffer, size_t len));
-
-         fct_eq(money, money, money_eq, money_repr);
-
-         Could display
-
-             "<money 12 CDN> != <money 14 CDN>"
-
-          where the repr function build the "<money ..>" objects.
-
-- (P1) Quick tests...
-
-     FCT_BGN()
-     {
-       FCT_QBGN(quick_test)
-       {
-           /* I just want to run a test! */
-       }
-       FCT_QEND();
-     }
-     FCT_END();
-
-   Actually fairly easily to implement as a "quick test suite" each.
-   Just need to spend some time testing and verify that the logging
-   works.
 
 
 MileStone 1.3 (Command Line Args)
@@ -83,11 +32,6 @@ MileStone 1.3 (Command Line Args)
 
 - (P2) Better command line parsing. 
   - Need to implement the --help and --version options.
-              FCT_TEST_BGN(silly_test_for_null)
-              {
-                 fct_chk( data != NULL );
-              }
-              FCT_TEST_END();
 
 - (P1) Run only a specific test suite by name,
 
