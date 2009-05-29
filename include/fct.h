@@ -110,6 +110,9 @@ fct_logger__on_fct_start(fct_logger_i *logger, fctkern_t const *kern);
 static void
 fct_logger__on_fct_end(fct_logger_i *logger, fctkern_t const *kern);
 
+static void
+fct_logger__on_warn(fct_logger_i *logger, char const *warn);
+
 
 
 /* Explicitly indicate a no-op */
@@ -304,25 +307,11 @@ struct _nlist_t
    size_t used_itm_num;
 };
 
-static nlist_t *
-nlist_new(void)
-{
-   nlist_t *list = (nlist_t*)calloc(1, sizeof(nlist_t));
-   assert( list != NULL && "memory check");
-
-   list->itm_list = (void**)malloc(sizeof(void*)*FCT_LIST_START_SIZE);
-   assert( list->itm_list != NULL && "memory check");
-
-   list->avail_itm_num =FCT_LIST_START_SIZE;
-   list->used_itm_num =0;
-   return list;
-}
-
-typedef void (*on_del_t)(void*);
 
 /* Cleans up list, and applies `on_del` to each item in the list. 
 If on_del is NULL, it will not be applied. If `list` is NULL this
 function does nothing. */
+typedef void (*on_del_t)(void*);
 static void
 nlist__del(nlist_t *list, on_del_t on_del)
 {
@@ -342,6 +331,36 @@ nlist__del(nlist_t *list, on_del_t on_del)
 
    free(list->itm_list);
    free(list);
+}
+
+
+static nlist_t *
+nlist_new(void)
+{
+    nlist_t *list = (nlist_t*)calloc(1, sizeof(nlist_t));
+    nbool_t ok =FCT_FALSE;
+
+    if ( list == NULL ) {
+        ok = FCT_FALSE;
+        goto finally;
+    }
+
+    list->itm_list = (void**)malloc(sizeof(void*)*FCT_LIST_START_SIZE);
+    if ( list->itm_list == NULL ) {
+        ok = FCT_FALSE;
+        goto finally;
+    }
+
+    list->avail_itm_num =FCT_LIST_START_SIZE;
+    list->used_itm_num =0;
+
+    ok = FCT_TRUE;
+finally:
+    if ( !ok ) {
+        nlist__del(list, NULL);
+        list =NULL;
+    }
+    return list;
 }
 
 
@@ -425,8 +444,9 @@ fctchk_new(char const *cndtn, char const *file, int lineno, nbool_t is_pass)
    assert( lineno > 0 );
    
    chk = (fctchk_t*)calloc(1, sizeof(fctchk_t));
-   assert( chk != NULL && "out of memory");
-   if ( chk == NULL ) { return NULL; }
+   if ( chk == NULL ) { 
+       return NULL; 
+   }
 
    fct_safe_str_cpy(chk->cndtn, cndtn, FCT_MAX_LOG_LINE);
    fct_safe_str_cpy(chk->file, file, FCT_MAX_LOG_LINE);
@@ -469,21 +489,40 @@ struct _fct_test_t {
 
 #define fct_test__name(_TEST_) ((_TEST_)->name)
 
+static void
+fct_test__del(fct_test_t *test)
+{
+   if (test == NULL ) { return; }
+   nlist__del(test->passed_chks, (on_del_t)fctchk__del);
+   nlist__del(test->failed_chks, (on_del_t)fctchk__del);
+}
+
 static fct_test_t*
 fct_test_new(char const *name) {
-   fct_test_t *test =NULL;
+    nbool_t ok =FCT_FALSE;
+    fct_test_t *test =NULL;
 
-   test = (fct_test_t*)malloc(sizeof(fct_test_t));
-   assert( test != NULL && "out of memory");
-   
-   fct_safe_str_cpy(test->name, name, FCT_MAX_NAME);
+    test = (fct_test_t*)malloc(sizeof(fct_test_t));
+    if ( test == NULL ) {
+        return NULL;
+    }
+
+    fct_safe_str_cpy(test->name, name, FCT_MAX_NAME);
      
-   test->failed_chks = nlist_new();
-   test->passed_chks = nlist_new();
-   assert( test->failed_chks != NULL && "out of memory");
-   assert( test->passed_chks != NULL && "out of memory");
+    test->failed_chks = nlist_new();
+    test->passed_chks = nlist_new();
+    if ( test->failed_chks == NULL || test->passed_chks == NULL ) {
+        ok =FCT_FALSE;
+        goto finally;
+    }
 
-   return test;
+    ok =FCT_TRUE;
+finally:
+    if ( !ok ) {
+        fct_test__del(test);
+        test =NULL;
+    }
+    return test;
 }
 
 
@@ -521,13 +560,7 @@ fct_test__chk_cnt(fct_test_t const *test)
 }
 
 
-static void
-fct_test__del(fct_test_t *test)
-{
-   if (test == NULL ) { return; }
-   nlist__del(test->passed_chks, (on_del_t)fctchk__del);
-   nlist__del(test->failed_chks, (on_del_t)fctchk__del);
-}
+
 
 
 /* 
@@ -597,6 +630,13 @@ struct _fct_ts_t {
 #define fct_ts__name(ts)              ((ts)->name)
 
 
+static void
+fct_ts__del(fct_ts_t *ts) {
+   if ( ts == NULL ) { return; }
+   nlist__del(ts->test_list, (on_del_t)fct_test__del);
+   free(ts);
+}
+
 static fct_ts_t *
 fct_ts_new(char const *name) {
    fct_ts_t *ts =NULL;
@@ -607,16 +647,14 @@ fct_ts_new(char const *name) {
    ts->mode = ts_mode_cnt;
 
    ts->test_list = nlist_new();
-   assert( ts->test_list != NULL && "no memory");
-
+   if ( ts->test_list == NULL ) {
+       fct_ts__del(ts);
+       return NULL;
+   }
+   
    return ts;
 }
 
-static void
-fct_ts__del(fct_ts_t *ts) {
-   if ( ts == NULL ) { return; }
-   free(ts);
-}
 
 /* Flag a test suite as complete. It will no longer accept any more tests. */
 #define fct_ts__end(_TS_)  ((_TS_)->mode == ts_mode_end)
@@ -854,13 +892,29 @@ fctkern__add_prefix_filter(fctkern_t const *fct, char const *prefix_filter)
 }
 
 
-/* Parses the command line and sets up the framework. The argc and argv 
-should be directly from the program's  main. */
+/* Cleans up the contents of a fctkern. NULL does nothing. */
 static void
+fctkern__final(fctkern_t *fct) 
+{
+   if ( fct == NULL ) { return; }
+
+   nlist__del(fct->logger_list, (on_del_t)fct_logger__del);
+
+   /* The prefix list is a list of malloc'd strings. */
+   nlist__del(fct->prefix_list, (on_del_t)free);
+
+   nlist__del(fct->ts_list, (on_del_t)fct_ts__del);
+}
+
+
+/* Parses the command line and sets up the framework. The argc and argv 
+should be directly from the program's main. */
+static int
 fctkern_init(fctkern_t *nk, int argc, char *argv[])
 {
    fct_logger_i *standard_logger = NULL;
    int arg_i =0;
+   nbool_t ok = FCT_FALSE;
 
    assert( nk != NULL );
 
@@ -869,14 +923,22 @@ fctkern_init(fctkern_t *nk, int argc, char *argv[])
    nk->logger_list = nlist_new();
    nk->prefix_list = nlist_new();
    nk->ts_list = nlist_new();
-
    /* Low-budget memory check for now. */
-   assert( nk->logger_list != NULL );
-   assert( nk->prefix_list != NULL );
-   assert( nk->ts_list != NULL );
+   if ( nk->logger_list == NULL \
+       || nk->prefix_list == NULL \
+       || nk->ts_list == NULL ) {
+        ok = FCT_FALSE;
+        goto finally;
+   }
 
+   /* TODO: This is where we can "configure" what logger to pull out. Be nice
+   if we can provide some means for the client code to 'override' this
+   as well as from the command prompt. */
    standard_logger = (fct_logger_i*) fct_standard_logger__new();
-   assert( standard_logger != NULL && "no memory!");
+   if ( standard_logger == NULL ) {
+       ok = FCT_FALSE;
+       goto finally;
+   }
 
    fctkern__add_logger(nk, standard_logger);   
    standard_logger = NULL;   /* Owned by the nk list. */
@@ -888,6 +950,13 @@ fctkern_init(fctkern_t *nk, int argc, char *argv[])
    {
       fctkern__add_prefix_filter(nk, argv[arg_i]);
    }
+
+   ok =FCT_TRUE;
+finally:
+    if ( !ok ) {
+        fctkern__final(nk);
+    }
+    return ok;
 }
 
 
@@ -1015,21 +1084,6 @@ fctkern__end(fctkern_t *fct)
 }
 
 
-/* Cleans up the contents of a fctkern. NULL does nothing. */
-static void
-fctkern__final(fctkern_t *fct) 
-{
-   if ( fct == NULL ) { return; }
-
-   nlist__del(fct->logger_list, (on_del_t)fct_logger__del);
-
-   /* The prefix list is a list of malloc'd strings. */
-   nlist__del(fct->prefix_list, (on_del_t)free);
-
-   nlist__del(fct->ts_list, (on_del_t)fct_ts__del);
-}
-
-
 static void
 fctkern__log_suite_start(fctkern_t *kern, fct_ts_t const *ts)
 {
@@ -1056,6 +1110,8 @@ fctkern__log_suite_end(fctkern_t *kern, fct_ts_t const *ts)
 }
 
 
+/* Use this for displaying information about a "Check" (i.e.
+a condition). */
 static void
 fctkern__log_chk(fctkern_t *kern, fctchk_t const *chk)
 {
@@ -1067,6 +1123,20 @@ fctkern__log_chk(fctkern_t *kern, fctchk_t const *chk)
       fct_logger__on_cndtn(logger, chk);
    }
    NLIST_FOREACH_END();
+}
+
+
+/* Use this for displaying warning messages. */
+static void
+fctkern__log_warn(fctkern_t *kern, char const *warn) 
+{
+    assert( kern != NULL );
+    assert( warn != NULL );
+    NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list) 
+    {
+        fct_logger__on_warn(logger, warn);
+    }
+    NLIST_FOREACH_END();
 }
 
 
@@ -1136,18 +1206,37 @@ of the implementation.
 
 typedef void (*fct_logger_on_cndtn_fn)(fct_logger_i *self, 
                                        fctchk_t const *chk);
+
+typedef struct _fct_logger_i_vtable_t {
+   fct_logger_on_cndtn_fn on_cndtn;
+   void (*on_test_start)(fct_logger_i *logger, fct_test_t const *test);
+   void (*on_test_end)(fct_logger_i *logger, fct_test_t const *test);
+   void (*on_test_suite_start)(fct_logger_i *logger, fct_ts_t const *ts);
+   void (*on_test_suite_end)(fct_logger_i *logger, fct_ts_t const *ts);
+   void (*on_fct_start)(fct_logger_i *logger, fctkern_t const *kern);
+   void (*on_fct_end)(fct_logger_i *logger, fctkern_t const *kern);
+   void (*on_delete)(fct_logger_i *logger);
+   void (*on_warn)(fct_logger_i *logger, char const *msg);
+} fct_logger_i_vtable_t;
+
 #define _fct_logger_head \
-   fct_logger_on_cndtn_fn on_cndtn;\
-   void (*on_test_start)(fct_logger_i *logger, fct_test_t const *test);\
-   void (*on_test_end)(fct_logger_i *logger, fct_test_t const *test);\
-   void (*on_test_suite_start)(fct_logger_i *logger, fct_ts_t const *ts);\
-   void (*on_test_suite_end)(fct_logger_i *logger, fct_ts_t const *ts);\
-   void (*on_fct_start)(fct_logger_i *logger, fctkern_t const *kern);\
-   void (*on_fct_end)(fct_logger_i *logger, fctkern_t const *kern);\
-   void (*on_delete)(fct_logger_i *logger)\
+    fct_logger_i_vtable_t *vtable
 
 struct _fct_logger_i {
    _fct_logger_head;
+};
+
+
+static fct_logger_i_vtable_t fct_logger_default_vtable = {
+    NULL,   /* on_cndtn */
+    NULL,   /* on_test_start */
+    NULL,   /* on_test_end */
+    NULL,   /* on_test_suite_start */
+    NULL,   /* on_test_suite_end */
+    NULL,   /* on_fct_start */
+    NULL,   /* on_fct_end */
+    NULL,   /* on_delete */
+    NULL    /* on_warn */
 };
 
 
@@ -1157,14 +1246,7 @@ static void
 fct_logger__init(fct_logger_i *logger)
 {
    assert( logger != NULL );
-   logger->on_cndtn =NULL;
-   logger->on_test_start =NULL;
-   logger->on_test_end =NULL;
-   logger->on_test_suite_start =NULL;
-   logger->on_test_suite_end =NULL;
-   logger->on_fct_start =NULL;
-   logger->on_fct_end =NULL;
-   logger->on_delete =NULL;
+   logger->vtable = &fct_logger_default_vtable;
 }
 
 
@@ -1172,7 +1254,7 @@ static void
 fct_logger__del(fct_logger_i *logger)
 {
    if ( logger == NULL ) { return; }
-   if ( logger->on_delete) { logger->on_delete(logger); }
+   if ( logger->vtable->on_delete) { logger->vtable->on_delete(logger); }
 }
 
 
@@ -1182,9 +1264,9 @@ fct_logger__on_test_start(fct_logger_i *logger, fct_test_t const *test)
    assert( logger != NULL && "invalid arg");
    assert( test != NULL && "invalid arg");
 
-   if ( logger->on_test_start != NULL )
+   if ( logger->vtable->on_test_start != NULL )
    {
-      logger->on_test_start(logger, test);
+      logger->vtable->on_test_start(logger, test);
    }
 }
 
@@ -1195,9 +1277,9 @@ fct_logger__on_test_end(fct_logger_i *logger, fct_test_t const *test)
    assert( logger != NULL && "invalid arg");
    assert( test != NULL && "invalid arg");
 
-   if ( logger->on_test_end != NULL )
+   if ( logger->vtable->on_test_end != NULL )
    {
-      logger->on_test_end(logger, test);
+      logger->vtable->on_test_end(logger, test);
    }
 }
 
@@ -1208,9 +1290,9 @@ fct_logger__on_test_suite_start(fct_logger_i *logger, fct_ts_t const *ts)
    assert( logger != NULL && "invalid arg");
    assert( ts != NULL && "invalid arg");
 
-   if ( logger->on_test_suite_start != NULL )
+   if ( logger->vtable->on_test_suite_start != NULL )
    {
-      logger->on_test_suite_start(logger, ts);
+      logger->vtable->on_test_suite_start(logger, ts);
    }
 }
 
@@ -1221,9 +1303,9 @@ fct_logger__on_test_suite_end(fct_logger_i *logger, fct_ts_t const *ts)
    assert( logger != NULL && "invalid arg");
    assert( ts != NULL && "invalid arg");
 
-   if ( logger->on_test_suite_end != NULL )
+   if ( logger->vtable->on_test_suite_end != NULL )
    {
-      logger->on_test_suite_end(logger, ts);
+      logger->vtable->on_test_suite_end(logger, ts);
    }
 }
 
@@ -1234,9 +1316,9 @@ fct_logger__on_cndtn(fct_logger_i *logger, fctchk_t const *chk)
    assert( logger != NULL && "invalid arg");
    assert( chk != NULL && "invalid arg");
 
-   if ( logger->on_cndtn ) 
+   if ( logger->vtable->on_cndtn ) 
    {
-      logger->on_cndtn(logger, chk);
+      logger->vtable->on_cndtn(logger, chk);
    }
 }                        
 
@@ -1248,9 +1330,9 @@ fct_logger__on_fct_start(fct_logger_i *logger, fctkern_t const *kern)
    assert( logger != NULL );
    assert( kern != NULL );
 
-   if ( logger->on_fct_start != NULL ) 
+   if ( logger->vtable->on_fct_start != NULL ) 
    {
-      logger->on_fct_start(logger, kern);
+      logger->vtable->on_fct_start(logger, kern);
    }
 }
 
@@ -1262,12 +1344,23 @@ fct_logger__on_fct_end(fct_logger_i *logger, fctkern_t const *kern)
    assert( logger != NULL );
    assert( kern != NULL );
 
-   if ( logger->on_fct_end )
+   if ( logger->vtable->on_fct_end )
    {
-      logger->on_fct_end(logger, kern);
+      logger->vtable->on_fct_end(logger, kern);
    }
 }
 
+
+static void
+fct_logger__on_warn(fct_logger_i *logger, char const *warn) 
+{
+    assert( logger != NULL );
+    assert( warn != NULL );
+    if ( logger->vtable->on_warn ) 
+    {
+        logger->vtable->on_warn(logger, warn);
+    }
+}
 
 
 /*
@@ -1298,6 +1391,18 @@ fct_minimal_logger__del(fct_logger_i *self)
 }
 
 
+static fct_logger_i_vtable_t fct_logger_minimal_vtable = {
+    fct_minimal_logger__on_cndtn,   /* on_cndtn */
+    NULL,   /* on_test_start */
+    NULL,   /* on_test_end */
+    NULL,   /* on_test_suite_start */
+    NULL,   /* on_test_suite_end */
+    NULL,   /* on_fct_start */
+    NULL,   /* on_fct_end */
+    fct_minimal_logger__del,   /* on_delete */
+    NULL    /* on_warn */
+};
+
 static fct_minimal_logger_t *
 fct_minimal_logger__new(void)
 {
@@ -1306,9 +1411,7 @@ fct_minimal_logger__new(void)
    if ( self == NULL ) { return NULL; }
 
    fct_logger__init((fct_logger_i*)self);
-
-   self->on_cndtn = fct_minimal_logger__on_cndtn;
-   self->on_delete = fct_minimal_logger__del;
+   self->vtable = &fct_logger_minimal_vtable;
    return self;
 }
 
@@ -1481,6 +1584,28 @@ fct_standard_logger__del(fct_logger_i *logger_)
 }
 
 
+
+static void
+fct_standard_logger__warn(fct_logger_i *logger_, char const *warn) 
+{
+    fct_standard_logger_t *logger = (fct_standard_logger_t*)logger_;
+    (void)printf("WARNING: %s", warn);
+}
+
+
+static fct_logger_i_vtable_t fct_standard_logger_vtable = {
+    fct_standard_logger__on_cndtn,   /* on_cndtn */
+    fct_standard_logger__on_test_start,   /* on_test_start */
+    fct_standard_logger__on_test_end,   /* on_test_end */
+    fct_standard_logger__on_test_suite_start,   /* on_test_suite_start */
+    fct_standard_logger__on_test_suite_end,   /* on_test_suite_end */
+    fct_standard_logger__on_fct_start,   /* on_fct_start */
+    fct_standard_logger__on_fct_end,   /* on_fct_end */
+    fct_standard_logger__del,   /* on_delete */
+    fct_standard_logger__warn    /* on_warn */
+};
+
+
 fct_standard_logger_t *
 fct_standard_logger__new(void)
 {
@@ -1492,14 +1617,7 @@ fct_standard_logger__new(void)
       return NULL; 
    }
    fct_logger__init((fct_logger_i*)logger);
-   logger->on_cndtn = fct_standard_logger__on_cndtn;
-   logger->on_test_start = fct_standard_logger__on_test_start;
-   logger->on_test_end = fct_standard_logger__on_test_end;
-   logger->on_test_suite_start = fct_standard_logger__on_test_suite_start;
-   logger->on_test_suite_end = fct_standard_logger__on_test_suite_end;
-   logger->on_fct_start = fct_standard_logger__on_fct_start;
-   logger->on_fct_end = fct_standard_logger__on_fct_end;
-   logger->on_delete = fct_standard_logger__del;
+   logger->vtable = &fct_standard_logger_vtable;
 
    logger->failed_cndtns_list = nlist_new();
    assert( logger->failed_cndtns_list != NULL );
@@ -1522,7 +1640,10 @@ int \
 main(int argc, char *argv[])\
 {\
    fctkern_t fctkern__;\
-   fctkern_init(&fctkern__, argc, argv);\
+   if ( !fctkern_init(&fctkern__, argc, argv) ) {\
+        (void)printf("FATAL ERROR: Unable to intialize FCT Kernal.");\
+        exit(EXIT_FAILURE);\
+   }\
    fctkern__log_start(&fctkern__);
 
 
@@ -1540,31 +1661,36 @@ main(int argc, char *argv[])\
 #define FCT_FIXTURE_SUITE_BGN(_NAME_) \
    {\
       fct_ts_t *ts__ = fct_ts_new( #_NAME_ );\
-      fctkern__log_suite_start((&fctkern__), ts__);\
-      for (;;)\
-      {\
-         int fct_test_num__ = -1;\
-         _fct_cmt("Strict compiler warnings will complain in 'blank' suites.")\
-         _fct_cmt("so we are going to do a 'noop' to trick them.")\
-         fct_test_num__ = fct_test_num__;\
-         if ( fct_ts__is_ending_mode(ts__) )\
-         {\
-            _fct_cmt("flag the test suite as complete.");\
-            fct_ts__end(ts__);\
-            break;\
-         }
+      if ( ts__ == NULL ) {\
+        fctkern__log_warn((&fctkern__), "out of memory");\
+      }\
+      else {\
+          fctkern__log_suite_start((&fctkern__), ts__);\
+          for (;;)\
+          {\
+             int fct_test_num__ = -1;\
+             _fct_cmt("Strict compiler warnings will complain in 'blank' suites.")\
+             _fct_cmt("so we are going to do a 'noop' to trick them.")\
+             fct_test_num__ = fct_test_num__;\
+             if ( fct_ts__is_ending_mode(ts__) )\
+             {\
+                _fct_cmt("flag the test suite as complete.");\
+                fct_ts__end(ts__);\
+                break;\
+             }
 
 
 /*  Closes off a "Fixture" test suite. */
 #define FCT_FIXTURE_SUITE_END() \
-         if ( fct_ts__is_cnt_mode(ts__) )\
-         {\
-            fct_ts__cnt_end(ts__);\
-         }\
+             if ( fct_ts__is_cnt_mode(ts__) )\
+             {\
+                fct_ts__cnt_end(ts__);\
+             }\
+          }\
+          fctkern__add_ts((&fctkern__), ts__);\
+          fctkern__log_suite_end((&fctkern__), ts__);\
+          ts__ = NULL;\
       }\
-      fctkern__add_ts((&fctkern__), ts__);\
-      fctkern__log_suite_end((&fctkern__), ts__);\
-      ts__ = NULL;\
    }
 
 
@@ -1595,7 +1721,9 @@ do it by 'stubbing' out the setup/teardown logic. */
 /* Depending on whether or not we are counting the tests, we will have to 
 first determine if the test is the "current" count. Then we have to determine
 if we can pass the filter. Finally we will execute everything so that when a 
-check fails, we can "break" out to the end of the test. */
+check fails, we can "break" out to the end of the test. And in between all
+that we do a memory check and fail a test if we can't build a fct_test
+object (should be rare). */
 #define FCT_TEST_BGN(_NAME_) \
          {\
             char const *test_name__ = #_NAME_;\
@@ -1613,12 +1741,18 @@ check fails, we can "break" out to the end of the test. */
                if ( fctkern__pass_filter(&fctkern__,  test_name__ ) )\
                {\
                   fct_test_t *test__ = fct_test_new( test_name__ );\
-                  fctkern__log_test_start(&fctkern__, test__);\
-                  for (;;) \
-                  {
+                  if ( test__  == NULL ) {\
+                    fctkern__log_warn(&fctkern__, "out of memory");\
+                    is_pass__ = FCT_FALSE;\
+                  }\
+                  else {\
+                      fctkern__log_test_start(&fctkern__, test__);\
+                      for (;;) \
+                      {
 
 #define FCT_TEST_END() \
-                     break;\
+                         break;\
+                      }\
                   }\
                fct_ts__add_test(ts__, test__);\
                fctkern__log_test_end(&fctkern__, test__);\
@@ -1644,6 +1778,10 @@ to add more macros that check for different types of common conditions.
       fctchk_t *chk =NULL;\
       is_pass__ = (_CNDTN_);\
       chk = fctchk_new(#_CNDTN_, __FILE__, __LINE__, is_pass__);\
+      if ( chk == NULL ) {\
+          fctkern__log_warn(&fctkern__, "out of memory (aborting)");\
+          break;\
+      }\
       fct_test__add(test__, chk);\
       fctkern__log_chk(&fctkern__, chk);\
       if ( !is_pass__ ) { break; }\
