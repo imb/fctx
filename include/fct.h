@@ -118,7 +118,7 @@ fct_logger__on_warn(fct_logger_i *logger, char const *warn);
 /* Explicitly indicate a no-op */
 #define fct_pass()    
 
-#define fct_unused(x)   (x);
+#define fct_unused(x)  (void)(x)
 
 /* This is just a little trick to let me put comments inside of macros. I
 really only want to bother with this when we are "unwinding" the macros
@@ -552,7 +552,7 @@ fct_test__add(fct_test_t *test, fctchk_t *chk)
 }
 
 /* Returns the number of checks made throughout the test. */
-static int
+static size_t
 fct_test__chk_cnt(fct_test_t const *test)
 {
    assert( test != NULL );
@@ -627,6 +627,14 @@ struct _fct_ts_t {
 #define fct_ts__is_ending_mode(ts)    ((ts)->mode == ts_mode_ending)
 #define fct_ts__is_end(ts)            ((ts)->mode == ts_mode_end)
 #define fct_ts__is_cnt_mode(ts)       ((ts)->mode == ts_mode_cnt)
+
+/* This cndtn is set when we have iterated through all the tests, and
+there was nothing more to do. */
+#define fct_ts__ending(ts)          ((ts)->mode = ts_mode_ending)
+
+/* Flag a test suite as complete. It will no longer accept any more tests. */
+#define fct_ts__end(ts)  ((ts)->mode = ts_mode_end)
+
 #define fct_ts__name(ts)              ((ts)->name)
 
 
@@ -655,9 +663,6 @@ fct_ts_new(char const *name) {
    return ts;
 }
 
-
-/* Flag a test suite as complete. It will no longer accept any more tests. */
-#define fct_ts__end(_TS_)  ((_TS_)->mode == ts_mode_end)
 
 
 static nbool_t
@@ -725,18 +730,6 @@ fct_ts__setup_end(fct_ts_t *ts)
 }
 
 
-/* This cndtn is set when we have iterated through all the tests, and
-there was nothing more to do. */
-static void
-fct_ts__ending(fct_ts_t *ts)
-{
-   // We can only go from 'test-mode' to 'end-down' mode.
-   assert( fct_ts__is_test_mode(ts) );
-   assert( !fct_ts__is_end(ts) );
-   ts->mode = ts_mode_ending;
-}
-
-
 /* Flags the end of the teardown, which implies we are going to move
 into setup mode (for the next 'iteration'). */
 static void
@@ -783,23 +776,26 @@ fct_ts__is_test_cnt(fct_ts_t const *ts, int test_num)
 
 /* Returns the # of tests on the FCT TS object. This is the actual
 # of tests executed. */
-static int
+static size_t
 fct_ts__tst_cnt(fct_ts_t const *ts)
 {
    assert( ts != NULL );
-   assert( !fct_ts__is_end(ts) );
+   assert( 
+       fct_ts__is_end(ts) 
+       && "can't count number of tests executed until the test suite ends"
+       );
    return nlist__size(ts->test_list);
 }
 
 
 /* Returns the # of tests in the TS object that passed. */
-static int
+static size_t
 fct_ts__tst_cnt_passed(fct_ts_t const *ts)
 {
-   int tally =0;
+   size_t tally =0;
 
    assert( ts != NULL );
-   assert( !fct_ts__is_end(ts) );
+   assert( fct_ts__is_end(ts) );
 
    NLIST_FOREACH_BGN(fct_test_t*, test, ts->test_list)
    {
@@ -814,10 +810,10 @@ fct_ts__tst_cnt_passed(fct_ts_t const *ts)
 
 
 /* Returns the # of checks made throughout a test suite. */
-static int
+static size_t
 fct_ts__chk_cnt(fct_ts_t const *ts)
 {
-   int tally =0;
+   size_t tally =0;
 
    assert( ts != NULL );
    
@@ -875,7 +871,7 @@ static void
 fctkern__add_prefix_filter(fctkern_t const *fct, char const *prefix_filter)
 {
    char *filter =NULL;
-   int filter_len =0;
+   size_t filter_len =0;
 
    assert( fct != NULL && "invalid arg" );
    assert( prefix_filter != NULL && "invalid arg" );
@@ -976,8 +972,8 @@ fctkern__add_ts(fctkern_t *nk, fct_ts_t *ts) {
 this test suite. If there are no filters, we return FCT_TRUE always. */
 static nbool_t
 fctkern__pass_filter(fctkern_t *nk, char const *test_name) {
-   int prefix_i =0;
-   int prefix_list_size =0;
+   size_t prefix_i =0;
+   size_t prefix_list_size =0;
 
    assert( nk != NULL && "invalid arg");
    assert( test_name != NULL );
@@ -1009,10 +1005,10 @@ fctkern__pass_filter(fctkern_t *nk, char const *test_name) {
 
 
 /* Returns the number of tests that were performed. */
-static int
+static size_t
 fctkern__tst_cnt(fctkern_t const *nk)
 {
-   int tally =0;
+   size_t tally =0;
    assert( nk != NULL );
 
    NLIST_FOREACH_BGN(fct_ts_t *, ts, nk->ts_list)
@@ -1024,10 +1020,10 @@ fctkern__tst_cnt(fctkern_t const *nk)
 }
 
 /* Returns the number of tests that passed. */
-static int
+static size_t
 fctkern__tst_cnt_passed(fctkern_t const *nk)
 {
-   int tally =0;
+   size_t tally =0;
    assert( nk != NULL );
 
    NLIST_FOREACH_BGN(fct_ts_t*, ts, nk->ts_list)
@@ -1041,13 +1037,13 @@ fctkern__tst_cnt_passed(fctkern_t const *nk)
 
 
 /* Returns the number of tests that failed. */
-static int
+static size_t
 fctkern__tst_cnt_failed(fctkern_t const *nk)
 {
    /* Keep it simple for now and just do a little math. */
-   int total =0;
-   int passed =0;
-   int failed =0;
+   size_t total =0;
+   size_t passed =0;
+   size_t failed =0;
 
    assert( nk != NULL );
 
@@ -1061,10 +1057,10 @@ fctkern__tst_cnt_failed(fctkern_t const *nk)
 
 
 /* Returns the number of checks made throughout the entire test. */
-static int
+static size_t
 fctkern__chk_cnt(fctkern_t const *nk)
 {
-   int tally =0;
+   size_t tally =0;
    assert( nk != NULL );
 
    NLIST_FOREACH_BGN(fct_ts_t *, ts, nk->ts_list)
@@ -1367,7 +1363,14 @@ fct_logger__on_warn(fct_logger_i *logger, char const *warn)
 -----------------------------------------------------------
 MINIMAL LOGGER
 -----------------------------------------------------------
+
+At the moment the MINIMAL LOGGER is currently disabled. Hope
+to bring it back online soon. The only reason it is 
+disabled is that we don't currently have the ability to specify
+loggers.
 */
+
+#if defined(FCT_MINIMAL_LOGGER_DISABLED)
 
 /* Minimal logger, reports the minimum amount of information needed
 to determine "something is happening". */
@@ -1414,7 +1417,7 @@ fct_minimal_logger__new(void)
    self->vtable = &fct_logger_minimal_vtable;
    return self;
 }
-
+#endif /* FCT_MINIMAL_LOGGER_DISABLED */
 
 /*
 -----------------------------------------------------------
@@ -1520,10 +1523,9 @@ fct_standard_logger__on_fct_end(fct_logger_i *logger_, fctkern_t const *nk)
 {
    fct_standard_logger_t *logger = (fct_standard_logger_t*)logger_;
    nbool_t is_success =1;
-   double end_time =0;
    double elasped_time =0;
-   int num_tests =0;
-   int num_passed =0;
+   size_t num_tests =0;
+   size_t num_passed =0;
 
    fct_timer__stop(&(logger->timer));
      
@@ -1586,9 +1588,9 @@ fct_standard_logger__del(fct_logger_i *logger_)
 
 
 static void
-fct_standard_logger__warn(fct_logger_i *logger_, char const *warn) 
-{
-    fct_standard_logger_t *logger = (fct_standard_logger_t*)logger_;
+fct_standard_logger__warn(fct_logger_i* logger_, char const *warn) 
+{   
+    fct_unused(logger_);
     (void)printf("WARNING: %s", warn);
 }
 
@@ -1647,14 +1649,20 @@ main(int argc, char *argv[])\
    fctkern__log_start(&fctkern__);
 
 
+/* Ends the test suite but returning the number failed. THe "chk_cnt" call is
+made in order allow strict compilers to pass when it encounters unreferenced
+functions. */
 #define FCT_END()\
    {\
-      int num_failed__ =0;\
+      size_t num_failed__ =0;\
+      size_t num_run =0;\
+      num_run = fctkern__chk_cnt(&fctkern__);\
       num_failed__ = fctkern__tst_cnt_failed((&fctkern__));\
       fctkern__log_end(&fctkern__);\
       fctkern__end(&fctkern__);\
       fctkern__final(&fctkern__);\
-      return num_failed__;\
+      assert( !((int)num_failed__ < 0) && "or we got truncated!");\
+      return (int)num_failed__;\
    }\
 }
 
@@ -1689,6 +1697,7 @@ main(int argc, char *argv[])\
           }\
           fctkern__add_ts((&fctkern__), ts__);\
           fctkern__log_suite_end((&fctkern__), ts__);\
+          fct_ts__end(ts__);\
           ts__ = NULL;\
       }\
    }

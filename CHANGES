@@ -6,8 +6,12 @@ Whats new in FCT 1.1
 ====================
 
  - CMAKE used for building the FCT tests.
- - #376783: Added test to make sure we continue to compile against a C++ 
+ - #376783: Added test to make sure we continue to compile against a C++
    project.
+ - Updated all compiles to use the highest warning level and fixed compiler
+   warnings.
+ - Removed all "assert out of memory" checks and properly checked the memory
+   through the entire lifetime of the execution branch.
 
 Whats new in FCT 1.0.1
 ======================

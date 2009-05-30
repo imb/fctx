@@ -39,6 +39,9 @@ int
 main(int argc, char *argv[]) {
    int test_i =0;
    FILE *f = fopen(FILE_NAME, "wt");
+
+   (void)argc;
+   (void)argv;
    
    if ( f == NULL ) {
       fprintf(stderr, "unable to open 'test_big.c'");

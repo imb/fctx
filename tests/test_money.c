@@ -49,7 +49,6 @@ static money_t *
 money_new(int amount, char const *currency) 
 {
    money_t *self =NULL;
-   int curr_len =0;
 
    self = calloc(1, sizeof(money_t));
    if ( self == NULL )
