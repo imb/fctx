@@ -147,7 +147,7 @@ fct_safe_str_cpy(char *dst, char const *src, size_t num)
 }
 
 /* Isolate the snprintf implemenation. */
-int 
+static int 
 fct_snprintf(char *buffer, size_t buffer_len, char const *format, ...)
 {
    int count =0;
@@ -206,12 +206,10 @@ fct_filter_pass(char const *prefix, char const *test_str)
    return is_match;
 }
 
+
 /* Returns true if two reals are equal. */
-nbool_t 
-fct_real_eq(double v1, double v2)
-{
-   return (nbool_t)(fabs(v1 - v2) < DBL_EPSILON);
-}
+#define fct_real_eq(V1, V2) ((int)(fabs((V1)-(V2)) < DBL_EPSILON))
+
 
 /* 
 -------------------------------------------------------- 
