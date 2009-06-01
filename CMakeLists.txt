@@ -17,7 +17,12 @@ ENABLE_TESTING()
 
 IF (MSVC)
     # Warning Level 4, Treat all warnings as errors!
+    IF (MSVC90)
+        # 64 bit flags are deprecated, so lets not use it.
+        SET(WARNINGS "/WX /W4")
+    ELSE (MSVC90)
 	SET(WARNINGS "/WX /W4 /Wp64")
+    ENDIF(MSVC90)
 ENDIF (MSVC)
 IF (MINGW)
 	SET(WARNINGS "-Wall -Wextra -W64bit")
