@@ -105,12 +105,6 @@ static void
 fct_logger__on_test_suite_end(fct_logger_i *logger, fct_ts_t const *ts);
 
 static void
-fct_logger__on_fct_start(fct_logger_i *logger, fctkern_t const *kern);
-
-static void
-fct_logger__on_fct_end(fct_logger_i *logger, fctkern_t const *kern);
-
-static void
 fct_logger__on_warn(fct_logger_i *logger, char const *warn);
 
 
@@ -912,7 +906,9 @@ fctkern_init(fctkern_t *nk, int argc, char *argv[])
    int arg_i =0;
    nbool_t ok = FCT_FALSE;
 
-   assert( nk != NULL );
+   if ( argc == 0 && argv == NULL ) {
+       return 0;
+   }
 
    memset(nk, 0, sizeof(fctkern_t));
 
@@ -1037,23 +1033,8 @@ fctkern__tst_cnt_passed(fctkern_t const *nk)
 
 
 /* Returns the number of tests that failed. */
-static size_t
-fctkern__tst_cnt_failed(fctkern_t const *nk)
-{
-   /* Keep it simple for now and just do a little math. */
-   size_t total =0;
-   size_t passed =0;
-   size_t failed =0;
-
-   assert( nk != NULL );
-
-   total = fctkern__tst_cnt(nk);
-   passed = fctkern__tst_cnt_passed(nk);
-
-   failed = total - passed;
-
-   return failed;
-}
+#define fctkern__tst_cnt_failed(nk) \
+    (fctkern__tst_cnt(nk) - fctkern__tst_cnt_passed(nk))
 
 
 /* Returns the number of checks made throughout the entire test. */
@@ -1073,11 +1054,7 @@ fctkern__chk_cnt(fctkern_t const *nk)
 
 
 /* Indicates the very end of all the tests. */
-static void
-fctkern__end(fctkern_t *fct)
-{
-   fct_unused(fct);
-}
+#define fctkern__end(nk) /* unused */
 
 
 static void
@@ -1163,28 +1140,24 @@ fctkern__log_test_end(fctkern_t *kern, fct_test_t const *test)
 }
 
 
-static void
-fctkern__log_start(fctkern_t *kern)
-{
-   assert( kern != NULL );
-   NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
-   {
-      fct_logger__on_fct_start(logger, kern);
+#define fctkern__log_start(kern) \
+   {\
+       NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)\
+       {\
+          fct_logger__on_fct_start(logger, kern);\
+       }\
+       NLIST_FOREACH_END();\
    }
-   NLIST_FOREACH_END();
-}
 
 
-static void
-fctkern__log_end(fctkern_t *kern)
-{
-   assert( kern != NULL );
-   NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
-   {
-      fct_logger__on_fct_end(logger, kern);
-   }
-   NLIST_FOREACH_END();
-}
+#define fctkern__log_end(kern) \
+    {\
+       NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)\
+       {\
+          fct_logger__on_fct_end(logger, kern);\
+       }\
+       NLIST_FOREACH_END();\
+    }
 
 
 /*
@@ -1318,33 +1291,24 @@ fct_logger__on_cndtn(fct_logger_i *logger, fctchk_t const *chk)
    }
 }                        
 
-
 /* When we start all our tests. */
-static void
-fct_logger__on_fct_start(fct_logger_i *logger, fctkern_t const *kern)
-{
-   assert( logger != NULL );
-   assert( kern != NULL );
-
-   if ( logger->vtable->on_fct_start != NULL ) 
-   {
-      logger->vtable->on_fct_start(logger, kern);
-   }
-}
+#define fct_logger__on_fct_start(LOGGER, KERN) \
+    {\
+       if ( LOGGER->vtable->on_fct_start != NULL ) \
+       {\
+          LOGGER->vtable->on_fct_start(LOGGER, KERN);\
+       }\
+    }
 
 
 /* When we have reached the end of ALL of our testing. */
-static void
-fct_logger__on_fct_end(fct_logger_i *logger, fctkern_t const *kern)
-{
-   assert( logger != NULL );
-   assert( kern != NULL );
-
-   if ( logger->vtable->on_fct_end )
-   {
-      logger->vtable->on_fct_end(logger, kern);
-   }
-}
+#define fct_logger__on_fct_end(LOGGER, KERN) \
+    {\
+       if ( LOGGER->vtable->on_fct_end )\
+       {\
+          LOGGER->vtable->on_fct_end(LOGGER, KERN);\
+       }\
+    }
 
 
 static void
@@ -1637,16 +1601,20 @@ MAGIC MACROS
 ------------------------------------------------------------
 */
 
+/* This defines our start. The fctkern__ is a kernal object
+that lives throughout the lifetime of our program. The 
+fctkern_ptr__ makes it easier to abstract out macros.  */
 #define FCT_BGN() \
 int \
 main(int argc, char *argv[])\
 {\
-   fctkern_t fctkern__;\
-   if ( !fctkern_init(&fctkern__, argc, argv) ) {\
+   fctkern_t  fctkern__;\
+   fctkern_t* fctkern_ptr__ = &fctkern__;\
+   if ( !fctkern_init(fctkern_ptr__, argc, argv) ) {\
         (void)printf("FATAL ERROR: Unable to intialize FCT Kernal.");\
         exit(EXIT_FAILURE);\
    }\
-   fctkern__log_start(&fctkern__);
+   fctkern__log_start(fctkern_ptr__);
 
 
 /* Ends the test suite but returning the number failed. THe "chk_cnt" call is
@@ -1656,11 +1624,11 @@ functions. */
    {\
       size_t num_failed__ =0;\
       size_t num_run =0;\
-      num_run = fctkern__chk_cnt(&fctkern__);\
-      num_failed__ = fctkern__tst_cnt_failed((&fctkern__));\
-      fctkern__log_end(&fctkern__);\
-      fctkern__end(&fctkern__);\
-      fctkern__final(&fctkern__);\
+      num_run = fctkern__chk_cnt(fctkern_ptr__);\
+      num_failed__ = fctkern__tst_cnt_failed((fctkern_ptr__));\
+      fctkern__log_end(fctkern_ptr__);\
+      fctkern__end(fctkern_ptr__);\
+      fctkern__final(fctkern_ptr__);\
       assert( !((int)num_failed__ < 0) && "or we got truncated!");\
       return (int)num_failed__;\
    }\
@@ -1670,10 +1638,10 @@ functions. */
    {\
       fct_ts_t *ts__ = fct_ts_new( #_NAME_ );\
       if ( ts__ == NULL ) {\
-        fctkern__log_warn((&fctkern__), "out of memory");\
+        fctkern__log_warn((fctkern_ptr__), "out of memory");\
       }\
       else {\
-          fctkern__log_suite_start((&fctkern__), ts__);\
+          fctkern__log_suite_start((fctkern_ptr__), ts__);\
           for (;;)\
           {\
              int fct_test_num__ = -1;\
@@ -1695,8 +1663,8 @@ functions. */
                 fct_ts__cnt_end(ts__);\
              }\
           }\
-          fctkern__add_ts((&fctkern__), ts__);\
-          fctkern__log_suite_end((&fctkern__), ts__);\
+          fctkern__add_ts((fctkern_ptr__), ts__);\
+          fctkern__log_suite_end((fctkern_ptr__), ts__);\
           fct_ts__end(ts__);\
           ts__ = NULL;\
       }\
@@ -1747,15 +1715,15 @@ object (should be rare). */
                int is_pass__;\
                is_pass__ = FCT_FALSE;\
                fct_ts__test_begin(ts__);\
-               if ( fctkern__pass_filter(&fctkern__,  test_name__ ) )\
+               if ( fctkern__pass_filter(fctkern_ptr__,  test_name__ ) )\
                {\
                   fct_test_t *test__ = fct_test_new( test_name__ );\
                   if ( test__  == NULL ) {\
-                    fctkern__log_warn(&fctkern__, "out of memory");\
+                    fctkern__log_warn(fctkern_ptr__, "out of memory");\
                     is_pass__ = FCT_FALSE;\
                   }\
                   else {\
-                      fctkern__log_test_start(&fctkern__, test__);\
+                      fctkern__log_test_start(fctkern_ptr__, test__);\
                       for (;;) \
                       {
 
@@ -1764,7 +1732,7 @@ object (should be rare). */
                       }\
                   }\
                fct_ts__add_test(ts__, test__);\
-               fctkern__log_test_end(&fctkern__, test__);\
+               fctkern__log_test_end(fctkern_ptr__, test__);\
                }\
                fct_ts__test_end(ts__);\
                continue;\
@@ -1788,11 +1756,11 @@ to add more macros that check for different types of common conditions.
       is_pass__ = (_CNDTN_);\
       chk = fctchk_new(#_CNDTN_, __FILE__, __LINE__, is_pass__);\
       if ( chk == NULL ) {\
-          fctkern__log_warn(&fctkern__, "out of memory (aborting)");\
+          fctkern__log_warn(fctkern_ptr__, "out of memory (aborting)");\
           break;\
       }\
       fct_test__add(test__, chk);\
-      fctkern__log_chk(&fctkern__, chk);\
+      fctkern__log_chk(fctkern_ptr__, chk);\
       if ( !is_pass__ ) { break; }\
    }
 
@@ -1817,6 +1785,44 @@ non-zero number. */
       fprintf(stdout, "gutchk pass:  '" #_CNDTN_ "'\n");\
    }
       
+/*
+---------------------------------------------------------
+MULTI-FILE TEST SUITE MACROS
+---------------------------------------------------------- 
+
+I struggled trying to figure this out in a way that was
+as simple as possible. I wanted to be able to define
+the test suite in one object file, then refer it within
+the other one within the minimum amount of typing.
+
+Unfortunately without resorting to some supermacro
+work, I could only find a happy comprimise.
+
+See test_mf.c for an example.
+*/
+
+
+/* The following two macros are used in your separate object
+file to define your test suite. The BGN function has a whole
+bunch of useless calls at the head in order to force
+'unreferenced' functions to be referenced. Ohh Me Oh My what
+a waste! */
+#define FCTMF_SUITE_BGN(NAME) \
+   void NAME (fctkern_t *fctkern_ptr__) {\
+        (void)fctkern_init(NULL, 0, NULL);\
+        (void)fctkern__chk_cnt(fctkern_ptr__);\
+        FCT_SUITE_BGN( NAME ) {        
+
+#define FCTMF_SUITE_END() \
+       } FCT_SUITE_END(); \
+   }
+
+
+/* Use these macros to 'define' and 'execute' your test suite
+within your main "FCT_BGN() { ... } FCT_END();" body. */
+#define FCTMF_SUITE_DEF(NAME)   void NAME (fctkern_t *)
+#define FCTMF_SUITE_CALL(NAME)  NAME (fctkern_ptr__)
+
 
 /*
 ---------------------------------------------------------

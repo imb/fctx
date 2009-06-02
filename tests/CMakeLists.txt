@@ -10,16 +10,51 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/include)
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
-ADD_EXECUTABLE(test_basic test_basic.c)
-ADD_EXECUTABLE(test_1suite test_1suite.c)
+MACRO(TO_CPP _NAME_) 
+	ADD_CUSTOM_COMMAND(
+		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${_NAME_}.cpp
+		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${_NAME_}.c ${CMAKE_CURRENT_BINARY_DIR}/${_NAME_}.cpp
+		DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${_NAME_}.c
+		)
+	ADD_CUSTOM_TARGET(
+		generate_${_NAME_}_cpp
+       		DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${_NAME_}.cpp
+		) 
+	SET_SOURCE_FILES_PROPERTIES(
+		${CMAKE_CURRENT_BINARY_DIR}/${_NAME_}.cpp 
+		PROPERTIES GENERATED 1
+		)
+ENDMACRO(TO_CPP)
 
-ADD_EXECUTABLE(test_count test_count.c)
-ADD_EXECUTABLE(test_fail test_fail.c)
-ADD_EXECUTABLE(test_money test_money.c)
-ADD_EXECUTABLE(test_multi test_multi.c)
-ADD_EXECUTABLE(test_two_names test_two_names.c)
-ADD_EXECUTABLE(test_call_teardown test_call_teardown.c)
+
+MACRO(TEST_CPP_VERSION _NAME_)
+    TO_CPP(${_NAME_})
+    ADD_EXECUTABLE(${_NAME_}_cpp ${CMAKE_CURRENT_BINARY_DIR}/${_NAME_}.cpp)
+    ADD_TEST(run_${_NAME_}_cpp ${_NAME_}_cpp)
+ENDMACRO(TEST_CPP_VERSION)
+
+SET(SIMPLE_TESTS test_basic
+	         test_1suite
+                 test_call_teardown
+		 test_count
+                 test_money
+		 test_multi_old_style
+		 test_two_names
+	)	
+
+FOREACH( PROGRAM ${SIMPLE_TESTS}) 
+	ADD_EXECUTABLE(${PROGRAM} ${PROGRAM}.c)
+ENDFOREACH(PROGRAM)
+
+# This requires more than one file and doesn't fall under the "test simple"
+# category.
+ADD_EXECUTABLE(test_multi test_multi.c test_multi_suite1.c)
+
+# This one will always fail.
+ADD_EXECUTABLE(test_fail	test_fail.c)
+
 
 # TEST_BIG. This requires generating test_big.c before we can
 # build test_big.exe. To generate test_big.c you need to compile
@@ -41,39 +76,28 @@ ADD_CUSTOM_COMMAND(
     )	
 ADD_EXECUTABLE(test_big test_big.c)
 
-# The test_cpp_basic.cpp is the same test_basic.c code, but it is 
-# compiled using the C++ compiler. 
-ADD_CUSTOM_COMMAND(
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/test_cpp_basic.cpp
-	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/test_basic.c ${CMAKE_CURRENT_BINARY_DIR}/test_cpp_basic.cpp
-	DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/test_basic.c
-	)
-ADD_CUSTOM_TARGET(
-	generate_test_cpp_basic
-       	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/test_cpp_basic.cpp
-	) 
-ADD_EXECUTABLE(test_cpp_basic ${CMAKE_CURRENT_BINARY_DIR}/test_cpp_basic.cpp)
-SET_SOURCE_FILES_PROPERTIES(
-	${CMAKE_CURRENT_BINARY_DIR}/test_cpp_basic.cpp 
-	PROPERTIES GENERATED 1
-	)
+
 
 # -------
 # TESTING 
 # -------
 
-ENABLE_TESTING()
-ADD_TEST(run_test_basic test_basic)
-ADD_TEST(run_test_1suite test_1suite)
-ADD_TEST(run_test_count test_count)
-ADD_TEST(run_test_money test_money)
-ADD_TEST(run_test_multi test_multi)
-ADD_TEST(run_test_two_names test_two_names)
+FOREACH( PROGRAM ${SIMPLE_TESTS}) 
+  ADD_TEST(run_${PROGRAM} ${PROGRAM})
+  TEST_CPP_VERSION(${PROGRAM})
+ENDFOREACH(PROGRAM)
+
 ADD_TEST(run_test_big test_big)
 ADD_TEST(run_test_call_teardown test_call_teardown)
+
+TO_CPP(test_multi)
+TO_CPP(test_multi_suite1)
+ADD_EXECUTABLE(test_multi_cpp 
+	${CMAKE_CURRENT_BINARY_DIR}/test_multi.cpp 
+	${CMAKE_CURRENT_BINARY_DIR}/test_multi_suite1.cpp
+	)
+ADD_TEST(run_test_multi_cpp test_multi_cpp)
 
 # The following tests confirm that failure happens.
 ADD_TEST(run_test_fail test_fail)
 SET_TESTS_PROPERTIES(run_test_fail PROPERTIES WILL_FAIL TRUE) 
-
-ADD_TEST(run_test_cpp_basic test_cpp_basic)

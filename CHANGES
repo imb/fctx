@@ -5,6 +5,9 @@ FCT Changes
 Whats new in FCT 1.1
 ====================
 
+ - BLUEPRINT: sys-multi-file. Better, more robust multi-file support. Although
+   it starts to take a toll on the time to code for FCTest, it does help
+   provide it a little more extendability to FCTest.
  - CMAKE used for building the FCT tests.
  - #376783: Added test to make sure we continue to compile against a C++
    project.

@@ -50,7 +50,7 @@ money_new(int amount, char const *currency)
 {
    money_t *self =NULL;
 
-   self = calloc(1, sizeof(money_t));
+   self = (money_t*)calloc(1, sizeof(money_t));
    if ( self == NULL )
    {
       return NULL;
