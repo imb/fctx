@@ -695,14 +695,8 @@ fct_ts__test_end(fct_ts_t *ts) {
    assert( ts != NULL );
    assert( fct_ts__is_test_mode(ts) && "not in test mode, can't end!" );
 
-   /* We have to decide if we should keep on testing by moving into 
-   tear down mode or if we have reached the end and should be moving
-   into the ending mode. */
-   if ( fct_ts__is_more_tests(ts) ) {
-      ts->mode = ts_mode_teardown;
-   } else {
-      ts->mode = ts_mode_ending;
-   }
+   /* After a test has completed, move to teardown mode. */
+   ts->mode = ts_mode_teardown;
 }
 
 
@@ -733,9 +727,17 @@ into setup mode (for the next 'iteration'). */
 static void
 fct_ts__teardown_end(fct_ts_t *ts)
 {
-   assert( fct_ts__is_teardown_mode(ts) );
-   assert( !fct_ts__is_end(ts) );
-   ts->mode = ts_mode_setup;
+    assert( fct_ts__is_teardown_mode(ts) );
+    assert( !fct_ts__is_end(ts) );
+    /* We have to decide if we should keep on testing by moving into tear down 
+    mode or if we have reached the real end and should be moving into the 
+    ending mode. */
+    if ( fct_ts__is_more_tests(ts) ) {
+        ts->mode = ts_mode_setup;
+    }
+    else {
+        ts->mode = ts_mode_ending;
+    }
 }
 
 

@@ -13,6 +13,11 @@ Whats new in FCT 1.1
  - Removed all "assert out of memory" checks and properly checked the memory
    through the entire lifetime of the execution branch.
 
+Whats new in FCT 1.0.2
+======================
+
+ - #382628: Fix tests so teardown gets executed. Added test case.
+
 Whats new in FCT 1.0.1
 ======================
 

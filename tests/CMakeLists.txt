@@ -19,6 +19,7 @@ ADD_EXECUTABLE(test_fail test_fail.c)
 ADD_EXECUTABLE(test_money test_money.c)
 ADD_EXECUTABLE(test_multi test_multi.c)
 ADD_EXECUTABLE(test_two_names test_two_names.c)
+ADD_EXECUTABLE(test_call_teardown test_call_teardown.c)
 
 # TEST_BIG. This requires generating test_big.c before we can
 # build test_big.exe. To generate test_big.c you need to compile
@@ -69,6 +70,7 @@ ADD_TEST(run_test_money test_money)
 ADD_TEST(run_test_multi test_multi)
 ADD_TEST(run_test_two_names test_two_names)
 ADD_TEST(run_test_big test_big)
+ADD_TEST(run_test_call_teardown test_call_teardown)
 
 # The following tests confirm that failure happens.
 ADD_TEST(run_test_fail test_fail)
