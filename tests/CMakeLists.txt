@@ -28,20 +28,21 @@ MACRO(TO_CPP _NAME_)
 		)
 ENDMACRO(TO_CPP)
 
-
 MACRO(TEST_CPP_VERSION _NAME_)
     TO_CPP(${_NAME_})
     ADD_EXECUTABLE(${_NAME_}_cpp ${CMAKE_CURRENT_BINARY_DIR}/${_NAME_}.cpp)
     ADD_TEST(run_${_NAME_}_cpp ${_NAME_}_cpp)
 ENDMACRO(TEST_CPP_VERSION)
 
-SET(SIMPLE_TESTS test_basic
-	         test_1suite
-                 test_call_teardown
-		 test_count
+
+SET(SIMPLE_TESTS test_1suite
+                 test_basic
+				 test_call_teardown
+		         test_count
                  test_money
-		 test_multi_old_style
-		 test_two_names
+		         test_multi_old_style
+				 test_quick_test
+		         test_two_names
 	)	
 
 FOREACH( PROGRAM ${SIMPLE_TESTS}) 
@@ -75,8 +76,6 @@ ADD_CUSTOM_COMMAND(
     DEPENDS mkbigtest 
     )	
 ADD_EXECUTABLE(test_big test_big.c)
-
-
 
 # -------
 # TESTING 

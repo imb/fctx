@@ -1826,6 +1826,24 @@ within your main "FCT_BGN() { ... } FCT_END();" body. */
 
 /*
 ---------------------------------------------------------
+FCT QUICK TEST API
+---------------------------------------------------------- 
+The goal of these little macros is to try and get you
+up and running with a test as quick as possible. 
+
+The basic idea is that there is one test per test suite.
+*/
+
+#define FCT_QTEST_BGN(NAME) \
+	FCT_SUITE_BGN(NAME) {\
+		FCT_TEST_BGN(NAME) {\
+
+#define FCT_QTEST_END() \
+		} FCT_TEST_END();\
+	} FCT_SUITE_END();
+
+/*
+---------------------------------------------------------
 CLOSING STATEMENTS
 ---------------------------------------------------------- 
 */
