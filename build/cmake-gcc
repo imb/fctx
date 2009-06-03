@@ -1,0 +1,6 @@
+#!/bin/sh
+mkdir gcc
+cd gcc
+cmake ../../
+cd ..
+
