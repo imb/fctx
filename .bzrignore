@@ -18,3 +18,5 @@ Testing
 tests/CMakeFiles
 doc/dev/build
 build
+mingw
+vc9
