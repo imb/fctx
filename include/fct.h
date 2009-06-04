@@ -1798,25 +1798,34 @@ the other one within the minimum amount of typing.
 Unfortunately without resorting to some supermacro
 work, I could only find a happy comprimise.
 
-See test_mf.c for an example.
+See test_multi.c for an example.
 */
 
+/* The following macros are used in your separate object
+file to define your test suite.  */
 
-/* The following two macros are used in your separate object
-file to define your test suite. The BGN function has a whole
-bunch of useless calls at the head in order to force
-'unreferenced' functions to be referenced. Ohh Me Oh My what
-a waste! */
-#define FCTMF_SUITE_BGN(NAME) \
-   void NAME (fctkern_t *fctkern_ptr__) {\
+
+/* The BGN function has a whole bunch of useless calls 
+at the head in order to force 'unreferenced' functions 
+to be referenced. Ohh Me Oh My what a waste! */
+
+#define FCTMF_FIXTURE_SUITE_BGN(NAME) \
+	void NAME (fctkern_t *fctkern_ptr__) {\
         (void)fctkern_init(NULL, 0, NULL);\
         (void)fctkern__chk_cnt(fctkern_ptr__);\
-        FCT_SUITE_BGN( NAME ) {        
+        FCT_FIXTURE_SUITE_BGN( NAME ) {
+#define FCTMF_FIXTURE_SUITE_END(NAME) \
+		} FCT_FIXTURE_SUITE_END();\
+	}
 
+#define FCTMF_SUITE_BGN(NAME) \
+	void NAME (fctkern_t *fctkern_ptr__) {\
+        (void)fctkern_init(NULL, 0, NULL);\
+        (void)fctkern__chk_cnt(fctkern_ptr__);\
+        FCT_SUITE_BGN( NAME ) {
 #define FCTMF_SUITE_END() \
        } FCT_SUITE_END(); \
-   }
-
+   } 
 
 /* Use these macros to 'define' and 'execute' your test suite
 within your main "FCT_BGN() { ... } FCT_END();" body. */

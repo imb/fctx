@@ -22,14 +22,16 @@ about a function not being defined. The linker will make it all work
 in the end. However, if you like to be formal, you need to specify this
 line. */
 FCTMF_SUITE_DEF(test_suite1);
+FCTMF_SUITE_DEF(test_fixture_suite2);
 
 FCT_BGN() { 
     /* This suite is called *OUTSIDE* of this compilation unit. */
     FCTMF_SUITE_CALL(test_suite1);
+	FCTMF_SUITE_CALL(test_fixture_suite2);
     
     /* Provide a co-existing "embedded" version for completness. */
     FCT_SUITE_BGN(test_embedded) {
-        FCT_TEST_BGN(zero_is_zero) {
+        FCT_TEST_BGN(test_embedded.zero_is_zero) {
             fct_chk( 0 == 0 );
         } FCT_TEST_END();
     } FCT_SUITE_END();

@@ -51,7 +51,10 @@ ENDFOREACH(PROGRAM)
 
 # This requires more than one file and doesn't fall under the "test simple"
 # category.
-ADD_EXECUTABLE(test_multi test_multi.c test_multi_suite1.c)
+ADD_EXECUTABLE(
+	test_multi 
+	test_multi.c test_multi_suite1.c test_multi_with_fixtures_suite2.c
+	)
 
 # This one will always fail.
 ADD_EXECUTABLE(test_fail	test_fail.c)
@@ -91,9 +94,11 @@ ADD_TEST(run_test_call_teardown test_call_teardown)
 
 TO_CPP(test_multi)
 TO_CPP(test_multi_suite1)
+TO_CPP(test_multi_with_fixtures_suite2)
 ADD_EXECUTABLE(test_multi_cpp 
 	${CMAKE_CURRENT_BINARY_DIR}/test_multi.cpp 
 	${CMAKE_CURRENT_BINARY_DIR}/test_multi_suite1.cpp
+	${CMAKE_CURRENT_BINARY_DIR}/test_multi_with_fixtures_suite2.cpp
 	)
 ADD_TEST(run_test_multi_cpp test_multi_cpp)
 
