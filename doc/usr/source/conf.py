@@ -37,7 +37,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'FCTest User Documenation'
+project = u'FCTest User'
 copyright = u'2009, Ian Blumel'
 
 # The version info for the project you're documenting, acts as replacement for
