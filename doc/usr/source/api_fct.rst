@@ -16,9 +16,11 @@ Functions
 ---------
 
 .. cfunction:: FCT_BGN()
-	Initializes your test framework. Every test program needs to begin with 
+
+	Initializes your test framework. Every test program needs to begin with
 	this declaration.
 
 .. cfunction:: FCT_END()
-	Finalizes your test framwork. Every test program neesd to end with tis 
+
+	Finalizes your test framwork. Every test program neesd to end with this
 	declaration.
