@@ -1,7 +1,7 @@
 FCTest User Documentation
 =========================
 
-Overview
+Welcome
 --------
 
 Use Fast C Unit Test as a lightweight tool for quickly generating unit tests in
@@ -12,11 +12,6 @@ other introspective languages like Java and Python. FCTest does not require a
 post-processing step. FCTest does not require registration of your functions.
 Declare your test and start writing.
 
-See the `Contents`_ for more information.
-
+See the `Documentation Contents`_ for more information.
  
- - :ref:`genindex`
- - :ref:`modindex`
- - :ref:`search`
- 
- .. _contents: toc.html
+.. _documentation contents: toc.html
