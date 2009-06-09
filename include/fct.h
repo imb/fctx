@@ -260,7 +260,7 @@ GENERIC LIST
 
 /* Starting size for the list, to keep it simple we will start
 at a reasonable size. */
-#define FCT_LIST_START_SIZE      2
+#define FCT_LIST_START_SIZE      8
 
 /* Helper macros for quickly iterating through a list. You should be able
 to do something like,
@@ -324,6 +324,24 @@ nlist__del(nlist_t *list, on_del_t on_del)
    free(list->itm_list);
    free(list);
 }
+
+
+#if defined(FCT_USEIT__)
+/* Clears the contents of the list, and sets the list count to 0. The
+actual count remains unchanged. If on_del is supplied it is executed
+against each list element. */
+static void
+nlist__clear(nlist_t *list, on_del_t on_del) {
+    size_t itm_i__ =0;
+    assert( list != NULL );
+    if ( on_del != NULL ) {
+        for ( itm_i__=0; itm_i__ != list->used_itm_num; ++itm_i__ ) {
+            on_del(list->itm_list[itm_i__]);
+        }
+    }
+    list->used_itm_num =0;
+}
+#endif /* (FCT_USEIT__) */  
 
 
 static nlist_t *
@@ -481,12 +499,18 @@ struct _fct_test_t {
 
 #define fct_test__name(_TEST_) ((_TEST_)->name)
 
+/* Clears the failed tests ... partly for internal testing. */
+#define fct_test__clear_failed(test) \
+    nlist__clear(test->failed_chks, (on_del_t)fctchk__del);\
+
+
 static void
 fct_test__del(fct_test_t *test)
 {
    if (test == NULL ) { return; }
    nlist__del(test->passed_chks, (on_del_t)fctchk__del);
    nlist__del(test->failed_chks, (on_del_t)fctchk__del);
+   free(test);   
 }
 
 static fct_test_t*
@@ -550,6 +574,7 @@ fct_test__chk_cnt(fct_test_t const *test)
    assert( test != NULL );
    return nlist__size(test->failed_chks) + nlist__size(test->passed_chks);
 }
+
 
 
 
@@ -1695,12 +1720,23 @@ do it by 'stubbing' out the setup/teardown logic. */
 
 #define FCT_SUITE_END() } FCT_FIXTURE_SUITE_END()
 
+
+typedef enum {
+    FCT_TEST_END_FLAG_Default    = 0x0000,
+    FCT_TEST_END_FLAG_ClearFail  = 0x0001,
+} FCT_TEST_END_FLAG;
+
+
 /* Depending on whether or not we are counting the tests, we will have to 
 first determine if the test is the "current" count. Then we have to determine
 if we can pass the filter. Finally we will execute everything so that when a 
 check fails, we can "break" out to the end of the test. And in between all
 that we do a memory check and fail a test if we can't build a fct_test
-object (should be rare). */
+object (should be rare).
+
+__NOFAIL variants are used for my own internal testing to help
+confirm that checks/requirements are doing what are required. 
+*/
 #define FCT_TEST_BGN(_NAME_) \
          {\
             char const *test_name__ = #_NAME_;\
@@ -1712,8 +1748,7 @@ object (should be rare). */
             else if ( fct_ts__is_test_mode(ts__) \
                       && fct_ts__is_test_cnt(ts__, fct_test_num__) )\
             {\
-               int is_pass__;\
-               is_pass__ = FCT_FALSE;\
+               int is_pass__= FCT_FALSE;\
                fct_ts__test_begin(ts__);\
                if ( fctkern__pass_filter(fctkern_ptr__,  test_name__ ) )\
                {\
@@ -1730,7 +1765,7 @@ object (should be rare). */
 #define FCT_TEST_END() \
                          break;\
                       }\
-                  }\
+               }\
                fct_ts__add_test(ts__, test__);\
                fctkern__log_test_end(fctkern_ptr__, test__);\
                }\
@@ -1748,9 +1783,26 @@ CHECKING MACROS
 
 For now we only have the one "positive" check macro. In the future I plan
 to add more macros that check for different types of common conditions.
+
+The chk variants will continue on while as the req variants will abort
+if there is one test that fails.
 */
 
+
 #define fct_chk(_CNDTN_) \
+   {\
+      fctchk_t *chk =NULL;\
+      is_pass__ = (_CNDTN_);\
+      chk = fctchk_new(#_CNDTN_, __FILE__, __LINE__, is_pass__);\
+      if ( chk == NULL ) {\
+          fctkern__log_warn(fctkern_ptr__, "out of memory (aborting)");\
+          break;\
+      }\
+      fct_test__add(test__, chk);\
+      fctkern__log_chk(fctkern_ptr__, chk);\
+   }
+
+#define fct_req(_CNDTN_) \
    {\
       fctchk_t *chk =NULL;\
       is_pass__ = (_CNDTN_);\

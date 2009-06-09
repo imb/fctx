@@ -37,12 +37,12 @@ ENDMACRO(TEST_CPP_VERSION)
 
 SET(SIMPLE_TESTS test_1suite
                  test_basic
-				 test_call_teardown
-		         test_count
+		 test_call_teardown
+		 test_count
                  test_money
-		         test_multi_old_style
-				 test_quick_test
-		         test_two_names
+		 test_multi_old_style
+		 test_quick_test
+		 test_two_names
 	)	
 
 FOREACH( PROGRAM ${SIMPLE_TESTS}) 
@@ -57,7 +57,17 @@ ADD_EXECUTABLE(
 	)
 
 # This one will always fail.
-ADD_EXECUTABLE(test_fail	test_fail.c)
+ADD_EXECUTABLE(test_fail test_fail.c)
+
+# This utilty can be used to run tests that are supposed to return non-zero
+# values. Some tests are supposed to report failures like: 2 errors.
+ADD_EXECUTABLE(runner runner.c)
+
+# This one has the potential for always failing. I may start to add an option
+# to let tests pass if they fail. ;-)
+ADD_EXECUTABLE(test_chk test_chk.c)
+
+ADD_DEPENDENCIES(test_chk runner)
 
 
 # TEST_BIG. This requires generating test_big.c before we can
@@ -105,3 +115,8 @@ ADD_TEST(run_test_multi_cpp test_multi_cpp)
 # The following tests confirm that failure happens.
 ADD_TEST(run_test_fail test_fail)
 SET_TESTS_PROPERTIES(run_test_fail PROPERTIES WILL_FAIL TRUE) 
+
+ADD_TEST(run_test_chk ${CMAKE_CURRENT_BINARY_DIR}/runner 
+                      ${CMAKE_CURRENT_BINARY_DIR}/test_chk 
+                      2)
+

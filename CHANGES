@@ -15,6 +15,9 @@ Whats new in FCT 1.1
    warnings.
  - Removed all "assert out of memory" checks and properly checked the memory
    through the entire lifetime of the execution branch.
+ - Added fct_req: Function will abort a test block when the requirement is not
+   met.
+ - Modified fct_chk: Will continue after a failed test.
 
 Whats new in FCT 1.0.2
 ======================

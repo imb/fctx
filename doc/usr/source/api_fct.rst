@@ -118,3 +118,87 @@ Test Suites
 .. cfunction:: FCT_TEARDOWN_END()
 
         Ends a teardown block. 
+
+
+Quick Test
+----------
+
+*New in FCTest 1.1*. This allows you to write tests without any Test Suite
+infrastructure. For example,
+
+.. code-block:: c
+
+  /* First include the fct framework. */
+  #include "fct.h"
+
+  /* Include your API. In this case we are going to test strcmp. */
+  #include <string.h>
+
+  /* Now lets define our testing scope. */
+  FCT_BGN()
+  {
+    /* An actual test case in the test suite. */
+    FCT_QTEST_BGN(strcmp_eq)
+    {
+       fct_chk(strcmp("durka", "durka") == 0);
+    }
+    FCT_QTEST_END();
+
+
+    FCT_QTEST_BGN(chk_neq)
+    {
+       fct_chk(strcmp("daka", "durka") !=0 );
+    }
+    FCT_TEST_END();
+
+  /* Every FCT scope has an end. */
+  }
+  FCT_END();
+
+.. ***
+
+The above code block lacks any test suites, and provide a convenient way to get
+of the ground quickly and start writing tests.
+
+.. cfunction:: FCT_QTEST_BGN(name)
+
+   Opens the quick test block with the given *name*.
+
+.. cfunction:: FCT_TEST_END()
+
+   Ends the quick test block.
+
+
+Tests
+-----
+
+These define a beginning and end of a test block. See also
+:cfunc:`FCT_QTEST_BGN` and :cfunc:`FCT_QTEST_END`.
+
+.. cfunction:: FCT_TEST_BGN(name)
+
+   Opens a test block with the given *name*.
+
+.. cfunction:: FCT_TEST_END()
+
+   Closes a test block. 
+
+
+Checks
+------
+
+These are used to verify that a condition is true. They are executed within
+:cfunc:`FCT_TEST_BGN`/:cfunc:`FCT_TEST_END` blocks. 
+
+
+.. cfunction:: fct_chk(condition)
+
+    Evaluates the condition, and if it is false will cause the tests to fail.
+    Further lines in the test block continue to execute. If you want a check to
+    terminate testing, then use the :cfunc:`fct_req` function instead.
+
+.. cfunction:: fct_req(condition)
+
+    Evaluates the condition, and if it is false it will cause a test to fail.
+    This differs from :cfunc:`fct_chk` in so far as a false state causes
+    the test block to abort.
