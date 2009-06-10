@@ -116,7 +116,8 @@ ADD_TEST(run_test_multi_cpp test_multi_cpp)
 ADD_TEST(run_test_fail test_fail)
 SET_TESTS_PROPERTIES(run_test_fail PROPERTIES WILL_FAIL TRUE) 
 
-ADD_TEST(run_test_chk ${CMAKE_CURRENT_BINARY_DIR}/runner 
+ADD_TEST(run_test_chk_with_runner 
+                      ${CMAKE_CURRENT_BINARY_DIR}/runner 
                       ${CMAKE_CURRENT_BINARY_DIR}/test_chk 
                       2)
 
