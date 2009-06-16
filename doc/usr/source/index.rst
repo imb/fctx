@@ -12,6 +12,12 @@ other introspective languages like Java and Python. FCTest does not require a
 post-processing step. FCTest does not require registration of your functions.
 Declare your test and start writing.
 
-See the `Documentation Contents`_ for more information.
- 
-.. _documentation contents: toc.html
+Contents
+--------
+
+.. toctree::
+   :maxdepth: 2
+
+   getting_started.rst
+   api_fct.rst
+
