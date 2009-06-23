@@ -1,22 +1,22 @@
-========================
-FCT (FAST C TEST) README
-========================
+===========================
+FCTest (FAST C TEST) README
+===========================
 
 --------
 Overview
 --------
 
-Fast C Test (FCT) is an all in one header file that lets you create
-tests fast in C/C++. With FCT you can write and run a test as fast as
+Fast C Test (FCTest) is an all in one header file that lets you create
+tests fast in C/C++. With FCTest you can write and run a test as fast as
 you can think about it. There is no need to write a test and register a
 test. Once the test is written it will be executed at runtime. There is
 no need for post-processing to generate a compilable file, you can run
-and view the results. The FCT only requires a ANSI C/C++ compiler to
+and view the results. The FCTest only requires a ANSI C/C++ compiler to
 run, there are no third party requirements.
 
 Simply include, write your test, and compile.
 
-The FCT is principle design goal is to make it possible to quickly
+The FCTest principle design goal is to make it possible to quickly
 generate unit tests for C and C++ with little or no hassle.
 
 It is just a header, you only need #include.
@@ -42,7 +42,7 @@ What that LICENSE file is essentially stating in plain English:
 
    Please be a good, smart person, and use due diligence. I can make no
    claims that what you are using will not light your computer on fire.
-   I can make no claims that everything written in FCT will be 100%
+   I can make no claims that everything written in FCTest will be 100%
    correct. 
    
    All I ask is that if FCT is extended or redistributed, that the
