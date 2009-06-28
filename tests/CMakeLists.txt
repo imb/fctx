@@ -15,7 +15,9 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 MACRO(TO_CPP _NAME_) 
 	ADD_CUSTOM_COMMAND(
 		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${_NAME_}.cpp
-		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${_NAME_}.c ${CMAKE_CURRENT_BINARY_DIR}/${_NAME_}.cpp
+		COMMAND ${CMAKE_COMMAND} -E copy 
+                             ${CMAKE_CURRENT_SOURCE_DIR}/${_NAME_}.c 
+                             ${CMAKE_CURRENT_BINARY_DIR}/${_NAME_}.cpp
 		DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${_NAME_}.c
 		)
 	ADD_CUSTOM_TARGET(
@@ -38,6 +40,7 @@ ENDMACRO(TEST_CPP_VERSION)
 SET(SIMPLE_TESTS test_1suite
                  test_basic
 		 test_call_teardown
+                 test_chk_types
 		 test_count
                  test_money
 		 test_multi_old_style
@@ -63,12 +66,11 @@ ADD_EXECUTABLE(test_fail test_fail.c)
 # values. Some tests are supposed to report failures like: 2 errors.
 ADD_EXECUTABLE(runner runner.c)
 
-# This one has the potential for always failing. I may start to add an option
-# to let tests pass if they fail. ;-)
+# This one *ALWAYS* fails, but I want to make sure it fails with a specific 
+# number of bad tests.
 ADD_EXECUTABLE(test_chk test_chk.c)
 
 ADD_DEPENDENCIES(test_chk runner)
-
 
 # TEST_BIG. This requires generating test_big.c before we can
 # build test_big.exe. To generate test_big.c you need to compile
@@ -116,8 +118,9 @@ ADD_TEST(run_test_multi_cpp test_multi_cpp)
 ADD_TEST(run_test_fail test_fail)
 SET_TESTS_PROPERTIES(run_test_fail PROPERTIES WILL_FAIL TRUE) 
 
+# We can only be happy with 2 failures.
 ADD_TEST(run_test_chk_with_runner 
-                      ${CMAKE_CURRENT_BINARY_DIR}/runner 
-                      ${CMAKE_CURRENT_BINARY_DIR}/test_chk 
-                      2)
+            ${CMAKE_CURRENT_BINARY_DIR}/runner 
+            ${CMAKE_CURRENT_BINARY_DIR}/test_chk 
+            2)
 

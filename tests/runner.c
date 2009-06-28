@@ -3,7 +3,7 @@
 Copyright (c) 2008 Ian Blumel.  All rights reserved.
 
 This software is licensed as described in the file LICENSE, which
-you should have received as part of this distribution.  
+you should have received as part of this distribution.
 ====================================================================
 File: test_runner.c
 
@@ -17,6 +17,17 @@ programs: test_runner.exe [program] [count]
 */
 
 #include <stdlib.h>
+#include <stdio.h>
+
+/* System is a goofy way to do this, and we need to make sure we are able to
+work on both windows and linux. So the following makes a system call and
+returns the ACTUAL return value from the code. */
+#ifdef _WIN32
+#   define EXIT_STATUS(s)  (s)
+#else
+#   include <sys/wait.h>
+#   define EXIT_STATUS(s)  WEXITSTATUS((s))
+#endif
 
 int
 main(int argc, char *argv[]) {
@@ -30,8 +41,17 @@ main(int argc, char *argv[]) {
     }
     progname = argv[1];
     rv_str = argv[2];
-
     expected_rv = atoi(rv_str);
-    rv = system(progname);
+
+    printf("RUNNER: starting '%s': expecting %d\n", progname, expected_rv);
+
+    rv = EXIT_STATUS(system(progname));
+
+    printf(
+        "RUNNER: finished '%s'; expected %s, received %d\n",
+        progname,
+        rv_str,
+        rv
+        );
     return (rv == expected_rv) ?  (EXIT_SUCCESS) : (EXIT_FAILURE);
 }

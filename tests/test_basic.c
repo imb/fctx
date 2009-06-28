@@ -3,7 +3,7 @@
 Copyright (c) 2008 Ian Blumel.  All rights reserved.
 
 This software is licensed as described in the file LICENSE, which
-you should have received as part of this distribution.  
+you should have received as part of this distribution.
 ====================================================================
 File: test_basic.c
 
@@ -14,7 +14,7 @@ Provides a dumping ground for basic tests of fct.
 
 FCT_BGN()
 {
-   /* A very simple test suite, it doesn't have any data to 
+   /* A very simple test suite, it doesn't have any data to
    setup/teardown. */
    FCT_SUITE_BGN(simple)
    {
@@ -27,12 +27,12 @@ FCT_BGN()
    }
    FCT_SUITE_END();
 
-      /* Test running with a fixture, where we need to setup and 
+      /* Test running with a fixture, where we need to setup and
    teardown data. */
    FCT_FIXTURE_SUITE_BGN(fixture)
    {
       int a =0;
-      int b =0; 
+      int b =0;
       int c =0;
 
       FCT_SETUP_BGN()
@@ -42,7 +42,7 @@ FCT_BGN()
          c =3;
       }
       FCT_SETUP_END();
-   
+
       FCT_TEARDOWN_BGN()
       {
          a=0;
@@ -50,7 +50,7 @@ FCT_BGN()
          c=0;
       }
       FCT_TEARDOWN_END();
-       
+
       FCT_TEST_BGN(fixture__smoke_test)
       {
          // THE TEST CASE ...
@@ -59,7 +59,7 @@ FCT_BGN()
          fct_chk( strcmp(test_str, "test_str") == 0);
       }
       FCT_TEST_END();
-      
+
       FCT_TEST_BGN(fixture__smoke_test_again)
       {
          fct_chk(1);
@@ -105,7 +105,7 @@ FCT_BGN()
      FCT_TEST_BGN(filtering__blank_or_null_filter_always_passes)
      {
         int ok;
-      
+
         ok = fct_filter_pass("", "green_eggs_and_ham");
         fct_chk( ok );
         ok = fct_filter_pass(NULL, "green_eggs_and_ham");
@@ -117,9 +117,5 @@ FCT_BGN()
   }
   FCT_SUITE_END();
 
-
-
 }
 FCT_END();
-
-
