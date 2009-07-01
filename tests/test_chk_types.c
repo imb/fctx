@@ -9,9 +9,17 @@ File: test_chk_types.c
 
 */
 
+#include <float.h>
 #include "fct.h"
 
 FCT_BGN()
 {
+    FCT_QTEST_BGN(chk_dbl_eq) {
+        fct_chk_dbl_eq(6123.2313,6123.2313);
+    } FCT_QTEST_END();
+
+    FCT_QTEST_BGN(chk_dbl_neq) {
+        fct_chk_dbl_neq(1.11111, 1.1);
+    } FCT_QTEST_END();
 }
 FCT_END();

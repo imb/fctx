@@ -15,7 +15,7 @@ met:
 
     * Redistributions of source code must retain the above copyright
     notice, this list of conditions and the following disclaimer.
-    
+
     * Redistributions in binary form must reproduce the above copyright
     notice, this list of conditions and the following disclaimer in
     the documentation and/or other materials provided with the
@@ -72,7 +72,7 @@ the end of the file so as not to interfere with your build. */
 #define FCT_FALSE  0
 
 /* Forward declarations. The following forward declarations are required
-because there is a inter-relationship between certain objects that 
+because there is a inter-relationship between certain objects that
 just can not be untwined. */
 typedef struct _fct_logger_i fct_logger_i;
 typedef struct _fct_standard_logger_t fct_standard_logger_t;
@@ -110,7 +110,7 @@ fct_logger__on_warn(fct_logger_i *logger, char const *warn);
 
 
 /* Explicitly indicate a no-op */
-#define fct_pass()    
+#define fct_pass()
 
 #define fct_unused(x)  (void)(x)
 
@@ -118,15 +118,15 @@ fct_logger__on_warn(fct_logger_i *logger, char const *warn);
 really only want to bother with this when we are "unwinding" the macros
 for debugging purposes. */
 #if defined(FCT_CONF_UNWIND)
-#	define _fct_cmt(string)		{char*_=string;} 
+#	define _fct_cmt(string)		{char*_=string;}
 #else
 #	define _fct_cmt(string)
 #endif
 
-/* 
--------------------------------------------------------- 
+/*
+--------------------------------------------------------
 UTILITIES
--------------------------------------------------------- 
+--------------------------------------------------------
 */
 
 /* Utility for truncated, safe string copies. */
@@ -141,7 +141,7 @@ fct_safe_str_cpy(char *dst, char const *src, size_t num)
 }
 
 /* Isolate the snprintf implemenation. */
-static int 
+static int
 fct_snprintf(char *buffer, size_t buffer_len, char const *format, ...)
 {
    int count =0;
@@ -152,8 +152,8 @@ fct_snprintf(char *buffer, size_t buffer_len, char const *format, ...)
    return count;
 }
 
-/* A very, very simple "filter". This just compares the supplied prefix 
-against the test_str, to see if they both have the same starting 
+/* A very, very simple "filter". This just compares the supplied prefix
+against the test_str, to see if they both have the same starting
 characters. If they do we return true, otherwise we return false. If the
 prefix is a blank string or NULL, then it will return FCT_TRUE.*/
 static nbool_t
@@ -167,26 +167,26 @@ fct_filter_pass(char const *prefix, char const *test_str)
    assert( test_str != NULL );
 
    /* When the prefix is NULL or blank, we always return FCT_TRUE. */
-   if ( prefix == NULL  || prefix[0] == '\0' ) 
-   { 
+   if ( prefix == NULL  || prefix[0] == '\0' )
+   {
       return FCT_TRUE;
    }
-     
+
    /* Iterate through both character arrays at the same time. We are
    going to play a game and see if we can beat the house. */
-   for ( prefix_p = prefix, test_str_p = test_str; 
-         *prefix_p != '\0' && *test_str_p != '\0'; 
+   for ( prefix_p = prefix, test_str_p = test_str;
+         *prefix_p != '\0' && *test_str_p != '\0';
          ++prefix_p, ++test_str_p )
    {
       is_match = *prefix_p == *test_str_p;
-      if ( !is_match ) 
+      if ( !is_match )
       {
          break;   /* Quit the first time we don't match. */
       }
    }
-   
+
    /* If the iterator for the test_str is pointing at the null char, and
-   the iterator for the prefix string is not, then the prefix string is 
+   the iterator for the prefix string is not, then the prefix string is
    larger than the actual test string, and therefore we failed to pass the
    filter. */
    if ( *test_str_p == '\0' && *prefix_p != '\0' )
@@ -195,7 +195,7 @@ fct_filter_pass(char const *prefix, char const *test_str)
    }
 
    /* is_match will be set to the either FCT_TRUE if we kicked of the loop
-   early because our filter ran out of characters or FCT_FALSE if we 
+   early because our filter ran out of characters or FCT_FALSE if we
    encountered a mismatch before our filter ran out of characters. */
    return is_match;
 }
@@ -205,10 +205,10 @@ fct_filter_pass(char const *prefix, char const *test_str)
 #define fct_real_eq(V1, V2) ((int)(fabs((V1)-(V2)) < DBL_EPSILON))
 
 
-/* 
--------------------------------------------------------- 
+/*
+--------------------------------------------------------
 TIMER
--------------------------------------------------------- 
+--------------------------------------------------------
 */
 
 typedef struct _fct_timer_t fct_timer_t;
@@ -245,14 +245,14 @@ fct_timer__stop(fct_timer_t *timer) {
 static double
 fct_timer__duration(fct_timer_t *timer) {
     assert( timer != NULL );
-    return timer->duration;   
+    return timer->duration;
 }
 
 
-/* 
--------------------------------------------------------- 
+/*
+--------------------------------------------------------
 GENERIC LIST
--------------------------------------------------------- 
+--------------------------------------------------------
 */
 
 /* For now we will just keep it at a linear growth rate. */
@@ -284,14 +284,14 @@ to do something like,
 #define NLIST_FOREACH_END() }}}
 
 /* Used to manage a list of loggers. This works mostly like
-the STL vector, where the array grows as more items are 
+the STL vector, where the array grows as more items are
 appended. */
 typedef struct _nlist_t nlist_t;
 struct _nlist_t
-{ 
+{
    /* Item's are stored as pointers to void. */
    void **itm_list;
-   
+
    /* Indicates the number of element's in the array. */
    size_t avail_itm_num;
 
@@ -300,7 +300,7 @@ struct _nlist_t
 };
 
 
-/* Cleans up list, and applies `on_del` to each item in the list. 
+/* Cleans up list, and applies `on_del` to each item in the list.
 If on_del is NULL, it will not be applied. If `list` is NULL this
 function does nothing. */
 typedef void (*on_del_t)(void*);
@@ -311,7 +311,7 @@ nlist__del(nlist_t *list, on_del_t on_del)
 
    if ( list == NULL ) { return; }
 
-   /* Walk through the list applying the destroy function, if it was 
+   /* Walk through the list applying the destroy function, if it was
    defined. */
    if ( on_del != NULL )
    {
@@ -341,7 +341,7 @@ nlist__clear(nlist_t *list, on_del_t on_del) {
     }
     list->used_itm_num =0;
 }
-#endif /* (FCT_USEIT__) */  
+#endif /* (FCT_USEIT__) */
 
 
 static nlist_t *
@@ -452,10 +452,10 @@ fctchk_new(char const *cndtn, char const *file, int lineno, nbool_t is_pass)
    assert( cndtn != NULL );
    assert( file != NULL );
    assert( lineno > 0 );
-   
+
    chk = (fctchk_t*)calloc(1, sizeof(fctchk_t));
-   if ( chk == NULL ) { 
-       return NULL; 
+   if ( chk == NULL ) {
+       return NULL;
    }
 
    fct_safe_str_cpy(chk->cndtn, cndtn, FCT_MAX_LOG_LINE);
@@ -468,7 +468,7 @@ fctchk_new(char const *cndtn, char const *file, int lineno, nbool_t is_pass)
 }
 
 
-/* Cleans up a "check" object. If the `chk` is NULL, this function does 
+/* Cleans up a "check" object. If the `chk` is NULL, this function does
 nothing. */
 static void
 fctchk__del(fctchk_t *chk)
@@ -510,7 +510,7 @@ fct_test__del(fct_test_t *test)
    if (test == NULL ) { return; }
    nlist__del(test->passed_chks, (on_del_t)fctchk__del);
    nlist__del(test->failed_chks, (on_del_t)fctchk__del);
-   free(test);   
+   free(test);
 }
 
 static fct_test_t*
@@ -524,7 +524,7 @@ fct_test_new(char const *name) {
     }
 
     fct_safe_str_cpy(test->name, name, FCT_MAX_NAME);
-     
+
     test->failed_chks = nlist_new();
     test->passed_chks = nlist_new();
     if ( test->failed_chks == NULL || test->passed_chks == NULL ) {
@@ -546,7 +546,7 @@ static nbool_t
 fct_test__is_pass(fct_test_t const *test)
 {
    assert( test != NULL );
-   return nlist__size(test->failed_chks) == 0;   
+   return nlist__size(test->failed_chks) == 0;
 }
 
 
@@ -580,7 +580,7 @@ fct_test__chk_cnt(fct_test_t const *test)
 
 
 
-/* 
+/*
 -----------------------------------------------------------
 TEST SUITE (TS)
 -----------------------------------------------------------
@@ -590,8 +590,8 @@ TEST SUITE (TS)
 /* The different types of 'modes' that a test suite can be in.
 
 While the test suite is iterating through all the tests, its "State"
-can change from "setup mode", to "test mode" to "tear down" mode. 
-These help to indicate what mode are currently in. Think of it as a 
+can change from "setup mode", to "test mode" to "tear down" mode.
+These help to indicate what mode are currently in. Think of it as a
 basic FSM.
 
             if the count was 0                               end
@@ -599,11 +599,11 @@ basic FSM.
            |                                       ^
            ^                                       |
 start      |                              [if no more tests]
-  |        |                                       |      
+  |        |                                       |
   +-count_mode -> setup_mode -> test_mode -> teardown_mode
-                      ^                           |                         
-                      +-----------<---------------+ 
-*/    
+                      ^                           |
+                      +-----------<---------------+
+*/
 enum ts_mode {
    ts_mode_cnt,         /* To setup when done counting. */
    ts_mode_setup,       /* To test when done setup. */
@@ -621,7 +621,7 @@ typedef enum {
 
 
 struct _fct_ts_t {
-   /* For counting our 'current' test number, and the total number of 
+   /* For counting our 'current' test number, and the total number of
    tests. */
    int  curr_test_num;
    int  total_test_num;
@@ -676,7 +676,7 @@ fct_ts_new(char const *name) {
        fct_ts__del(ts);
        return NULL;
    }
-   
+
    return ts;
 }
 
@@ -748,8 +748,8 @@ fct_ts__teardown_end(fct_ts_t *ts)
 {
     assert( fct_ts__is_teardown_mode(ts) );
     assert( !fct_ts__is_end(ts) );
-    /* We have to decide if we should keep on testing by moving into tear down 
-    mode or if we have reached the real end and should be moving into the 
+    /* We have to decide if we should keep on testing by moving into tear down
+    mode or if we have reached the real end and should be moving into the
     ending mode. */
     if ( fct_ts__is_more_tests(ts) ) {
         ts->mode = ts_mode_setup;
@@ -760,7 +760,7 @@ fct_ts__teardown_end(fct_ts_t *ts)
 }
 
 
-/* Flags the end of the counting, and proceeding to the first setup. 
+/* Flags the end of the counting, and proceeding to the first setup.
 Consider the special case when a test suite has NO tests in it, in
 that case we will have a current count that is zero, in which case
 we can skip right to 'ending'. */
@@ -799,8 +799,8 @@ static size_t
 fct_ts__tst_cnt(fct_ts_t const *ts)
 {
    assert( ts != NULL );
-   assert( 
-       fct_ts__is_end(ts) 
+   assert(
+       fct_ts__is_end(ts)
        && "can't count number of tests executed until the test suite ends"
        );
    return nlist__size(ts->test_list);
@@ -835,7 +835,7 @@ fct_ts__chk_cnt(fct_ts_t const *ts)
    size_t tally =0;
 
    assert( ts != NULL );
-   
+
    NLIST_FOREACH_BGN(fct_test_t *, test, ts->test_list)
    {
       tally += fct_test__chk_cnt(test);
@@ -845,21 +845,21 @@ fct_ts__chk_cnt(fct_ts_t const *ts)
 }
 
 
-/* 
--------------------------------------------------------- 
+/*
+--------------------------------------------------------
 FCT KERNAL
--------------------------------------------------------- 
+--------------------------------------------------------
 
-The "fctkern" is a singleton that is defined throughout the 
-system. 
+The "fctkern" is a singleton that is defined throughout the
+system.
 */
 
 struct _fctkern_t {
-   /* This is an list of loggers that can be used in the fct system. 
+   /* This is an list of loggers that can be used in the fct system.
    You/ can attach _MAX_LOGGERS to any framework. */
    nlist_t *logger_list;
 
-   /* This is a list of prefix's that can be used to determine if a 
+   /* This is a list of prefix's that can be used to determine if a
    test is should be run or not. */
    nlist_t *prefix_list;
 
@@ -909,7 +909,7 @@ fctkern__add_prefix_filter(fctkern_t const *fct, char const *prefix_filter)
 
 /* Cleans up the contents of a fctkern. NULL does nothing. */
 static void
-fctkern__final(fctkern_t *fct) 
+fctkern__final(fctkern_t *fct)
 {
    if ( fct == NULL ) { return; }
 
@@ -922,7 +922,7 @@ fctkern__final(fctkern_t *fct)
 }
 
 
-/* Parses the command line and sets up the framework. The argc and argv 
+/* Parses the command line and sets up the framework. The argc and argv
 should be directly from the program's main. */
 static int
 fctkern_init(fctkern_t *nk, int argc, char *argv[])
@@ -957,7 +957,7 @@ fctkern_init(fctkern_t *nk, int argc, char *argv[])
        goto finally;
    }
 
-   fctkern__add_logger(nk, standard_logger);   
+   fctkern__add_logger(nk, standard_logger);
    standard_logger = NULL;   /* Owned by the nk list. */
 
    /* Our basic parser. For now we just take each 'argv' and assume
@@ -1001,11 +1001,11 @@ fctkern__pass_filter(fctkern_t *nk, char const *test_name) {
    assert( strlen(test_name) > 0 );
 
    prefix_list_size = fctkern__filter_cnt(nk);
-   
+
    /* If there is no filter list, then we return FCT_TRUE always. */
    if ( prefix_list_size == 0 ) {
       return FCT_TRUE;
-   }   
+   }
 
    /* Iterate through the prefix filter list, and see if we have
    anything that does not pass. All we require is ONE item that
@@ -1018,8 +1018,8 @@ fctkern__pass_filter(fctkern_t *nk, char const *test_name) {
       }
    }
 
-   /* Otherwise, we never managed to find a prefix that satisfied the 
-   supplied test name. Therefore we have failed to pass to the filter 
+   /* Otherwise, we never managed to find a prefix that satisfied the
+   supplied test name. Therefore we have failed to pass to the filter
    list test. */
    return FCT_FALSE;
 }
@@ -1115,7 +1115,7 @@ fctkern__log_chk(fctkern_t *kern, fctchk_t const *chk)
 {
    assert( kern != NULL );
    assert( chk != NULL );
-  
+
    NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
    {
       fct_logger__on_cndtn(logger, chk);
@@ -1126,11 +1126,11 @@ fctkern__log_chk(fctkern_t *kern, fctchk_t const *chk)
 
 /* Use this for displaying warning messages. */
 static void
-fctkern__log_warn(fctkern_t *kern, char const *warn) 
+fctkern__log_warn(fctkern_t *kern, char const *warn)
 {
     assert( kern != NULL );
     assert( warn != NULL );
-    NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list) 
+    NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
     {
         fct_logger__on_warn(logger, warn);
     }
@@ -1189,8 +1189,8 @@ fctkern__log_test_end(fctkern_t *kern, fct_test_t const *test)
 -----------------------------------------------------------
 LOGGER INTERFACE
 
-Defines an interface to a logging system. A logger 
-must define the following functions in order to hook 
+Defines an interface to a logging system. A logger
+must define the following functions in order to hook
 into the logging system.
 
 See the "Standard Logger" and "Minimal Logger" as examples
@@ -1198,7 +1198,7 @@ of the implementation.
 -----------------------------------------------------------
 */
 
-typedef void (*fct_logger_on_cndtn_fn)(fct_logger_i *self, 
+typedef void (*fct_logger_on_cndtn_fn)(fct_logger_i *self,
                                        fctchk_t const *chk);
 
 typedef struct _fct_logger_i_vtable_t {
@@ -1234,7 +1234,7 @@ static fct_logger_i_vtable_t fct_logger_default_vtable = {
 };
 
 
-/* Initializes the elements of a logger interface so they are at their 
+/* Initializes the elements of a logger interface so they are at their
 standard values. */
 static void
 fct_logger__init(fct_logger_i *logger)
@@ -1310,11 +1310,11 @@ fct_logger__on_cndtn(fct_logger_i *logger, fctchk_t const *chk)
    assert( logger != NULL && "invalid arg");
    assert( chk != NULL && "invalid arg");
 
-   if ( logger->vtable->on_cndtn ) 
+   if ( logger->vtable->on_cndtn )
    {
       logger->vtable->on_cndtn(logger, chk);
    }
-}                        
+}
 
 /* When we start all our tests. */
 #define fct_logger__on_fct_start(LOGGER, KERN) \
@@ -1337,11 +1337,11 @@ fct_logger__on_cndtn(fct_logger_i *logger, fctchk_t const *chk)
 
 
 static void
-fct_logger__on_warn(fct_logger_i *logger, char const *warn) 
+fct_logger__on_warn(fct_logger_i *logger, char const *warn)
 {
     assert( logger != NULL );
     assert( warn != NULL );
-    if ( logger->vtable->on_warn ) 
+    if ( logger->vtable->on_warn )
     {
         logger->vtable->on_warn(logger, warn);
     }
@@ -1354,7 +1354,7 @@ MINIMAL LOGGER
 -----------------------------------------------------------
 
 At the moment the MINIMAL LOGGER is currently disabled. Hope
-to bring it back online soon. The only reason it is 
+to bring it back online soon. The only reason it is
 disabled is that we don't currently have the ability to specify
 loggers.
 */
@@ -1368,10 +1368,10 @@ struct _fct_minimal_logger_t {
 };
 
 
-static void 
+static void
 fct_minimal_logger__on_cndtn(fct_logger_i *self, fctchk_t const *chk)
 {
-   fct_unused(self);   
+   fct_unused(self);
    printf(fctchk__is_pass(chk) ? "." : "!");
 }
 
@@ -1431,7 +1431,7 @@ static void
 fct_standard_logger__on_cndtn(fct_logger_i *logger_, fctchk_t const *chk)
 {
    fct_standard_logger_t *logger = (fct_standard_logger_t*)logger_;
-   
+
    assert( logger != NULL );
    assert( chk != NULL );
 
@@ -1442,11 +1442,11 @@ fct_standard_logger__on_cndtn(fct_logger_i *logger_, fctchk_t const *chk)
       we can work out a dynamic string object. */
       char *str = (char*)malloc(sizeof(char)*FCT_MAX_LOG_LINE);
       assert( str != NULL );
-      
+
       fct_snprintf(
-         str, 
-         FCT_MAX_LOG_LINE, 
-         "%s(%d): %s", 
+         str,
+         FCT_MAX_LOG_LINE,
+         "%s(%d): %s",
          fctchk__file(chk),
          fctchk__lineno(chk),
          fctchk__cndtn(chk)
@@ -1454,12 +1454,12 @@ fct_standard_logger__on_cndtn(fct_logger_i *logger_, fctchk_t const *chk)
 
       /* Append it to the listing ... */
       nlist__append(logger->failed_cndtns_list, (void*)str);
-   }  
+   }
 }
 
 
 static void
-fct_standard_logger__on_test_start(fct_logger_i *logger_, 
+fct_standard_logger__on_test_start(fct_logger_i *logger_,
                                    fct_test_t const *test)
 {
    fct_unused(logger_);
@@ -1468,7 +1468,7 @@ fct_standard_logger__on_test_start(fct_logger_i *logger_,
 
 
 static void
-fct_standard_logger__on_test_end(fct_logger_i *logger_, 
+fct_standard_logger__on_test_end(fct_logger_i *logger_,
                                    fct_test_t const *test)
 {
    nbool_t is_pass;
@@ -1480,7 +1480,7 @@ fct_standard_logger__on_test_end(fct_logger_i *logger_,
 
 
 static void
-fct_standard_logger__on_test_suite_start(fct_logger_i *logger_, 
+fct_standard_logger__on_test_suite_start(fct_logger_i *logger_,
                                          fct_ts_t const *ts)
 {
    fct_unused(logger_);
@@ -1489,7 +1489,7 @@ fct_standard_logger__on_test_suite_start(fct_logger_i *logger_,
 
 
 static void
-fct_standard_logger__on_test_suite_end(fct_logger_i *logger_, 
+fct_standard_logger__on_test_suite_end(fct_logger_i *logger_,
                                          fct_ts_t const *ts)
 {
    fct_unused(logger_);
@@ -1498,7 +1498,7 @@ fct_standard_logger__on_test_suite_end(fct_logger_i *logger_,
 
 
 static void
-fct_standard_logger__on_fct_start(fct_logger_i *logger_, 
+fct_standard_logger__on_fct_start(fct_logger_i *logger_,
                                   fctkern_t const *nk)
 {
    fct_standard_logger_t *logger = (fct_standard_logger_t*)logger_;
@@ -1517,7 +1517,7 @@ fct_standard_logger__on_fct_end(fct_logger_i *logger_, fctkern_t const *nk)
    size_t num_passed =0;
 
    fct_timer__stop(&(logger->timer));
-     
+
    is_success = nlist__size(logger->failed_cndtns_list) ==0;
 
    if (  !is_success )
@@ -1540,7 +1540,7 @@ fct_standard_logger__on_fct_end(fct_logger_i *logger_, fctkern_t const *nk)
    num_passed = fctkern__tst_cnt_passed(nk);
 
    printf(
-      "%s (%d/%d tests", 
+      "%s (%d/%d tests",
       (is_success) ? "PASSED" : "FAILED",
       num_passed,
       num_tests
@@ -1577,8 +1577,8 @@ fct_standard_logger__del(fct_logger_i *logger_)
 
 
 static void
-fct_standard_logger__warn(fct_logger_i* logger_, char const *warn) 
-{   
+fct_standard_logger__warn(fct_logger_i* logger_, char const *warn)
+{
     fct_unused(logger_);
     (void)printf("WARNING: %s", warn);
 }
@@ -1603,16 +1603,16 @@ fct_standard_logger__new(void)
    fct_standard_logger_t *logger = (fct_standard_logger_t *)calloc(
 		   1, sizeof(fct_standard_logger_t)
 		   );
-   if ( logger == NULL ) 
-   { 
-      return NULL; 
+   if ( logger == NULL )
+   {
+      return NULL;
    }
    fct_logger__init((fct_logger_i*)logger);
    logger->vtable = &fct_standard_logger_vtable;
 
    logger->failed_cndtns_list = nlist_new();
    assert( logger->failed_cndtns_list != NULL );
-   
+
    fct_timer__init(&(logger->timer));
 
    return logger;
@@ -1620,14 +1620,25 @@ fct_standard_logger__new(void)
 
 
 
+
 /*
 ------------------------------------------------------------
-MAGIC MACROS
+MACRO MAGIC
 ------------------------------------------------------------
+This is where the show begins!
 */
 
+/* Common defines to help abstract out the variables. For example I may store
+the "CURRENT TEST" on the "CURRENT TEST SUITE", and that may be stored in the
+fctkern. All to minimize the need to create all these local variables that
+clutter up a debug watch window. This isn't meant to be exhaustive, only "as
+needed" for now. */
+#define FCTKERN_PTR             fctkern_ptr__
+#define FCT_CURRENT_TEST_PTR    test__
+
+
 /* This defines our start. The fctkern__ is a kernal object
-that lives throughout the lifetime of our program. The 
+that lives throughout the lifetime of our program. The
 fctkern_ptr__ makes it easier to abstract out macros.  */
 #define FCT_BGN() \
 int \
@@ -1727,15 +1738,15 @@ typedef enum {
 } FCT_TEST_END_FLAG;
 
 
-/* Depending on whether or not we are counting the tests, we will have to 
+/* Depending on whether or not we are counting the tests, we will have to
 first determine if the test is the "current" count. Then we have to determine
-if we can pass the filter. Finally we will execute everything so that when a 
+if we can pass the filter. Finally we will execute everything so that when a
 check fails, we can "break" out to the end of the test. And in between all
 that we do a memory check and fail a test if we can't build a fct_test
 object (should be rare).
 
 __NOFAIL variants are used for my own internal testing to help
-confirm that checks/requirements are doing what are required. 
+confirm that checks/requirements are doing what are required.
 */
 #define FCT_TEST_BGN(_NAME_) \
          {\
@@ -1779,7 +1790,7 @@ confirm that checks/requirements are doing what are required.
 /*
 ---------------------------------------------------------
 CHECKING MACROS
----------------------------------------------------------- 
+----------------------------------------------------------
 
 For now we only have the one "positive" check macro. In the future I plan
 to add more macros that check for different types of common conditions.
@@ -1788,6 +1799,129 @@ The chk variants will continue on while as the req variants will abort
 if there is one test that fails.
 */
 
+/* Handle arguments to the check function as an abstract type to afford
+me the luxury of changing the arity in the future. */
+typedef struct _fct_check_func_args_t {
+    /* First argument. */
+    void *a;
+
+    /* Second argument */
+    void *b;
+
+    /* Arbitrary data, may be third parameter, or a pointer to
+    a structure that can be unpacked by the check function. */
+    void *data;
+
+    /* Stringize of what was passed to the original check. */
+    char const *argstr;
+
+    /* Result of a call to __FILE__ */
+    char const *file;
+
+    /* Result of a call to __LINE__ */
+    int   line;
+
+    /* What to "log" out to the client. In the simple case you can just
+    log out the argstr, but sometimes you want to provide more detail?
+    Well here ya go. */
+    char  logmsg[FCT_MAX_LOG_LINE];
+} fct_check_func_args_t;
+
+#define fct_check_func_args__init(_CHECK_ARGS_P_) \
+    memset((_CHECK_ARGS_P_), 0, sizeof(fct_check_func_args_t))
+
+
+typedef int (*fct_check_func_t)(fct_check_func_args_t *args);
+typedef int (*fct_check_op_t)(int v);
+
+static int fctop_not(int is_pass) { return !is_pass; }
+static int fctop_noop(int is_pass) { return is_pass; }
+
+/* Defines a generic "check" entry, which will "do the right thing"
+and produce a chk, and register that check. The macro variant just
+gets us to the "front door", and auto-adds line/file info.
+Warning 'test' may become redundant.
+*/
+static int
+_fct_chk_entry(fctkern_t *kern,
+               fct_test_t *test,
+               fct_check_func_t check_func,
+               fct_check_op_t check_op,
+               void *a,
+               void *b,
+               void *data,
+               char const *argstr,
+               char const *file,
+               int line)
+ {
+    fctchk_t *chk =NULL;
+    fct_check_func_args_t args;
+    int is_pass =0;
+
+    fct_check_func_args__init(&args);
+    args.a = a;
+    args.b = b;
+    args.data = data;
+    args.argstr = argstr;
+    args.file = file;
+    args.line = line;
+
+    is_pass = check_func(&args);
+    is_pass = check_op(is_pass);
+
+    chk = fctchk_new(args.logmsg, file, line, is_pass);
+    if ( chk == NULL ) {
+        fctkern__log_warn(kern, "out of memory (aborting)");
+        return 0;
+    }
+
+    fct_test__add(test, chk);
+    fctkern__log_chk(kern, chk);
+    return 1;
+}
+
+
+static int _fct_chk_dbl_fn(fct_check_func_args_t *args) {
+    double *ap = (double*)args->a;
+    double *bp = (double*)args->b;
+    double a = *ap;
+    double b = *bp;
+    double diff = 0.;
+    int is_pass = 0;
+
+    diff = fabs(a-b);
+    is_pass = diff < DBL_EPSILON;
+    if ( !is_pass ) {
+        fct_snprintf(
+            args->logmsg, FCT_MAX_LOG_LINE,
+            "%f != %f by %f (tol=%f)",
+            a, b, diff, DBL_EPSILON
+            );
+    }
+
+    return is_pass;
+}
+
+/* I wish I didn't have to resort to the cheesy local variables, but
+a void * is a void* and it is only 32 bits wide on some machines. */
+#define _fct_chk_dbl(_A_, _B_, _OP_) \
+    {\
+        double a__ = (double)(_A_);\
+        double b__ = (double)(_B_);\
+        _fct_chk_entry(\
+             FCTKERN_PTR,\
+             FCT_CURRENT_TEST_PTR,\
+             _fct_chk_dbl_fn,\
+             (_OP_),\
+             (void*)&a__, (void*)&b__, NULL,\
+             NULL,\
+             __FILE__,\
+             __LINE__\
+             );\
+    }
+
+#define fct_chk_dbl_eq(_A_, _B_)  _fct_chk_dbl((_A_), (_B_), fctop_noop)
+#define fct_chk_dbl_neq(_A_, _B_) _fct_chk_dbl((_A_), (_B_), fctop_not)
 
 #define fct_chk(_CNDTN_) \
    {\
@@ -1798,7 +1932,7 @@ if there is one test that fails.
           fctkern__log_warn(fctkern_ptr__, "out of memory (aborting)");\
           break;\
       }\
-      fct_test__add(test__, chk);\
+      fct_test__add(FCT_CURRENT_TEST_PTR, chk);\
       fctkern__log_chk(fctkern_ptr__, chk);\
    }
 
@@ -1811,7 +1945,7 @@ if there is one test that fails.
           fctkern__log_warn(fctkern_ptr__, "out of memory (aborting)");\
           break;\
       }\
-      fct_test__add(test__, chk);\
+      fct_test__add(FCT_CURRENT_TEST_PTR, chk);\
       fctkern__log_chk(fctkern_ptr__, chk);\
       if ( !is_pass__ ) { break; }\
    }
@@ -1820,13 +1954,13 @@ if there is one test that fails.
 /*
 ---------------------------------------------------------
 GUT CHECK MACROS
----------------------------------------------------------- 
+----------------------------------------------------------
 
 The following macros are used to help check the "guts" of
 the FCT, and to confirm that it all works according to spec.
 */
 
-/* Generates a message to STDERR and exits the application with a 
+/* Generates a message to STDERR and exits the application with a
 non-zero number. */
 #define _FCT_GUTCHK(_CNDTN_) \
    if ( !(_CNDTN_) ) {\
@@ -1836,11 +1970,11 @@ non-zero number. */
    else {\
       fprintf(stdout, "gutchk pass:  '" #_CNDTN_ "'\n");\
    }
-      
+
 /*
 ---------------------------------------------------------
 MULTI-FILE TEST SUITE MACROS
----------------------------------------------------------- 
+----------------------------------------------------------
 
 I struggled trying to figure this out in a way that was
 as simple as possible. I wanted to be able to define
@@ -1857,8 +1991,8 @@ See test_multi.c for an example.
 file to define your test suite.  */
 
 
-/* The BGN function has a whole bunch of useless calls 
-at the head in order to force 'unreferenced' functions 
+/* The BGN function has a whole bunch of useless calls
+at the head in order to force 'unreferenced' functions
 to be referenced. Ohh Me Oh My what a waste! */
 
 #define FCTMF_FIXTURE_SUITE_BGN(NAME) \
@@ -1877,7 +2011,7 @@ to be referenced. Ohh Me Oh My what a waste! */
         FCT_SUITE_BGN( NAME ) {
 #define FCTMF_SUITE_END() \
        } FCT_SUITE_END(); \
-   } 
+   }
 
 /* Use these macros to 'define' and 'execute' your test suite
 within your main "FCT_BGN() { ... } FCT_END();" body. */
@@ -1888,9 +2022,9 @@ within your main "FCT_BGN() { ... } FCT_END();" body. */
 /*
 ---------------------------------------------------------
 FCT QUICK TEST API
----------------------------------------------------------- 
+----------------------------------------------------------
 The goal of these little macros is to try and get you
-up and running with a test as quick as possible. 
+up and running with a test as quick as possible.
 
 The basic idea is that there is one test per test suite.
 */
@@ -1906,7 +2040,7 @@ The basic idea is that there is one test per test suite.
 /*
 ---------------------------------------------------------
 CLOSING STATEMENTS
----------------------------------------------------------- 
+----------------------------------------------------------
 */
 
 /* This is defined at the start of the file. We are undefining it
