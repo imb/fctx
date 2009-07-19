@@ -16,13 +16,25 @@ Whats new in FCT 1.1
  - Added fct_req: Function will abort a test block when the requirement is not
    met.
  - Modified fct_chk: Will continue after a failed test.
- - Modified standard logger output to provide a straight continous line of
+ - Modified standard logger output to provide a straight continuous line of
    PASS/FAIL statements. Easier to scan failures.
  - Modified failure output to hopefully be less likely to wrap around by using
    a new line to actually show what failed.
  - #376783: Added test to make sure we continue to compile against a C++
    project.
  - #398286: Fixed to use _vsnprintf for Microsoft compilers.
+
+Whats new in FCT 1.0.4
+======================
+
+ - Bring down select changes from 1.1 Release Branch:
+     - Modified standard logger output to provide a straight continuous line of
+       PASS/FAIL statements. Easier to scan failures.
+     - Modified failure output to hopefully be less likely to wrap around by
+       using a new line to actually show what failed.
+     - #376783: Added test to make sure we continue to compile against a C++
+       project.
+     - #398286: Fixed to use _vsnprintf for Microsoft compilers.
 
 Whats new in FCT 1.0.3
 ======================
@@ -32,7 +44,7 @@ Whats new in FCT 1.0.3
 Whats new in FCT 1.0.2
 ======================
 
- - #382628: Fix tests so teardown gets executed. Added test case.
+ - #382628: Fix tests so tear-down gets executed. Added test case.
 
 Whats new in FCT 1.0.1
 ======================
