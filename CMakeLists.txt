@@ -17,16 +17,16 @@ ENABLE_TESTING()
 
 IF (MSVC)
     # Warning Level 4, Treat all warnings as errors!
-    IF (MSVC90)
-        # 64 bit flags are deprecated, so lets not use it.
-        SET(WARNINGS "/WX /W4")
-    ELSE (MSVC90)
+    IF (MSVC80)
+        # 64 bit warning flags are only really used in MSVC80.
 	SET(WARNINGS "/WX /W4 /Wp64")
+    ELSE()
+        SET(WARNINGS "/WX /W4")
     ENDIF(MSVC90)
 ENDIF (MSVC)
-IF (MINGW)
-	SET(WARNINGS "-Wall -Wextra -W64bit")
-ENDIF(MINGW)
+IF (CMAKE_COMPILER_IS_GNUCC)
+	SET(WARNINGS "-Wall -Wextra")
+ENDIF()
 
 SET(CMAKE_C_FLAGS 	"${CMAKE_C_FLAGS} ${WARNINGS}")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNINGS}")
