@@ -71,6 +71,8 @@ the end of the file so as not to interfere with your build. */
 #define FCT_TRUE   1
 #define FCT_FALSE  0
 
+#define FCTMIN(x, y) ( x < y) ? (x) : (y)
+
 /* Forward declarations. The following forward declarations are required
 because there is a inter-relationship between certain objects that
 just can not be untwined. */
@@ -147,7 +149,14 @@ fct_snprintf(char *buffer, size_t buffer_len, char const *format, ...)
    int count =0;
    va_list args;
    va_start(args, format);
-   count =vsnprintf(buffer, buffer_len, format, args);
+   /* Older microsoft compilers where not ANSI compliant with this
+   function and you had to use _vsnprintf. I will assume that newer
+   Microsoft Compilers start implementing vsnprintf. */
+#if defined(_MSV_VER) && (_MSC_VER < 1400)
+   count = _vsnprintf(buffer, buffer_len, format, args);
+#else
+   count = vsnprintf(buffer, buffer_len, format, args);
+#endif
    va_end(args);
    return count;
 }
@@ -1446,7 +1455,7 @@ fct_standard_logger__on_cndtn(fct_logger_i *logger_, fctchk_t const *chk)
       fct_snprintf(
          str,
          FCT_MAX_LOG_LINE,
-         "%s(%d): %s",
+         "%s(%d):\n    %s",
          fctchk__file(chk),
          fctchk__lineno(chk),
          fctchk__cndtn(chk)
@@ -1462,8 +1471,25 @@ static void
 fct_standard_logger__on_test_start(fct_logger_i *logger_,
                                    fct_test_t const *test)
 {
+#define MAX_LINE 64
+   char line[MAX_LINE];
+   char const *test_name =NULL;
+   size_t test_name_len =0;
+   size_t test_name_line_len =0;
    fct_unused(logger_);
-   printf("%s ... ", fct_test__name(test));
+
+   memset(line, '.', sizeof(char)*MAX_LINE);
+   test_name = fct_test__name(test);
+   test_name_len = strlen(test_name);
+   test_name_line_len = FCTMIN(MAX_LINE-1, test_name_len);
+   strncpy(line, test_name, test_name_line_len);
+   if ( test_name_len < MAX_LINE-1) {
+       line[test_name_len] = ' ';
+       line[test_name_len] = ' ';
+   }
+   line[MAX_LINE-1] = '\0';
+   printf(line);
+#undef MAX_LINE
 }
 
 
@@ -1475,7 +1501,7 @@ fct_standard_logger__on_test_end(fct_logger_i *logger_,
    fct_unused(logger_);
 
    is_pass = fct_test__is_pass(test);
-   printf("%s\n", (is_pass) ? "PASS" : "FAIL" );
+   printf(" %s\n", (is_pass) ? "PASS" : "FAIL ***" );
 }
 
 
@@ -1522,7 +1548,9 @@ fct_standard_logger__on_fct_end(fct_logger_i *logger_, fctkern_t const *nk)
 
    if (  !is_success )
    {
-      printf("\n--------------------------------------------------------\n");
+      printf(
+"\n------------------------------------------------------------------------\n"
+);
       printf("FAILED TESTS\n\n");
 
       NLIST_FOREACH_BGN(char *, cndtn_str, logger->failed_cndtns_list)
@@ -1534,7 +1562,9 @@ fct_standard_logger__on_fct_end(fct_logger_i *logger_, fctkern_t const *nk)
       printf("\n");
    }
 
-   printf("\n--------------------------------------------------------\n");
+      printf(
+"\n------------------------------------------------------------------------\n"
+);
 
    num_tests = fctkern__tst_cnt(nk);
    num_passed = fctkern__tst_cnt_passed(nk);
@@ -1634,7 +1664,7 @@ fctkern. All to minimize the need to create all these local variables that
 clutter up a debug watch window. This isn't meant to be exhaustive, only "as
 needed" for now. */
 #define FCTKERN_PTR             fctkern_ptr__
-#define FCT_CURRENT_TEST_PTR    test__
+#define FCT_TEST_CURRENT_PTR    test__
 
 
 /* This defines our start. The fctkern__ is a kernal object
@@ -1799,77 +1829,39 @@ The chk variants will continue on while as the req variants will abort
 if there is one test that fails.
 */
 
-/* Handle arguments to the check function as an abstract type to afford
-me the luxury of changing the arity in the future. */
-typedef struct _fct_check_func_args_t {
-    /* First argument. */
-    void *a;
 
-    /* Second argument */
-    void *b;
-
-    /* Arbitrary data, may be third parameter, or a pointer to
-    a structure that can be unpacked by the check function. */
-    void *data;
-
-    /* Stringize of what was passed to the original check. */
-    char const *argstr;
-
-    /* Result of a call to __FILE__ */
-    char const *file;
-
-    /* Result of a call to __LINE__ */
-    int   line;
-
-    /* What to "log" out to the client. In the simple case you can just
-    log out the argstr, but sometimes you want to provide more detail?
-    Well here ya go. */
-    char  logmsg[FCT_MAX_LOG_LINE];
-} fct_check_func_args_t;
-
-#define fct_check_func_args__init(_CHECK_ARGS_P_) \
-    memset((_CHECK_ARGS_P_), 0, sizeof(fct_check_func_args_t))
-
-
-typedef int (*fct_check_func_t)(fct_check_func_args_t *args);
-typedef int (*fct_check_op_t)(int v);
-
-static int fctop_not(int is_pass) { return !is_pass; }
-static int fctop_noop(int is_pass) { return is_pass; }
-
-/* Defines a generic "check" entry, which will "do the right thing"
-and produce a chk, and register that check. The macro variant just
-gets us to the "front door", and auto-adds line/file info.
-Warning 'test' may become redundant.
-*/
 static int
-_fct_chk_entry(fctkern_t *kern,
-               fct_test_t *test,
-               fct_check_func_t check_func,
-               fct_check_op_t check_op,
-               void *a,
-               void *b,
-               void *data,
-               char const *argstr,
-               char const *file,
-               int line)
- {
+fct_chk_eq_fn(fctkern_t *kern,
+              fct_test_t *test,
+              void *a,
+              void *b,
+              void *data,
+              int (*eqfn)(void*, void*, void*),
+              void (*reprfn)(void*, char *, size_t),
+              char const *file,
+              int lineno
+              )
+{
     fctchk_t *chk =NULL;
-    fct_check_func_args_t args;
+    char logmsg[FCT_MAX_LOG_LINE] = {'\0'};
     int is_pass =0;
 
-    fct_check_func_args__init(&args);
-    args.a = a;
-    args.b = b;
-    args.data = data;
-    args.argstr = argstr;
-    args.file = file;
-    args.line = line;
+    assert( kern != NULL );
+    assert( test != NULL );
+    assert( eqfn != NULL );
 
-    is_pass = check_func(&args);
-    is_pass = check_op(is_pass);
+    is_pass = eqfn(a, b, data);
+    if ( !is_pass ) {
+        char a_str[FCT_MAX_LOG_LINE] = {'\0'};
+        char b_str[FCT_MAX_LOG_LINE] = {'\0'};
+        reprfn(a, a_str, FCT_MAX_LOG_LINE);
+        reprfn(b, b_str, FCT_MAX_LOG_LINE);
+        a_str[FCT_MAX_LOG_LINE-1] = '\0';
+        b_str[FCT_MAX_LOG_LINE-1] = '\0';
+        fct_snprintf(logmsg, FCT_MAX_LOG_LINE, "%s != %s", a_str, b_str);
+    }
 
-    chk = fctchk_new(args.logmsg, file, line, is_pass);
+    chk = fctchk_new(logmsg, file, lineno, is_pass);
     if ( chk == NULL ) {
         fctkern__log_warn(kern, "out of memory (aborting)");
         return 0;
@@ -1881,58 +1873,66 @@ _fct_chk_entry(fctkern_t *kern,
 }
 
 
-static int _fct_chk_dbl_fn(fct_check_func_args_t *args) {
-    double *ap = (double*)args->a;
-    double *bp = (double*)args->b;
-    double a = *ap;
-    double b = *bp;
-    double diff = 0.;
-    int is_pass = 0;
+#define fct_chk_eq(_A_, _B_, _DATA_, _EQFN_, _REPRFN_) \
+    fct_chk_eq_fn(\
+        (FCTKERN_PTR),\
+        (FCT_TEST_CURRENT_PTR),\
+        (_A_),\
+        (_B_),\
+        (_DATA_),\
+        (_EQFN_),\
+        (_REPRFN_),\
+        __FILE__,\
+        __LINE__\
+        )
 
-    diff = fabs(a-b);
-    is_pass = diff < DBL_EPSILON;
-    if ( !is_pass ) {
-        fct_snprintf(
-            args->logmsg, FCT_MAX_LOG_LINE,
-            "%f != %f by %f (tol=%f)",
-            a, b, diff, DBL_EPSILON
-            );
-    }
 
-    return is_pass;
+static void
+_fct_repr_dbl(void *data, char *buffer, size_t buffer_len) {
+    double a = *((double*)data);
+    fct_snprintf(buffer, buffer_len, "%f", a);
 }
 
-/* I wish I didn't have to resort to the cheesy local variables, but
-a void * is a void* and it is only 32 bits wide on some machines. */
-#define _fct_chk_dbl(_A_, _B_, _OP_) \
+
+static int
+fct_dbl_eq(void *ap, void *bp, void *data) {
+    double a = *((double*)ap);
+    double b = *((double*)bp);
+    double ep = *((double*)data);
+    return ((int)(fabs((a)-(b)) < ep));
+}
+
+static int
+fct_dbl_neq(void *ap, void *bp, void *data) {
+    return !fct_dbl_eq(ap, bp, data);
+}
+
+/* Can just supply (void*)(_A_), because (_A_) is a value type. Also
+need to store it in a variable because void* will truncate a double. */
+#define _fct_chk_dbl(_A_, _B_, _EQFN_)\
     {\
-        double a__ = (double)(_A_);\
-        double b__ = (double)(_B_);\
-        _fct_chk_entry(\
-             FCTKERN_PTR,\
-             FCT_CURRENT_TEST_PTR,\
-             _fct_chk_dbl_fn,\
-             (_OP_),\
-             (void*)&a__, (void*)&b__, NULL,\
-             NULL,\
-             __FILE__,\
-             __LINE__\
-             );\
+        double dbl_a__= (_A_);\
+        double dbl_b__= (_B_);\
+        double dbl_ep__ = (DBL_EPSILON);\
+        fct_chk_eq(&dbl_a__, &dbl_b__,&(dbl_ep__), (_EQFN_), _fct_repr_dbl);\
     }
 
-#define fct_chk_dbl_eq(_A_, _B_)  _fct_chk_dbl((_A_), (_B_), fctop_noop)
-#define fct_chk_dbl_neq(_A_, _B_) _fct_chk_dbl((_A_), (_B_), fctop_not)
+#define fct_chk_eq_dbl(_A_, _B_) _fct_chk_dbl((_A_), (_B_), fct_dbl_eq)
+#define fct_chk_neq_dbl(_A_, _B_) _fct_chk_dbl((_A_), (_B_), fct_dbl_neq)
+
+
+
 
 #define fct_chk(_CNDTN_) \
    {\
       fctchk_t *chk =NULL;\
-      is_pass__ = (_CNDTN_);\
+      is_pass__ = (int) (_CNDTN_);\
       chk = fctchk_new(#_CNDTN_, __FILE__, __LINE__, is_pass__);\
       if ( chk == NULL ) {\
           fctkern__log_warn(fctkern_ptr__, "out of memory (aborting)");\
           break;\
       }\
-      fct_test__add(FCT_CURRENT_TEST_PTR, chk);\
+      fct_test__add(FCT_TEST_CURRENT_PTR, chk);\
       fctkern__log_chk(fctkern_ptr__, chk);\
    }
 
@@ -1945,7 +1945,7 @@ a void * is a void* and it is only 32 bits wide on some machines. */
           fctkern__log_warn(fctkern_ptr__, "out of memory (aborting)");\
           break;\
       }\
-      fct_test__add(FCT_CURRENT_TEST_PTR, chk);\
+      fct_test__add(FCT_TEST_CURRENT_PTR, chk);\
       fctkern__log_chk(fctkern_ptr__, chk);\
       if ( !is_pass__ ) { break; }\
    }

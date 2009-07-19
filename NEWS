@@ -9,8 +9,6 @@ Whats new in FCT 1.1
    it starts to take a toll on the time to code for FCTest, it does help
    provide it a little more extendability to FCTest.
  - CMAKE used for building the FCT tests.
- - #376783: Added test to make sure we continue to compile against a C++
-   project.
  - Updated all compiles to use the highest warning level and fixed compiler
    warnings.
  - Removed all "assert out of memory" checks and properly checked the memory
@@ -18,6 +16,18 @@ Whats new in FCT 1.1
  - Added fct_req: Function will abort a test block when the requirement is not
    met.
  - Modified fct_chk: Will continue after a failed test.
+ - Modified standard logger output to provide a straight continous line of
+   PASS/FAIL statements. Easier to scan failures.
+ - Modified failure output to hopefully be less likely to wrap around by using
+   a new line to actually show what failed.
+ - #376783: Added test to make sure we continue to compile against a C++
+   project.
+ - #398286: Fixed to use _vsnprintf for Microsoft compilers.
+
+Whats new in FCT 1.0.3
+======================
+
+ -  #385063: Call free on fct_test_t.
 
 Whats new in FCT 1.0.2
 ======================

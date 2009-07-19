@@ -51,6 +51,12 @@ FCT_BGN()
       }
       FCT_TEARDOWN_END();
 
+      FCT_TEST_BGN(fixture_long_name_0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789)
+      {
+         fct_chk("Verify that long names don't break the logger.");
+      }
+      FCT_TEST_END();
+
       FCT_TEST_BGN(fixture__smoke_test)
       {
          // THE TEST CASE ...
@@ -65,6 +71,8 @@ FCT_BGN()
          fct_chk(1);
       }
       FCT_TEST_END();
+
+
 
   }
   FCT_FIXTURE_SUITE_END()
