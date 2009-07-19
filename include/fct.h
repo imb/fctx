@@ -152,7 +152,7 @@ fct_snprintf(char *buffer, size_t buffer_len, char const *format, ...)
    /* Older microsoft compilers where not ANSI compliant with this
    function and you had to use _vsnprintf. I will assume that newer
    Microsoft Compilers start implementing vsnprintf. */
-#if defined(_MSV_VER) && (_MSC_VER < 1400)
+#if defined(_MSC_VER) && (_MSC_VER < 1400)
    count = _vsnprintf(buffer, buffer_len, format, args);
 #else
    count = vsnprintf(buffer, buffer_len, format, args);
