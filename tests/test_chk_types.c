@@ -15,11 +15,11 @@ File: test_chk_types.c
 FCT_BGN()
 {
     FCT_QTEST_BGN(chk_dbl_eq) {
-        fct_chk_neq_dbl(6123.2313,6123.2313);
+        fct_chk_eq_dbl(6123.2313,6123.2313);
     } FCT_QTEST_END();
 
     FCT_QTEST_BGN(chk_dbl_neq) {
-        fct_chk_eq_dbl(1.11111, 1.1);
+        fct_chk_neq_dbl(1.11111, 1.1);
     } FCT_QTEST_END();
 }
 FCT_END();

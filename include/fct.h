@@ -142,13 +142,13 @@ fct_safe_str_cpy(char *dst, char const *src, size_t num)
    dst[num-1] = '\0';
 }
 
-/* Isolate the snprintf implemenation. */
+/* Isolate the vsnprintf implementation */
 static int
-fct_snprintf(char *buffer, size_t buffer_len, char const *format, ...)
-{
+fct_vsnprintf(char *buffer,
+              size_t buffer_len,
+              char const *format,
+              va_list args) {
    int count =0;
-   va_list args;
-   va_start(args, format);
    /* Older microsoft compilers where not ANSI compliant with this
    function and you had to use _vsnprintf. I will assume that newer
    Microsoft Compilers start implementing vsnprintf. */
@@ -157,6 +157,18 @@ fct_snprintf(char *buffer, size_t buffer_len, char const *format, ...)
 #else
    count = vsnprintf(buffer, buffer_len, format, args);
 #endif
+   return count;
+}
+
+
+/* Isolate the snprintf implemenation. */
+static int
+fct_snprintf(char *buffer, size_t buffer_len, char const *format, ...)
+{
+   int count =0;
+   va_list args;
+   va_start(args, format);
+   count =fct_vsnprintf(buffer, buffer_len, format, args);
    va_end(args);
    return count;
 }
@@ -445,16 +457,26 @@ struct _fctchk_t {
    int lineno;
 
    nbool_t is_pass;
+
+   /* This is a message that we can "format into", if
+   no format string is specified this should be
+   equivalent to the cntdn. */
+   char msg[FCT_MAX_LOG_LINE];
 };
 
 #define fctchk__is_pass(_CHK_) ((_CHK_)->is_pass)
 #define fctchk__file(_CHK_)    ((_CHK_)->file)
 #define fctchk__lineno(_CHK_)  ((_CHK_)->lineno)
 #define fctchk__cndtn(_CHK_)   ((_CHK_)->cndtn)
-
+#define fctchk__msg(_CHK_)     ((_CHK_)->msg)
 
 static fctchk_t*
-fctchk_new(char const *cndtn, char const *file, int lineno, nbool_t is_pass)
+fctchk_new(int is_pass,
+           char const *cndtn,
+           char const *file,
+           int lineno,
+           char const *format,
+           ...)
 {
    fctchk_t *chk = NULL;
 
@@ -472,6 +494,18 @@ fctchk_new(char const *cndtn, char const *file, int lineno, nbool_t is_pass)
    chk->lineno = lineno;
 
    chk->is_pass =is_pass;
+
+   if ( !is_pass && format != NULL ) {
+       va_list args;
+       va_start(args, format);
+       fct_vsnprintf(chk->msg, FCT_MAX_LOG_LINE, format, args);
+       va_end(args);
+   }
+   else {
+       /* Default to make the condition be the message, if there was no format
+       specified. */
+       fct_safe_str_cpy(chk->msg, cndtn, FCT_MAX_LOG_LINE);
+   }
 
    return chk;
 }
@@ -853,6 +887,31 @@ fct_ts__chk_cnt(fct_ts_t const *ts)
    return tally;
 }
 
+/*
+--------------------------------------------------------
+FCT NAMESPACE
+--------------------------------------------------------
+
+The macros below start to pollute the watch window with
+lots of "system" variables. This NAMESPACE is an
+attempt to hide all the "system" variables in one place.
+
+At the moment it is an ad-hoc operation. There is a
+blueprint to address this further in the 1.2 release.
+*/
+
+typedef struct _fct_namespace_t {
+    int curr_is_pass;
+    fctchk_t *curr_chk;
+} fct_namespace_t;
+
+
+static void
+fct_namespace_init(fct_namespace_t *ns) {
+    assert( ns != NULL && "invalid argument!");
+    memset(ns, 0, sizeof(fct_namespace_t));
+}
+
 
 /*
 --------------------------------------------------------
@@ -875,6 +934,10 @@ struct _fctkern_t {
    /* This is a list of test suites that where generated throughout the
    testing process. */
    nlist_t *ts_list;
+
+   /* Holds variables used throughout MACRO MAGIC. In order to reduce
+   the "noise" in the watch window during a debug trace. */
+   fct_namespace_t ns;
 };
 
 
@@ -976,6 +1039,8 @@ fctkern_init(fctkern_t *nk, int argc, char *argv[])
    {
       fctkern__add_prefix_filter(nk, argv[arg_i]);
    }
+
+   fct_namespace_init(&(nk->ns));
 
    ok =FCT_TRUE;
 finally:
@@ -1458,7 +1523,7 @@ fct_standard_logger__on_cndtn(fct_logger_i *logger_, fctchk_t const *chk)
          "%s(%d):\n    %s",
          fctchk__file(chk),
          fctchk__lineno(chk),
-         fctchk__cndtn(chk)
+         fctchk__msg(chk)
          );
 
       /* Append it to the listing ... */
@@ -1651,6 +1716,7 @@ fct_standard_logger__new(void)
 
 
 
+
 /*
 ------------------------------------------------------------
 MACRO MAGIC
@@ -1822,134 +1888,52 @@ confirm that checks/requirements are doing what are required.
 CHECKING MACROS
 ----------------------------------------------------------
 
-For now we only have the one "positive" check macro. In the future I plan
-to add more macros that check for different types of common conditions.
-
 The chk variants will continue on while as the req variants will abort
 if there is one test that fails.
 */
 
-
-static int
-fct_chk_eq_fn(fctkern_t *kern,
-              fct_test_t *test,
-              void *a,
-              void *b,
-              void *data,
-              int (*eqfn)(void*, void*, void*),
-              void (*reprfn)(void*, char *, size_t),
-              char const *file,
-              int lineno
-              )
-{
-    fctchk_t *chk =NULL;
-    char logmsg[FCT_MAX_LOG_LINE] = {'\0'};
-    int is_pass =0;
-
-    assert( kern != NULL );
-    assert( test != NULL );
-    assert( eqfn != NULL );
-
-    is_pass = eqfn(a, b, data);
-    if ( !is_pass ) {
-        char a_str[FCT_MAX_LOG_LINE] = {'\0'};
-        char b_str[FCT_MAX_LOG_LINE] = {'\0'};
-        reprfn(a, a_str, FCT_MAX_LOG_LINE);
-        reprfn(b, b_str, FCT_MAX_LOG_LINE);
-        a_str[FCT_MAX_LOG_LINE-1] = '\0';
-        b_str[FCT_MAX_LOG_LINE-1] = '\0';
-        fct_snprintf(logmsg, FCT_MAX_LOG_LINE, "%s != %s", a_str, b_str);
-    }
-
-    chk = fctchk_new(logmsg, file, lineno, is_pass);
-    if ( chk == NULL ) {
-        fctkern__log_warn(kern, "out of memory (aborting)");
-        return 0;
-    }
-
-    fct_test__add(test, chk);
-    fctkern__log_chk(kern, chk);
-    return 1;
-}
-
-
-#define fct_chk_eq(_A_, _B_, _DATA_, _EQFN_, _REPRFN_) \
-    fct_chk_eq_fn(\
-        (FCTKERN_PTR),\
-        (FCT_TEST_CURRENT_PTR),\
-        (_A_),\
-        (_B_),\
-        (_DATA_),\
-        (_EQFN_),\
-        (_REPRFN_),\
+#define fct_xchk(_CNDTN_, _FORMAT_, ... )\
+    fctkern_ptr__->ns.curr_chk = NULL;\
+    fctkern_ptr__->ns.curr_is_pass = (int)(_CNDTN_);\
+    fctkern_ptr__->ns.curr_chk = fctchk_new(\
+        fctkern_ptr__->ns.curr_is_pass,\
+        #_CNDTN_,\
         __FILE__,\
-        __LINE__\
-        )
+        __LINE__,\
+        (_FORMAT_),\
+        __VA_ARGS__ );\
+    if ( fctkern_ptr__->ns.curr_chk == NULL ) {\
+        fctkern__log_warn(fctkern_ptr__, "out of memory (aborting)");\
+        break;\
+    }\
+    fct_test__add(FCT_TEST_CURRENT_PTR, fctkern_ptr__->ns.curr_chk);\
+    fctkern__log_chk(fctkern_ptr__, fctkern_ptr__->ns.curr_chk);\
 
-
-static void
-_fct_repr_dbl(void *data, char *buffer, size_t buffer_len) {
-    double a = *((double*)data);
-    fct_snprintf(buffer, buffer_len, "%f", a);
-}
-
-
-static int
-fct_dbl_eq(void *ap, void *bp, void *data) {
-    double a = *((double*)ap);
-    double b = *((double*)bp);
-    double ep = *((double*)data);
-    return ((int)(fabs((a)-(b)) < ep));
-}
-
-static int
-fct_dbl_neq(void *ap, void *bp, void *data) {
-    return !fct_dbl_eq(ap, bp, data);
-}
-
-/* Can just supply (void*)(_A_), because (_A_) is a value type. Also
-need to store it in a variable because void* will truncate a double. */
-#define _fct_chk_dbl(_A_, _B_, _EQFN_)\
-    {\
-        double dbl_a__= (_A_);\
-        double dbl_b__= (_B_);\
-        double dbl_ep__ = (DBL_EPSILON);\
-        fct_chk_eq(&dbl_a__, &dbl_b__,&(dbl_ep__), (_EQFN_), _fct_repr_dbl);\
-    }
-
-#define fct_chk_eq_dbl(_A_, _B_) _fct_chk_dbl((_A_), (_B_), fct_dbl_eq)
-#define fct_chk_neq_dbl(_A_, _B_) _fct_chk_dbl((_A_), (_B_), fct_dbl_neq)
-
-
-
-
-#define fct_chk(_CNDTN_) \
-   {\
-      fctchk_t *chk =NULL;\
-      is_pass__ = (int) (_CNDTN_);\
-      chk = fctchk_new(#_CNDTN_, __FILE__, __LINE__, is_pass__);\
-      if ( chk == NULL ) {\
-          fctkern__log_warn(fctkern_ptr__, "out of memory (aborting)");\
-          break;\
-      }\
-      fct_test__add(FCT_TEST_CURRENT_PTR, chk);\
-      fctkern__log_chk(fctkern_ptr__, chk);\
-   }
+/* To use __VA_ARGS__ you need to have a specify a NULL parameter for the
+format arguments. This is because the above macro would have an error with
+the _FORMAT_, and no subsequent expansion. */
+#define fct_chk(_CNDTN_)  fct_xchk((_CNDTN_), NULL, NULL)
 
 #define fct_req(_CNDTN_) \
-   {\
-      fctchk_t *chk =NULL;\
-      is_pass__ = (_CNDTN_);\
-      chk = fctchk_new(#_CNDTN_, __FILE__, __LINE__, is_pass__);\
-      if ( chk == NULL ) {\
-          fctkern__log_warn(fctkern_ptr__, "out of memory (aborting)");\
-          break;\
-      }\
-      fct_test__add(FCT_TEST_CURRENT_PTR, chk);\
-      fctkern__log_chk(fctkern_ptr__, chk);\
-      if ( !is_pass__ ) { break; }\
-   }
+    fct_xchk((_CNDTN_), NULL, NULL);\
+    if ( !fctkern_ptr__->ns.curr_is_pass ) { break; }
 
+
+#define fct_chk_eq_dbl(V1, V2) \
+    fct_xchk(\
+        ((int)(fabs((V1)-(V2)) < DBL_EPSILON)),\
+        "chk_eq_dbl: %f != %f",\
+        (V1),\
+        (V2)\
+        )
+
+#define fct_chk_neq_dbl(V1, V2) \
+    fct_xchk(\
+        ((int)(fabs((V1)-(V2)) >= DBL_EPSILON)),\
+        "chk_neq_dbl: %f == %f",\
+        (V1),\
+        (V2)\
+        )
 
 /*
 ---------------------------------------------------------
