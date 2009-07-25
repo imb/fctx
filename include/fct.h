@@ -492,7 +492,7 @@ fctchk_new(int is_pass,
            char const *file,
            int lineno,
            char const *format,
-           ...)
+           va_list args)
 {
     fctchk_t *chk = NULL;
 
@@ -512,12 +512,9 @@ fctchk_new(int is_pass,
 
     chk->is_pass =is_pass;
 
-    if ( !is_pass && format != NULL )
+    if ( format != NULL )
     {
-        va_list args;
-        va_start(args, format);
         fct_vsnprintf(chk->msg, FCT_MAX_LOG_LINE, format, args);
-        va_end(args);
     }
     else
     {
@@ -949,8 +946,7 @@ blueprint to address this further in the 1.2 release.
 
 typedef struct _fct_namespace_t
 {
-    int curr_is_pass;
-    fctchk_t *curr_chk;
+    fct_test_t *curr_test;
 } fct_namespace_t;
 
 
@@ -1804,14 +1800,6 @@ MACRO MAGIC
 This is where the show begins!
 */
 
-/* Common defines to help abstract out the variables. For example I may store
-the "CURRENT TEST" on the "CURRENT TEST SUITE", and that may be stored in the
-fctkern. All to minimize the need to create all these local variables that
-clutter up a debug watch window. This isn't meant to be exhaustive, only "as
-needed" for now. */
-#define FCTKERN_PTR             fctkern_ptr__
-#define FCT_TEST_CURRENT_PTR    test__
-
 
 /* This defines our start. The fctkern__ is a kernal object
 that lives throughout the lifetime of our program. The
@@ -1939,13 +1927,13 @@ confirm that checks/requirements are doing what are required. */
                fct_ts__test_begin(ts__);\
                if ( fctkern__pass_filter(fctkern_ptr__,  test_name__ ) )\
                {\
-                  fct_test_t *test__ = fct_test_new( test_name__ );\
-                  if ( test__  == NULL ) {\
+                  fctkern_ptr__->ns.curr_test = fct_test_new( test_name__ );\
+                  if ( fctkern_ptr__->ns.curr_test  == NULL ) {\
                     fctkern__log_warn(fctkern_ptr__, "out of memory");\
                     is_pass__ = FCT_FALSE;\
                   }\
                   else {\
-                      fctkern__log_test_start(fctkern_ptr__, test__);\
+                      fctkern__log_test_start(fctkern_ptr__, fctkern_ptr__->ns.curr_test);\
                       for (;;) \
                       {
 
@@ -1953,8 +1941,8 @@ confirm that checks/requirements are doing what are required. */
                          break;\
                       }\
                }\
-               fct_ts__add_test(ts__, test__);\
-               fctkern__log_test_end(fctkern_ptr__, test__);\
+               fct_ts__add_test(ts__, fctkern_ptr__->ns.curr_test);\
+               fctkern__log_test_end(fctkern_ptr__, fctkern_ptr__->ns.curr_test);\
                }\
                fct_ts__test_end(ts__);\
                continue;\
@@ -1971,33 +1959,71 @@ CHECKING MACROS
 The chk variants will continue on while as the req variants will abort
 if there is one test that fails. */
 
-#define fct_xchk(_CNDTN_, _FORMAT_, ... )\
-    fctkern_ptr__->ns.curr_chk = NULL;\
-    fctkern_ptr__->ns.curr_is_pass = (int)(_CNDTN_);\
-    fctkern_ptr__->ns.curr_chk = fctchk_new(\
-        fctkern_ptr__->ns.curr_is_pass,\
-        #_CNDTN_,\
-        __FILE__,\
-        __LINE__,\
-        (_FORMAT_),\
-        __VA_ARGS__ );\
-    if ( fctkern_ptr__->ns.curr_chk == NULL ) {\
-        fctkern__log_warn(fctkern_ptr__, "out of memory (aborting)");\
-        break;\
-    }\
-    fct_test__add(FCT_TEST_CURRENT_PTR, fctkern_ptr__->ns.curr_chk);\
-    fctkern__log_chk(fctkern_ptr__, fctkern_ptr__->ns.curr_chk);\
- 
 
-/* To use __VA_ARGS__ you need to have a specify a NULL parameter for the
-format arguments. This is because the above macro would have an error with
-the _FORMAT_, and no subsequent expansion. */
-#define fct_chk(_CNDTN_)  fct_xchk((_CNDTN_), NULL, NULL)
+/* To support older compilers that do not have macro variable argument lists
+we have to use a function. The macro manages to store away the line/file
+location into a global before it runs this function, a trick I picked up from
+the error handling in the APR library. The unfortunate thing is that we can
+not carry forth the actual test through a "stringize" operation, but if you
+wanted to do that you should use fct_chk. */
 
-#define fct_req(_CNDTN_) \
-    fct_xchk((_CNDTN_), NULL, NULL);\
-    if ( !fctkern_ptr__->ns.curr_is_pass ) { break; }
+static int fct_xchk_lineno =0;
+static char const *fct_xchk_file = NULL;
+static fct_test_t *fct_xchk_test = NULL;
+static fctkern_t *fct_xchk_kern =NULL;
 
+static int
+fct_xchk_fn(int is_pass, char const *format, ...)
+{
+    va_list args;
+    fctchk_t *chk =NULL;
+
+    va_start(args, format);
+    chk = fctchk_new(
+              is_pass,
+              "<none-from-xchk>",
+              fct_xchk_file,
+              fct_xchk_lineno,
+              format,
+              args
+          );
+    if ( chk == NULL )
+    {
+        fctkern__log_warn(fct_xchk_kern, "out of memory (aborting test)");
+        goto finally;
+    }
+
+    fct_test__add(fct_xchk_test, chk);
+    fctkern__log_chk(fct_xchk_kern, chk);
+
+finally:
+    va_end(args);
+    fct_xchk_lineno =0;
+    fct_xchk_file =NULL;
+    fct_xchk_test =NULL;
+    fct_xchk_kern =NULL;
+    return is_pass;
+}
+
+/* Call this with the following argument list:
+
+   fct_xchk(test_condition, format_str, ...)
+
+the bulk of this macro presets some globals to allow us to support
+variable argument lists on older compilers. The idea came from the APR
+libraries error checking routines. */
+#define fct_xchk  fct_xchk_kern = fctkern_ptr__,\
+                  fct_xchk_test = fctkern_ptr__->ns.curr_test,\
+                  fct_xchk_lineno =__LINE__,\
+                  fct_xchk_file=__FILE__,\
+                  fct_xchk_fn
+
+/* This checks the condition and reports the condition as a string
+if it fails. */
+#define fct_chk(_CNDTN_)  fct_xchk((int)(_CNDTN_), #_CNDTN_)
+
+#define fct_req(_CNDTN_)  \
+    if ( (fct_xchk((int)(_CNDTN_), #_CNDTN_)) ) { break; }
 
 #define fct_chk_eq_dbl(V1, V2) \
     fct_xchk(\
@@ -2063,6 +2089,7 @@ to be referenced. Ohh Me Oh My what a waste! */
         (void)fctkern_init(NULL, 0, NULL);\
         (void)fctkern__chk_cnt(fctkern_ptr__);\
         FCT_FIXTURE_SUITE_BGN( NAME ) {
+
 #define FCTMF_FIXTURE_SUITE_END(NAME) \
 		} FCT_FIXTURE_SUITE_END();\
 	}
