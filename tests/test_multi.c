@@ -3,11 +3,11 @@
 Copyright (c) 2009 Ian Blumel.  All rights reserved.
 
 This software is licensed as described in the file LICENSE, which
-you should have received as part of this distribution.  
+you should have received as part of this distribution.
 ====================================================================
 File: test_multi.c
 
-This code is designed to experiment with the "multi-file" support 
+This code is designed to experiment with the "multi-file" support
 for the FCT.
 
 This method superscedes the test_mutli_old_style method shown in the other
@@ -24,15 +24,21 @@ line. */
 FCTMF_SUITE_DEF(test_suite1);
 FCTMF_SUITE_DEF(test_fixture_suite2);
 
-FCT_BGN() { 
+FCT_BGN()
+{
     /* This suite is called *OUTSIDE* of this compilation unit. */
     FCTMF_SUITE_CALL(test_suite1);
-	FCTMF_SUITE_CALL(test_fixture_suite2);
-    
+    FCTMF_SUITE_CALL(test_fixture_suite2);
+
     /* Provide a co-existing "embedded" version for completness. */
-    FCT_SUITE_BGN(test_embedded) {
-        FCT_TEST_BGN(test_embedded.zero_is_zero) {
+    FCT_SUITE_BGN(test_embedded)
+    {
+        FCT_TEST_BGN(test_embedded.zero_is_zero)
+        {
             fct_chk( 0 == 0 );
-        } FCT_TEST_END();
-    } FCT_SUITE_END();
-} FCT_END();
+        }
+        FCT_TEST_END();
+    }
+    FCT_SUITE_END();
+}
+FCT_END();

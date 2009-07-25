@@ -30,13 +30,15 @@ returns the ACTUAL return value from the code. */
 #endif
 
 int
-main(int argc, char *argv[]) {
+main(int argc, char *argv[])
+{
     char *rv_str =NULL;
     int expected_rv =0;
     int rv =0;
     char *progname =NULL;
 
-    if ( argc < 2 ) {
+    if ( argc < 2 )
+    {
         return EXIT_FAILURE;
     }
     progname = argv[1];
@@ -52,6 +54,6 @@ main(int argc, char *argv[]) {
         progname,
         rv_str,
         rv
-        );
+    );
     return (rv == expected_rv) ?  (EXIT_SUCCESS) : (EXIT_FAILURE);
 }
