@@ -36,9 +36,9 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNINGS}")
 # Delegate
 # --------
 
-ADD_SUBDIRECTORY(tests)
 ADD_SUBDIRECTORY(doc)
-
+ADD_SUBDIRECTORY(include)
+ADD_SUBDIRECTORY(tests)
 
 # ---------
 # Packaging
