@@ -193,12 +193,73 @@ These are used to verify that a condition is true. They are executed within
 
 .. cfunction:: fct_chk(condition)
 
-    Evaluates the condition, and if it is false will cause the tests to fail.
+    Evaluates the *condition*, and if it is false will cause the tests to fail.
     Further lines in the test block continue to execute. If you want a check to
     terminate testing, then use the :cfunc:`fct_req` function instead.
 
+.. cfunction:: fct_chk_eq_dbl(a, b) 
+
+    Causes a test failure if *a* != *b*. Testing for equality is done based on
+    an absolute floating point difference less than the *DBL_EPISLON* defined
+    in the standard <float.h> file.
+
+.. cfunction:: fct_chk_neq_dbl(a, b) 
+
+    Causes a test failure if *a* == *b*. Testing for inequality is done based
+    on an absolute floating point difference that is NOT less than the
+    *DBL_EPISLON* defined in the standard <float.h> file. 
+
+.. cfunction:: fct_xchk(condition, format, ...)
+
+    Evaluates the *condition*, and if it is false will cause the tests to fail.
+    Further lines in the test block continue to execute. The message reported
+    is a function of a printf-style *format*, with multiple arguments.
+
+    :cfunc:`fct_xchk` can be extended to generate your own check functions. For
+    example, say you had a structure such as,
+
+    .. code-block:: c
+
+       typedef struct _point_t {
+          float x, y, z;
+       } point_t;
+
+    you could define a macro that checks if two points are equal based on some
+    epsilon value. Something that looked like this should work,
+
+    .. code-block:: c
+
+        #define point_is_eq(p1, p2, ep) \
+            ((int)(fabs(p1.x - p2.x) < ep)) &&\
+            ((int)(fabs(p1.y - p2.y) < ep)) &&\
+            ((int)(fabs(p1.z - p2.z) < ep))
+
+        #define point_chk_eq(p1, p2, ep) \
+            fct_xchk(\
+                point_is_eq(p1, p2, ep), \
+                "failed point_is_equal:\n<Point x=%f y=%f z=%f>"\
+                " !=\n<Point x=%f y=%f z=%f>",\
+                p1.x, p1.y, p1.z, p2.x, p2.y, p2.z\
+                );
+
+    now your test case can utilize this to test if two points are equal, and
+    you will get a meaningful report if they are not.
+
+    .. code-block:: c
+
+        FCT_QTEST_BGN(chk_my_point) {
+            point_t point1 = {1.f, 2.f, 3.f};
+            point_t point2 = {1.f, 2.f, 3.f};
+            point_t point3 = {10.f, 20.f, 30.f};
+            point_chk_eq(point1, point2, DBL_EPSILON);
+            point_chk_eq(point1, point3, DBL_EPSILON);
+        }
+        FCT_QTEST_END();
+             
+    in the above example, the second check should generate an test error.
+
 .. cfunction:: fct_req(condition)
 
-    Evaluates the condition, and if it is false it will cause a test to fail.
-    This differs from :cfunc:`fct_chk` in so far as a false state causes
-    the test block to abort.
+    Evaluates the *condition*, and if it is false it will cause a test to fail.
+    This differs from :cfunc:`fct_chk` in so far as a false state causes the
+    test block to abort.
