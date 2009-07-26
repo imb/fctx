@@ -54,7 +54,7 @@ to_native_inplace(char *progname)
         }
     }
 }
-#else 
+#else
 #define to_native_inplace(progname)
 #endif
 
@@ -68,47 +68,53 @@ CMAKE will not set up the paths correctly. The following 'run'
 command will run the program and return the exit code of the
 program back to the client. */
 static void
-dirname(char const *path, char *dirname, size_t dirname_len) {
-	size_t path_len =0;
-	size_t path_i =0;
-	assert( path != NULL );
-	assert( dirname != NULL);
-	/* Walk from the end until we hit on the window's seperator.
-	Assume that path is a full, absolute path. */
-	path_len = strlen(path);
-	for ( path_i=path_len-1; path_i != 0; --path_i ) {
-		if (path[path_i] == '\\' ) {
-			break;
-		}
-	}
-	if ( dirname_len < path_i ) {
-		assert( dirname_len > path_i );
-		fprintf(stderr, "abort, dirname unable to parse path");
-		exit(EXIT_FAILURE);
-	}
-	strncpy(dirname, path, path_i);
+dirname(char const *path, char *dirname, size_t dirname_len)
+{
+    size_t path_len =0;
+    size_t path_i =0;
+    assert( path != NULL );
+    assert( dirname != NULL);
+    /* Walk from the end until we hit on the window's seperator.
+    Assume that path is a full, absolute path. */
+    path_len = strlen(path);
+    for ( path_i=path_len-1; path_i != 0; --path_i )
+    {
+        if (path[path_i] == '\\' )
+        {
+            break;
+        }
+    }
+    if ( dirname_len < path_i )
+    {
+        assert( dirname_len > path_i );
+        fprintf(stderr, "abort, dirname unable to parse path");
+        exit(EXIT_FAILURE);
+    }
+    strncpy(dirname, path, path_i);
 }
 
 
 static int
-run(char *arg0, char *progname) {
+run(char *arg0, char *progname)
+{
 #define MAX_DIR 256
-	char dir[MAX_DIR] = {'\0'};
+    char dir[MAX_DIR] = {'\0'};
 
-	assert( arg0 != NULL );
-	assert( progname != NULL);
-	to_native_inplace(arg0);
-	to_native_inplace(progname);
-	dirname(arg0, dir, MAX_DIR);
-	_chdir(dir);
-	return EXIT_STATUS(system(progname));
+    assert( arg0 != NULL );
+    assert( progname != NULL);
+    to_native_inplace(arg0);
+    to_native_inplace(progname);
+    dirname(arg0, dir, MAX_DIR);
+    _chdir(dir);
+    return EXIT_STATUS(system(progname));
 #undef MAX_DIR
 }
 #else
 static int
-run(char const *arg0, char const *progname) {
-	(void)arg0;
-	return EXIT_STATUS(system(progname));
+run(char const *arg0, char const *progname)
+{
+    (void)arg0;
+    return EXIT_STATUS(system(progname));
 }
 #endif
 
@@ -122,16 +128,16 @@ main(int argc, char *argv[])
     char *progname =NULL;
 
     /* The worlds worst command line parser. ;-) */
-	assert( argc == 3 && "Can only accept three arguments!");
-	(void)argc;
+    assert( argc == 3 && "Can only accept three arguments!");
+    (void)argc;
 
     progname = argv[1];
-	rv_str = argv[2];
+    rv_str = argv[2];
     expected_rv = atoi(rv_str);
 
     printf("RUNNER: starting '%s': expecting %d\n", progname, expected_rv);
-	
-	rv = run(argv[0], progname);    
+
+    rv = run(argv[0], progname);
 
     printf(
         "RUNNER: finished '%s'; expected %s, received %d\n",
@@ -140,4 +146,4 @@ main(int argc, char *argv[])
         rv
     );
     return (rv == expected_rv) ?  (EXIT_SUCCESS) : (EXIT_FAILURE);
-} 
+}

@@ -132,7 +132,7 @@ fct_safe_str_cpy(char *dst, char const *src, size_t num)
     assert( dst != NULL );
     assert( src != NULL );
     assert( num > 0 );
-#if defined(WIN32) && _MSC_VER >= 1400 
+#if defined(WIN32) && _MSC_VER >= 1400
     strncpy_s(dst, num, src, _TRUNCATE);
 #else
     strncpy(dst, src, num);
@@ -153,7 +153,7 @@ fct_vsnprintf(char *buffer,
     Microsoft Compilers start implementing vsnprintf. */
 #if defined(_MSC_VER) && (_MSC_VER < 1400)
     count = _vsnprintf(buffer, buffer_len, format, args);
-#elif defined(_MSC_VER) && (_MSC_VER >= 1400) 
+#elif defined(_MSC_VER) && (_MSC_VER >= 1400)
     count = vsnprintf_s(buffer, buffer_len, _TRUNCATE, format, args);
 #else
     count = vsnprintf(buffer, buffer_len, format, args);
