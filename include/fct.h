@@ -1622,9 +1622,10 @@ fct_standard_logger__on_test_start(fct_logger_i *logger_,
     test_name = fct_test__name(test);
     test_name_len = strlen(test_name);
     test_name_line_len = FCTMIN(
-                             FCT_STANDARD_LOGGER_MAX_LINE-1, test_name_len
+                             FCT_STANDARD_LOGGER_MAX_LINE-1,
+                             test_name_len
                          );
-    fct_safe_str_cpy(line, test_name, test_name_line_len);
+    memcpy(line, test_name, sizeof(char)*test_name_line_len);
     if ( test_name_len < FCT_STANDARD_LOGGER_MAX_LINE-1)
     {
         line[test_name_len] = ' ';
@@ -2040,6 +2041,28 @@ if it fails. */
         (V1),\
         (V2)\
         )
+
+/* We can write a more efficient str equality check later. */
+#define fct_chk_eq_str(V1, V2) \
+    fct_xchk(\
+        ( (V1 == NULL && V2 == NULL) ||\
+          (V1 != NULL && V2 != NULL && strcmp(V1, V2) == 0) ),\
+          "chk_eq_str: '%s' != '%s'",\
+          (V1),\
+          (V2)\
+          )
+
+#define fct_chk_neq_str(V1, V2) \
+    fct_xchk(\
+        ( (V1 != NULL && V2 == NULL) ||\
+          (V1 == NULL && V2 != NULL) ||\
+          (V1 != NULL && V2 != NULL && strcmp(V1, V2) != 0) ),\
+          "chk_neq_str: '%s' == '%s'",\
+          (V1),\
+          (V2)\
+          )
+
+
 
 /*
 ---------------------------------------------------------

@@ -213,11 +213,21 @@ These are used to verify that a condition is true. They are executed within
     an absolute floating point difference less than the *DBL_EPISLON* defined
     in the standard <float.h> file.
 
+.. cfunction:: fct_chk_eq_str(a, b)
+
+    Causes a test failure if *a* != *b*. Testing for equality is done based on
+    first checking for NULL values, then making a case-sensitive compare.
+
 .. cfunction:: fct_chk_neq_dbl(a, b) 
 
     Causes a test failure if *a* == *b*. Testing for inequality is done based
     on an absolute floating point difference that is NOT less than the
     *DBL_EPISLON* defined in the standard <float.h> file. 
+
+.. cfunction:: fct_chk_neq_str(a, b)
+
+    Causes a test failure if *a* == *b*. Testing for inequality is done based
+    on first checking for NULL, then making a case-sensitive compare.
 
 .. cfunction:: fct_xchk(condition, format, ...)
 

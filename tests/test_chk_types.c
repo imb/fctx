@@ -60,6 +60,23 @@ FCT_BGN()
     }
     FCT_QTEST_END();
 
+    FCT_QTEST_BGN(chk_str_eq)
+    {
+        fct_chk_eq_str("a", "a");
+        fct_chk_eq_str(NULL, NULL);
+        fct_chk_eq_str("boo", "boo");
+    }
+    FCT_QTEST_END();
+
+    FCT_QTEST_BGN(chk_str_neq)
+    {
+        fct_chk_neq_str("a", "b");
+        fct_chk_neq_str(NULL, "b");
+        fct_chk_neq_str("a", NULL);
+    }
+    FCT_QTEST_END();
+
+
     FCT_QTEST_BGN(chk_my_point)
     {
         point_t point1 = {1.f, 2.f, 3.f};
