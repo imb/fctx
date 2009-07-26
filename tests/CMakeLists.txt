@@ -120,11 +120,16 @@ SET_TESTS_PROPERTIES(run_test_fail PROPERTIES WILL_FAIL TRUE)
 # We can only be happy with 2 failures, this program will run a test and report
 # false if the test program has a return value other than the one supplied.
 # Not ideal, but it is something. ;-)
+IF (WIN32)
+   SET(TEST_PROGRAM test_chk)
+ELSE()
+   SET(TEST_PROGRAM ./test_chk)
+ENDIF()
+
 ADD_TEST(run_test_chk_with_runner 
     ${CMAKE_CURRENT_BINARY_DIR}/runner 
-    test_chk
+    ${TEST_PROGRAM}
     2)
-
 
 # Test money uses 'strcpy', and its just an example, so lets add a definition
 # for that one program.
