@@ -1,6 +1,6 @@
-================
-FCT Initializers
-================
+==========
+FCTest API
+==========
 
 .. module:: FCT
    :platform: Unix, Windows
@@ -196,6 +196,16 @@ These are used to verify that a condition is true. They are executed within
     Evaluates the *condition*, and if it is false will cause the tests to fail.
     Further lines in the test block continue to execute. If you want a check to
     terminate testing, then use the :cfunc:`fct_req` function instead.
+
+    A feature of this check is that you can provide notes to yourself as in,
+
+    .. code-block:: c
+
+        fct_chk( it_works() && "The whoosley wazzle didn't work!");
+        fct_chk(!"TODO: Write tests to confirm that the ish can wish for fish.");
+
+    in both those cases if an error was generated (the second case always will
+    fail), you will get a message in the final error log.
 
 .. cfunction:: fct_chk_eq_dbl(a, b) 
 
