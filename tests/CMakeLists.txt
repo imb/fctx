@@ -47,7 +47,6 @@ SET(SIMPLE_TESTS test_1suite
 		 test_quick_test
 		 test_two_names
 	)	
-
 FOREACH( PROGRAM ${SIMPLE_TESTS}) 
 	ADD_EXECUTABLE(${PROGRAM} ${PROGRAM}.c)
 ENDFOREACH(PROGRAM)
@@ -86,11 +85,11 @@ ADD_DEPENDENCIES(test_chk runner)
 #     locate a target called "test_big.c".
 ADD_EXECUTABLE(mkbigtest mkbigtest.c)
 ADD_CUSTOM_COMMAND(
-    OUTPUT test_big.c
+    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/test_big.c"
     COMMAND mkbigtest
     DEPENDS mkbigtest 
     )	
-ADD_EXECUTABLE(test_big test_big.c)
+ADD_EXECUTABLE(test_big "${CMAKE_CURRENT_BINARY_DIR}/test_big.c")
 
 # -------
 # TESTING 
@@ -118,9 +117,24 @@ ADD_TEST(run_test_multi_cpp test_multi_cpp)
 ADD_TEST(run_test_fail test_fail)
 SET_TESTS_PROPERTIES(run_test_fail PROPERTIES WILL_FAIL TRUE) 
 
-# We can only be happy with 2 failures.
+# We can only be happy with 2 failures, this program will run a test and report
+# false if the test program has a return value other than the one supplied.
+# Not ideal, but it is something. ;-)
 ADD_TEST(run_test_chk_with_runner 
-            ${CMAKE_CURRENT_BINARY_DIR}/runner 
-            ${CMAKE_CURRENT_BINARY_DIR}/test_chk 
-            2)
+    ${CMAKE_CURRENT_BINARY_DIR}/runner 
+    test_chk
+    2)
+
+
+# Test money uses 'strcpy', and its just an example, so lets add a definition
+# for that one program.
+set_target_properties(test_money 
+    PROPERTIES
+    COMPILE_DEFINITIONS "_CRT_SECURE_NO_WARNINGS"
+    )
+set_target_properties(test_money_cpp
+    PROPERTIES
+    COMPILE_DEFINITIONS "_CRT_SECURE_NO_WARNINGS"
+    )
+
 

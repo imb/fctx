@@ -19,18 +19,29 @@ IF (MSVC)
     # Warning Level 4, Treat all warnings as errors!
     IF (MSVC80)
         # 64 bit warning flags are only really used in MSVC80.
-	SET(WARNINGS "/WX /W4 /Wp64")
+	SET(C_WARNINGS "/WX /W4 /Wp64")
+	SET(CXX_WARNINGS "/WX /W4 /Wp64")
+    ELSEIF(MSVC60)
+        # Treating warnings as errors for this compiler makes things unworkable
+        # as you get warnings about functions being inlined (who cares),
+        # warnings about inlined functions in the math library not being used
+        # (who cares), and so on. For my sanity this old compiler will get the
+        # warnings turned on, but we can manually choose to ignore them.        
+        #
+        # Not only am I not turning on warnings, I am dialing them down to a
+        # "sane" level 3.
+	SET(C_WARNINGS "/W3")
+	SET(CXX_WARNINGS "/W3")
     ELSE()
-        SET(WARNINGS "/WX /W4")
-    ENDIF(MSVC90)
-ENDIF (MSVC)
-IF (CMAKE_COMPILER_IS_GNUCC)
-	SET(WARNINGS "-Wall -Wextra")
+	SET(C_WARNINGS "/WX /W3")
+	SET(CXX_WARNINGS "/WX /W4")
+    ENDIF()
+ELSEIF (CMAKE_COMPILER_IS_GNUCC)
+    SET(WARNINGS "-Wall -Wextra")
 ENDIF()
 
-SET(CMAKE_C_FLAGS 	"${CMAKE_C_FLAGS} ${WARNINGS}")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNINGS}")
-
+SET(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   ${C_WARNINGS}")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_WARNINGS}")
 
 # --------
 # Delegate

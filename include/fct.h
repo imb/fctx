@@ -49,12 +49,6 @@ File: fct.h
 #define FCT_VERSION_MINOR 1
 #define FCT_VERSION_MICRO 0
 
-/* Define this to remove unneeded WIN32 warnings. We will undefine this at
-the end of the file so as not to interfere with your build. */
-#if defined(WIN32) && !defined(_CRT_SECURE_NO_WARNINGS)
-#  define _CRT_SECURE_NO_WARNINGS
-#endif
-
 #include <string.h>
 #include <assert.h>
 #include <stdarg.h>
@@ -138,7 +132,11 @@ fct_safe_str_cpy(char *dst, char const *src, size_t num)
     assert( dst != NULL );
     assert( src != NULL );
     assert( num > 0 );
+#if defined(WIN32) && _MSC_VER >= 1400 
+    strncpy_s(dst, num, src, _TRUNCATE);
+#else
     strncpy(dst, src, num);
+#endif
     dst[num-1] = '\0';
 }
 
@@ -155,6 +153,8 @@ fct_vsnprintf(char *buffer,
     Microsoft Compilers start implementing vsnprintf. */
 #if defined(_MSC_VER) && (_MSC_VER < 1400)
     count = _vsnprintf(buffer, buffer_len, format, args);
+#elif defined(_MSC_VER) && (_MSC_VER >= 1400) 
+    count = vsnprintf_s(buffer, buffer_len, _TRUNCATE, format, args);
 #else
     count = vsnprintf(buffer, buffer_len, format, args);
 #endif
@@ -1019,7 +1019,7 @@ fctkern__add_prefix_filter(fctkern_t const *fct, char const *prefix_filter)
     in our little list. */
     filter_len = strlen(prefix_filter);
     filter = (char*)malloc(sizeof(char)*(filter_len+1));
-    strncpy(filter, prefix_filter, filter_len);
+    fct_safe_str_cpy(filter, prefix_filter, filter_len);
     filter[filter_len] = '\0';
 
     nlist__append(fct->prefix_list, (void*)filter);
@@ -1624,7 +1624,7 @@ fct_standard_logger__on_test_start(fct_logger_i *logger_,
     test_name_line_len = FCTMIN(
                              FCT_STANDARD_LOGGER_MAX_LINE-1, test_name_len
                          );
-    strncpy(line, test_name, test_name_line_len);
+    fct_safe_str_cpy(line, test_name, test_name_line_len);
     if ( test_name_len < FCT_STANDARD_LOGGER_MAX_LINE-1)
     {
         line[test_name_len] = ' ';
@@ -2090,7 +2090,7 @@ to be referenced. Ohh Me Oh My what a waste! */
         (void)fctkern__chk_cnt(fctkern_ptr__);\
         FCT_FIXTURE_SUITE_BGN( NAME ) {
 
-#define FCTMF_FIXTURE_SUITE_END(NAME) \
+#define FCTMF_FIXTURE_SUITE_END() \
 		} FCT_FIXTURE_SUITE_END();\
 	}
 
@@ -2133,11 +2133,5 @@ The basic idea is that there is one test per test suite.
 CLOSING STATEMENTS
 ----------------------------------------------------------
 */
-
-/* This is defined at the start of the file. We are undefining it
-here so it doesn't conflict with existing. */
-#if defined(WIN32)
-#   undef _CRT_SECURE_NO_WARNINGS
-#endif
 
 #endif /* !FCT_INCLUDED__IMB */

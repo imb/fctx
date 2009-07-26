@@ -19,8 +19,8 @@ load testing.
 /* This should define a fairly reasonably large test file. Files with more
 unit tests should probably be fragmented. Right now the slow down is
 basically the time it takes to compile the file. */
-#if defined(WIN32) && _MSC_VER >= 1400
-#define MESSAGE   ("Visual Studio 2008 is crippled trying to compile >256\n"\
+#if defined(WIN32) && _MSC_VER >= 1200
+#define MESSAGE   ("Visual Studio is crippled trying to compile >256\n"\
                    "tests. So we are limiting it to %d tests.\n")
 #define NUM_TESTS 256
 #else
