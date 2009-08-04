@@ -2024,7 +2024,7 @@ if it fails. */
 #define fct_chk(_CNDTN_)  fct_xchk((int)(_CNDTN_), #_CNDTN_)
 
 #define fct_req(_CNDTN_)  \
-    if ( (fct_xchk((int)(_CNDTN_), #_CNDTN_)) ) { break; }
+    if ( !(fct_xchk((int)(_CNDTN_), #_CNDTN_)) ) { break; }
 
 #define fct_chk_eq_dbl(V1, V2) \
     fct_xchk(\
