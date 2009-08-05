@@ -68,11 +68,30 @@ FCT_BGN()
     }
     FCT_QTEST_END();
 
-    FCT_QTEST_BGN(chk_str_neq)
+    FCT_QTEST_BGN(chk_neq_str)
     {
         fct_chk_neq_str("a", "b");
         fct_chk_neq_str(NULL, "b");
         fct_chk_neq_str("a", NULL);
+    }
+    FCT_QTEST_END();
+
+    FCT_QTEST_BGN(chk_eq_istr)
+    {
+        fct_chk_eq_istr("mismatch", "misMatch");
+        fct_chk_eq_istr("a", "a");
+        fct_chk_eq_istr("A", "a");
+        fct_chk_eq_istr(NULL, NULL);
+    }
+    FCT_QTEST_END();
+
+    FCT_QTEST_BGN(chk_neq_istr)
+    {
+        fct_chk_neq_istr("mismatch", "misMatchLength");
+        fct_chk_neq_istr("a", "b");
+        fct_chk_neq_istr("A", "b");
+        fct_chk_neq_istr(NULL, "b");
+        fct_chk_neq_istr("A", NULL);
     }
     FCT_QTEST_END();
 

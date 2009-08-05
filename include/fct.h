@@ -57,6 +57,7 @@ File: fct.h
 #include <time.h>
 #include <float.h>
 #include <math.h>
+#include <ctype.h>
 
 #define FCT_MAX_NAME           256
 #define FCT_MAX_LOG_LINE       256
@@ -225,6 +226,43 @@ fct_filter_pass(char const *prefix, char const *test_str)
 
 /* Returns true if two reals are equal. */
 #define fct_real_eq(V1, V2) ((int)(fabs((V1)-(V2)) < DBL_EPSILON))
+
+/* Compiler/Platform agnostic case-insenstive string equality
+check. We don't need to mimic strcmp, we only need to kick
+out false when we have a mismatch. Returns TRUE if both strings
+are NULL. */
+static int
+fct_istr_eq(char const *v1, char const *v2)
+{
+    char const *pv1 = NULL;
+    char const *pv2 = NULL;
+
+    if ( v1 == NULL && v2 == NULL )
+    {
+        return FCT_TRUE; /* They are equally NULL. */
+    }
+    if ( v1 == NULL && v2 != NULL \
+            || v1 != NULL && v2 == NULL )
+    {
+        return FCT_FALSE; /* The are not equally NULL. */
+    }
+
+    for ( pv1 = v1, pv2 = v2; *pv1 != '\0' && *pv2 != '\0'; ++pv1, ++pv2)
+    {
+        char tv1 = tolower(*pv1);
+        char tv2 = tolower(*pv2);
+        if ( tv1 != tv2 )
+        {
+            return FCT_FALSE;   /* mismatch! */
+        }
+    }
+    if ( *pv1 == '\0' && *pv2 != '\0'
+            || *pv1 != '\0' && *pv2 == '\0')
+    {
+        return FCT_FALSE; /* Different length strings. */
+    }
+    return FCT_TRUE; /* Same length strings, never failed to mismatch. */
+}
 
 
 /*
@@ -1817,7 +1855,6 @@ main(int argc, char *argv[])\
    }\
    fctkern__log_start(fctkern_ptr__);
 
-
 /* Ends the test suite but returning the number failed. THe "chk_cnt" call is
 made in order allow strict compilers to pass when it encounters unreferenced
 functions. */
@@ -2062,6 +2099,21 @@ if it fails. */
           (V2)\
           )
 
+#define fct_chk_eq_istr(V1, V2) \
+    fct_xchk(\
+          fct_istr_eq(V1, V2),\
+          "chk_eq_istr: '%s' != '%s'",\
+          (V1),\
+          (V2)\
+          )
+
+#define fct_chk_neq_istr(V1, V2) \
+    fct_xchk(\
+          !fct_istr_eq(V1, V2),\
+          "chk_neq_istr: '%s' == '%s'",\
+          (V1),\
+          (V2)\
+          )
 
 
 /*
