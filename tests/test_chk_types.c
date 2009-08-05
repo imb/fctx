@@ -103,7 +103,8 @@ FCT_BGN()
     }
     FCT_QTEST_END();
 
-    FCT_QTEST_BGN(chk_neq_int) {
+    FCT_QTEST_BGN(chk_neq_int)
+    {
         fct_chk_neq_int(1, 2);
         fct_chk_neq_int(0, -1);
         fct_chk_neq_int(-1, 2);

@@ -603,7 +603,7 @@ struct _fct_test_t
 /* Clears the failed tests ... partly for internal testing. */
 #define fct_test__clear_failed(test) \
     nlist__clear(test->failed_chks, (on_del_t)fctchk__del);\
-
+ 
 
 static void
 fct_test__del(fct_test_t *test)
@@ -1918,7 +1918,7 @@ functions. */
 
 #define FCT_TEARDOWN_BGN() \
    if ( fct_ts__is_teardown_mode(ts__) ) {\
-
+ 
 #define FCT_TEARDOWN_END() \
    fct_ts__teardown_end(ts__); \
    continue; \
@@ -1930,7 +1930,7 @@ do it by 'stubbing' out the setup/teardown logic. */
    FCT_FIXTURE_SUITE_BGN(Name) {\
    FCT_SETUP_BGN() {_fct_cmt("stubbed"); } FCT_SETUP_END()\
    FCT_TEARDOWN_BGN() {_fct_cmt("stubbed");} FCT_TEARDOWN_END()\
-
+ 
 #define FCT_SUITE_END() } FCT_FIXTURE_SUITE_END()
 
 
@@ -2221,7 +2221,7 @@ The basic idea is that there is one test per test suite.
 #define FCT_QTEST_BGN(NAME) \
 	FCT_SUITE_BGN(NAME) {\
 		FCT_TEST_BGN(NAME) {\
-
+ 
 #define FCT_QTEST_END() \
 		} FCT_TEST_END();\
 	} FCT_SUITE_END();
