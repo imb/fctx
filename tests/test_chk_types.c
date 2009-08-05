@@ -95,6 +95,20 @@ FCT_BGN()
     }
     FCT_QTEST_END();
 
+    FCT_QTEST_BGN(chk_eq_int)
+    {
+        fct_chk_eq_int(1, 1);
+        fct_chk_eq_int(-1, -1);
+        fct_chk_eq_int(0, 0);
+    }
+    FCT_QTEST_END();
+
+    FCT_QTEST_BGN(chk_neq_int) {
+        fct_chk_neq_int(1, 2);
+        fct_chk_neq_int(0, -1);
+        fct_chk_neq_int(-1, 2);
+    }
+    FCT_QTEST_END();
 
     FCT_QTEST_BGN(chk_my_point)
     {

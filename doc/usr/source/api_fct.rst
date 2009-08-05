@@ -213,6 +213,12 @@ These are used to verify that a condition is true. They are executed within
     an absolute floating point difference less than the *DBL_EPISLON* defined
     in the standard <float.h> file.
 
+.. cfunction:: fct_chk_eq_int(a, b)
+
+    Causes a test failure if *a* != *b*. Testing for equality is done based on
+    the "==" operator. An error message is generated showing the values of *a*
+    and *b*.
+
 .. cfunction:: fct_chk_eq_istr(a, b)
 
     Causes a test failure if *a* != *b* (case-insensitive). Testing for
@@ -230,6 +236,12 @@ These are used to verify that a condition is true. They are executed within
     on an absolute floating point difference that is NOT less than the
     *DBL_EPISLON* defined in the standard <float.h> file. 
 
+.. cfunction:: fct_chk_neq_int(a, b)
+
+    Causes a test failure if *a* == *b*. Testing for equality is done based on
+    the "!=" operator. An error message is generated showing the values of *a*
+    and *b*.
+
 .. cfunction:: fct_chk_neq_istr(a, b)
 
     Causes a test failure if *a* == *b* (case-insensitive). Testing for
@@ -241,11 +253,11 @@ These are used to verify that a condition is true. They are executed within
     Causes a test failure if *a* == *b*. Testing for inequality is done based
     on first checking for NULL, then making a case-sensitive compare.
 
-.. cfunction:: fct_xchk(condition, format, ...)
+.. cfunction:: fct_xchk(condition, format_str, ...)
 
     Evaluates the *condition*, and if it is false will cause the tests to fail.
     Further lines in the test block continue to execute. The message reported
-    is a function of a printf-style *format*, with multiple arguments.
+    is a function of a printf-style *format_str*, with multiple arguments.
 
     :cfunc:`fct_xchk` can be extended to generate your own check functions. For
     example, say you had a structure such as,

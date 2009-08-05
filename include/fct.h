@@ -603,7 +603,7 @@ struct _fct_test_t
 /* Clears the failed tests ... partly for internal testing. */
 #define fct_test__clear_failed(test) \
     nlist__clear(test->failed_chks, (on_del_t)fctchk__del);\
- 
+
 
 static void
 fct_test__del(fct_test_t *test)
@@ -1918,7 +1918,7 @@ functions. */
 
 #define FCT_TEARDOWN_BGN() \
    if ( fct_ts__is_teardown_mode(ts__) ) {\
- 
+
 #define FCT_TEARDOWN_END() \
    fct_ts__teardown_end(ts__); \
    continue; \
@@ -1930,7 +1930,7 @@ do it by 'stubbing' out the setup/teardown logic. */
    FCT_FIXTURE_SUITE_BGN(Name) {\
    FCT_SETUP_BGN() {_fct_cmt("stubbed"); } FCT_SETUP_END()\
    FCT_TEARDOWN_BGN() {_fct_cmt("stubbed");} FCT_TEARDOWN_END()\
- 
+
 #define FCT_SUITE_END() } FCT_FIXTURE_SUITE_END()
 
 
@@ -2063,6 +2063,7 @@ if it fails. */
 #define fct_req(_CNDTN_)  \
     if ( !(fct_xchk((int)(_CNDTN_), #_CNDTN_)) ) { break; }
 
+
 #define fct_chk_eq_dbl(V1, V2) \
     fct_xchk(\
         ((int)(fabs((V1)-(V2)) < DBL_EPSILON)),\
@@ -2070,6 +2071,7 @@ if it fails. */
         (V1),\
         (V2)\
         )
+
 
 #define fct_chk_neq_dbl(V1, V2) \
     fct_xchk(\
@@ -2079,41 +2081,62 @@ if it fails. */
         (V2)\
         )
 
-/* We can write a more efficient str equality check later. */
+
 #define fct_chk_eq_str(V1, V2) \
     fct_xchk(\
-        ( (V1 == NULL && V2 == NULL) ||\
-          (V1 != NULL && V2 != NULL && strcmp(V1, V2) == 0) ),\
+        ( ((V1) == NULL && (V2) == NULL) ||\
+          ((V1) != NULL && (V2) != NULL && strcmp((V1), (V2)) == 0) ),\
           "chk_eq_str: '%s' != '%s'",\
           (V1),\
           (V2)\
           )
 
+
 #define fct_chk_neq_str(V1, V2) \
     fct_xchk(\
-        ( (V1 != NULL && V2 == NULL) ||\
-          (V1 == NULL && V2 != NULL) ||\
-          (V1 != NULL && V2 != NULL && strcmp(V1, V2) != 0) ),\
+        ( ((V1) != NULL && (V2) == NULL) ||\
+          ((V1) == NULL && (V2) != NULL) ||\
+          ((V1) != NULL && (V2) != NULL && strcmp((V1), (V2)) != 0) ),\
           "chk_neq_str: '%s' == '%s'",\
           (V1),\
           (V2)\
           )
 
+
 #define fct_chk_eq_istr(V1, V2) \
     fct_xchk(\
-          fct_istr_eq(V1, V2),\
+          fct_istr_eq((V1), (V2)),\
           "chk_eq_istr: '%s' != '%s'",\
           (V1),\
           (V2)\
           )
 
+
 #define fct_chk_neq_istr(V1, V2) \
     fct_xchk(\
-          !fct_istr_eq(V1, V2),\
+          !fct_istr_eq((V1), (V2)),\
           "chk_neq_istr: '%s' == '%s'",\
           (V1),\
           (V2)\
           )
+
+
+#define fct_chk_eq_int(V1, V2) \
+    fct_xchk(\
+        ((V1) == (V2)),\
+        "chq_eq_int: %d != %d",\
+        (V1),\
+        (V2)\
+        )
+
+
+#define fct_chk_neq_int(V1, V2) \
+    fct_xchk(\
+        ((V1) != (V2)),\
+        "chq_neq_int: %d == %d",\
+        (V1),\
+        (V2)\
+        )
 
 
 /*
@@ -2198,7 +2221,7 @@ The basic idea is that there is one test per test suite.
 #define FCT_QTEST_BGN(NAME) \
 	FCT_SUITE_BGN(NAME) {\
 		FCT_TEST_BGN(NAME) {\
- 
+
 #define FCT_QTEST_END() \
 		} FCT_TEST_END();\
 	} FCT_SUITE_END();
