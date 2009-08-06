@@ -2088,7 +2088,8 @@ if it fails. */
 
 #define fct_chk_eq_str(V1, V2) \
     fct_xchk(\
-          ((V1) == NULL && (V2) == NULL) || ((V1) != NULL && (V2) != NULL)\
+          ((V1) == (char*)NULL && (V2) == (char*)NULL) ||\
+           ((V1) != (char*)NULL && (V2) != (char*)NULL)\
           && (_fct_str_equal((V1), (V2), _fct_check_char)),\
           "chk_eq_str: '%s' != '%s'",\
           (V1),\
@@ -2098,9 +2099,9 @@ if it fails. */
 
 #define fct_chk_neq_str(V1, V2) \
     fct_xchk(\
-          ((V1) != NULL && (V2) == NULL) ||\
-          ((V1) == NULL && (V2) != NULL) ||\
-          ((V1) != NULL && (V2) != NULL)\
+          ((V1) != (char*)NULL && (V2) == (char*)NULL) ||\
+          ((V1) == (char*)NULL && (V2) != (char*)NULL) ||\
+          ((V1) != (char*)NULL && (V2) != (char*)NULL)\
           && (!_fct_str_equal((V1), (V2), _fct_check_char)),\
           "chk_neq_str: '%s' == '%s'",\
           (V1),\
@@ -2110,7 +2111,8 @@ if it fails. */
 
 #define fct_chk_eq_istr(V1, V2) \
     fct_xchk(\
-          ((V1) == NULL && (V2) == NULL) || ((V1) != NULL && (V2) != NULL)\
+          ((V1) == (char*)NULL && (V2) == (char*)NULL) ||\
+           ((V1) != (char*)NULL && (V2) != (char*)NULL)\
           && (_fct_str_equal((V1), (V2), _fct_check_char_lower)),\
           "chk_eq_str: '%s' != '%s'",\
           (V1),\
@@ -2120,9 +2122,9 @@ if it fails. */
 
 #define fct_chk_neq_istr(V1, V2) \
     fct_xchk(\
-          ((V1) != NULL && (V2) == NULL) ||\
-          ((V1) == NULL && (V2) != NULL) ||\
-          ((V1) != NULL && (V2) != NULL)\
+          ((V1) != (char*)NULL && (V2) == (char*)NULL) ||\
+          ((V1) == (char*)NULL && (V2) != (char*)NULL) ||\
+          ((V1) != (char*)NULL && (V2) != (char*)NULL)\
           && (!_fct_str_equal((V1), (V2), _fct_check_char_lower)),\
           "chk_neq_istr: '%s' == '%s'",\
           (V1),\
