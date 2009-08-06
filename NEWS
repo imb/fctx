@@ -5,9 +5,9 @@ FCT Changes
 Whats new in FCT 1.1
 ====================
 
- - BLUEPRINT: sys-multi-file. Better, more robust multi-file support. Although
-   it starts to take a toll on the time to code for FCTest, it does help
-   provide it a little more extendability to FCTest.
+ - Addition of fct_xchk: Allows you to customize your checking and error
+   reporting. Implementation of fct_chk_eq_str/int/dbl based on the fct_xchk
+   interface.
  - CMAKE used for building the FCT tests.
  - Updated all compiles to use the highest warning level and fixed compiler
    warnings.
@@ -18,8 +18,12 @@ Whats new in FCT 1.1
  - Modified fct_chk: Will continue after a failed test.
  - Modified standard logger output to provide a straight continuous line of
    PASS/FAIL statements. Easier to scan failures.
+ - BLUEPRINT: sys-multi-file. Better, more robust multi-file support. Although
+   it starts to take a toll on the time to code for FCTest, it does help
+   provide it a little more extendability to FCTest.
  - Modified failure output to hopefully be less likely to wrap around by using
    a new line to actually show what failed.
+ - Start to develop API documentation.
  - #376783: Added test to make sure we continue to compile against a C++
    project.
  - #398286: Fixed to use _vsnprintf for Microsoft compilers.
