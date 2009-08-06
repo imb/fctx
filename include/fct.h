@@ -1843,6 +1843,15 @@ MACRO MAGIC
 This is where the show begins!
 */
 
+/* This macro invokes a bunch of functions that need to be
+referenced in order to avoid the potential to get a
+"unreferenced local function has been removed" warning. */
+#define FCT_REFERENCE_FUNCS() {\
+    _fct_check_char('a', 'b');\
+    _fct_check_char_lower('a', 'b');\
+    _fct_str_equal("a", "b", _fct_check_char);\
+    }
+
 
 /* This defines our start. The fctkern__ is a kernal object
 that lives throughout the lifetime of our program. The
@@ -1853,6 +1862,7 @@ main(int argc, char *argv[])\
 {\
    fctkern_t  fctkern__;\
    fctkern_t* fctkern_ptr__ = &fctkern__;\
+   FCT_REFERENCE_FUNCS();\
    if ( !fctkern_init(fctkern_ptr__, argc, argv) ) {\
         (void)printf("FATAL ERROR: Unable to intialize FCT Kernal.");\
         exit(EXIT_FAILURE);\
@@ -2088,8 +2098,8 @@ if it fails. */
 
 #define fct_chk_eq_str(V1, V2) \
     fct_xchk(\
-          ((V1) == (char*)NULL && (V2) == (char*)NULL) ||\
-           ((V1) != (char*)NULL && (V2) != (char*)NULL)\
+          ((char*)(V1) == (char*)NULL && (char*)(V2) == (char*)NULL) ||\
+           ((char*)(V1) != (char*)NULL && (char*)(V2) != (char*)NULL)\
           && (_fct_str_equal((V1), (V2), _fct_check_char)),\
           "chk_eq_str: '%s' != '%s'",\
           (V1),\
@@ -2099,9 +2109,9 @@ if it fails. */
 
 #define fct_chk_neq_str(V1, V2) \
     fct_xchk(\
-          ((V1) != (char*)NULL && (V2) == (char*)NULL) ||\
-          ((V1) == (char*)NULL && (V2) != (char*)NULL) ||\
-          ((V1) != (char*)NULL && (V2) != (char*)NULL)\
+          ((char*)(V1) != (char*)NULL && (char*)(V2) == (char*)NULL) ||\
+          ((char*)(V1) == (char*)NULL && (char*)(V2) != (char*)NULL) ||\
+          ((char*)(V1) != (char*)NULL && (char*)(V2) != (char*)NULL)\
           && (!_fct_str_equal((V1), (V2), _fct_check_char)),\
           "chk_neq_str: '%s' == '%s'",\
           (V1),\
@@ -2111,8 +2121,8 @@ if it fails. */
 
 #define fct_chk_eq_istr(V1, V2) \
     fct_xchk(\
-          ((V1) == (char*)NULL && (V2) == (char*)NULL) ||\
-           ((V1) != (char*)NULL && (V2) != (char*)NULL)\
+          ((char*)(V1) == (char*)NULL && (char*)(V2) == (char*)NULL) ||\
+           ((char*)(V1) != (char*)NULL && (char*)(V2) != (char*)NULL)\
           && (_fct_str_equal((V1), (V2), _fct_check_char_lower)),\
           "chk_eq_str: '%s' != '%s'",\
           (V1),\
@@ -2122,9 +2132,9 @@ if it fails. */
 
 #define fct_chk_neq_istr(V1, V2) \
     fct_xchk(\
-          ((V1) != (char*)NULL && (V2) == (char*)NULL) ||\
-          ((V1) == (char*)NULL && (V2) != (char*)NULL) ||\
-          ((V1) != (char*)NULL && (V2) != (char*)NULL)\
+          ((char*)(V1) != (char*)NULL && (char*)(V2) == (char*)NULL) ||\
+          ((char*)(V1) == (char*)NULL && (char*)(V2) != (char*)NULL) ||\
+          ((char*)(V1) != (char*)NULL && (char*)(V2) != (char*)NULL)\
           && (!_fct_str_equal((V1), (V2), _fct_check_char_lower)),\
           "chk_neq_istr: '%s' == '%s'",\
           (V1),\
@@ -2195,6 +2205,7 @@ to be referenced. Ohh Me Oh My what a waste! */
 
 #define FCTMF_FIXTURE_SUITE_BGN(NAME) \
 	void NAME (fctkern_t *fctkern_ptr__) {\
+        FCT_REFERENCE_FUNCS();\
         (void)fctkern_init(NULL, 0, NULL);\
         (void)fctkern__chk_cnt(fctkern_ptr__);\
         FCT_FIXTURE_SUITE_BGN( NAME ) {
@@ -2205,6 +2216,7 @@ to be referenced. Ohh Me Oh My what a waste! */
 
 #define FCTMF_SUITE_BGN(NAME) \
 	void NAME (fctkern_t *fctkern_ptr__) {\
+        FCT_REFERENCE_FUNCS();\
         (void)fctkern_init(NULL, 0, NULL);\
         (void)fctkern__chk_cnt(fctkern_ptr__);\
         FCT_SUITE_BGN( NAME ) {
