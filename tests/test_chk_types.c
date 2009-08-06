@@ -73,6 +73,7 @@ FCT_BGN()
         fct_chk_neq_str("a", "b");
         fct_chk_neq_str(NULL, "b");
         fct_chk_neq_str("a", NULL);
+        fct_chk_neq_istr("different", "differentlengths");
     }
     FCT_QTEST_END();
 

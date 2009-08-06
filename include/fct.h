@@ -224,45 +224,47 @@ fct_filter_pass(char const *prefix, char const *test_str)
 }
 
 
-/* Returns true if two reals are equal. */
-#define fct_real_eq(V1, V2) ((int)(fabs((V1)-(V2)) < DBL_EPSILON))
-
-/* Compiler/Platform agnostic case-insenstive string equality
-check. We don't need to mimic strcmp, we only need to kick
-out false when we have a mismatch. Returns TRUE if both strings
-are NULL. */
+/* Small little predicates to use with fct_str_eq function. */
 static int
-fct_istr_eq(char const *v1, char const *v2)
+_fct_check_char(char a, char b) {
+    return a == b;
+}
+
+static int
+_fct_check_char_lower(char a, char b) {
+     return tolower(a) == tolower(b);
+}
+
+
+/* Routine checks if two strings match according to a CHECK_CHAR.
+The check is done char-by-char, and if predicate is not satisfied,
+false is returned. V1 and V2 are assumed to not be NULL. */
+static int
+_fct_str_equal(char const *v1,
+               char const *v2,
+               int (*check_char)(char, char))
 {
     char const *pv1 = NULL;
     char const *pv2 = NULL;
 
-    if ( v1 == NULL && v2 == NULL )
-    {
-        return FCT_TRUE; /* They are equally NULL. */
-    }
-    if ( v1 == NULL && v2 != NULL \
-            || v1 != NULL && v2 == NULL )
-    {
-        return FCT_FALSE; /* The are not equally NULL. */
-    }
+    assert( v1 != NULL );
+    assert( v2 != NULL );
 
     for ( pv1 = v1, pv2 = v2; *pv1 != '\0' && *pv2 != '\0'; ++pv1, ++pv2)
     {
-        char tv1 = tolower(*pv1);
-        char tv2 = tolower(*pv2);
-        if ( tv1 != tv2 )
+        if ( !check_char(*pv1, *pv2) )
         {
-            return FCT_FALSE;   /* mismatch! */
+            return 0;   /* mismatch! */
         }
     }
-    if ( *pv1 == '\0' && *pv2 != '\0'
-            || *pv1 != '\0' && *pv2 == '\0')
+    if ( *pv1 == '\0' && *pv2 != '\0' || *pv1 != '\0' && *pv2 == '\0')
     {
-        return FCT_FALSE; /* Different length strings. */
+        /* Different length strings implies they are not equal. */
+        return 0;
     }
-    return FCT_TRUE; /* Same length strings, never failed to mismatch. */
+    return 1; /* Same length strings, never failed to mismatch. */
 }
+
 
 
 /*
@@ -603,7 +605,7 @@ struct _fct_test_t
 /* Clears the failed tests ... partly for internal testing. */
 #define fct_test__clear_failed(test) \
     nlist__clear(test->failed_chks, (on_del_t)fctchk__del);\
- 
+
 
 static void
 fct_test__del(fct_test_t *test)
@@ -1918,7 +1920,7 @@ functions. */
 
 #define FCT_TEARDOWN_BGN() \
    if ( fct_ts__is_teardown_mode(ts__) ) {\
- 
+
 #define FCT_TEARDOWN_END() \
    fct_ts__teardown_end(ts__); \
    continue; \
@@ -1930,7 +1932,7 @@ do it by 'stubbing' out the setup/teardown logic. */
    FCT_FIXTURE_SUITE_BGN(Name) {\
    FCT_SETUP_BGN() {_fct_cmt("stubbed"); } FCT_SETUP_END()\
    FCT_TEARDOWN_BGN() {_fct_cmt("stubbed");} FCT_TEARDOWN_END()\
- 
+
 #define FCT_SUITE_END() } FCT_FIXTURE_SUITE_END()
 
 
@@ -2084,8 +2086,8 @@ if it fails. */
 
 #define fct_chk_eq_str(V1, V2) \
     fct_xchk(\
-        ( ((V1) == NULL && (V2) == NULL) ||\
-          ((V1) != NULL && (V2) != NULL && strcmp((V1), (V2)) == 0) ),\
+          ((V1) == NULL && (V2) == NULL) || ((V1) != NULL && (V2) != NULL)\
+          && (_fct_str_equal((V1), (V2), _fct_check_char)),\
           "chk_eq_str: '%s' != '%s'",\
           (V1),\
           (V2)\
@@ -2094,9 +2096,10 @@ if it fails. */
 
 #define fct_chk_neq_str(V1, V2) \
     fct_xchk(\
-        ( ((V1) != NULL && (V2) == NULL) ||\
+          ((V1) != NULL && (V2) == NULL) ||\
           ((V1) == NULL && (V2) != NULL) ||\
-          ((V1) != NULL && (V2) != NULL && strcmp((V1), (V2)) != 0) ),\
+          ((V1) != NULL && (V2) != NULL)\
+          && (!_fct_str_equal((V1), (V2), _fct_check_char)),\
           "chk_neq_str: '%s' == '%s'",\
           (V1),\
           (V2)\
@@ -2105,8 +2108,9 @@ if it fails. */
 
 #define fct_chk_eq_istr(V1, V2) \
     fct_xchk(\
-          fct_istr_eq((V1), (V2)),\
-          "chk_eq_istr: '%s' != '%s'",\
+          ((V1) == NULL && (V2) == NULL) || ((V1) != NULL && (V2) != NULL)\
+          && (_fct_str_equal((V1), (V2), _fct_check_char_lower)),\
+          "chk_eq_str: '%s' != '%s'",\
           (V1),\
           (V2)\
           )
@@ -2114,7 +2118,10 @@ if it fails. */
 
 #define fct_chk_neq_istr(V1, V2) \
     fct_xchk(\
-          !fct_istr_eq((V1), (V2)),\
+          ((V1) != NULL && (V2) == NULL) ||\
+          ((V1) == NULL && (V2) != NULL) ||\
+          ((V1) != NULL && (V2) != NULL)\
+          && (!_fct_str_equal((V1), (V2), _fct_check_char_lower)),\
           "chk_neq_istr: '%s' == '%s'",\
           (V1),\
           (V2)\
@@ -2221,7 +2228,7 @@ The basic idea is that there is one test per test suite.
 #define FCT_QTEST_BGN(NAME) \
 	FCT_SUITE_BGN(NAME) {\
 		FCT_TEST_BGN(NAME) {\
- 
+
 #define FCT_QTEST_END() \
 		} FCT_TEST_END();\
 	} FCT_SUITE_END();
