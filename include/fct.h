@@ -2225,10 +2225,15 @@ to be referenced. Ohh Me Oh My what a waste! */
    }
 
 
-/* Use these macros to 'define' and 'execute' your test suite
-within your main "FCT_BGN() { ... } FCT_END();" body. */
-#define FCTMF_SUITE_DEF(NAME)   void NAME (fctkern_t *)
-#define FCTMF_SUITE_CALL(NAME)  NAME (fctkern_ptr__)
+/* Deprecated, no longer required. */
+#define FCTMF_SUITE_DEF(NAME)  
+
+
+/* Executes a test suite defined by FCTMF_SUITE* */
+#define FCTMF_SUITE_CALL(NAME)  {\
+    void NAME (fctkern_t *);\
+    NAME (fctkern_ptr__);\
+    }
 
 
 /*

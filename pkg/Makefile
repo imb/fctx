@@ -12,7 +12,7 @@
 # you should have received as part of this distribution.  
 # ====================================================================
 
-BRANCH=lp:/fctest/devel-1.1
+BRANCH=lp:/fctest/1.1
 VERSION=1.1.0
 SRCPACK=fctest-src-${VERSION}.tar.gz
 DOCPACK=fctest-doc-${VERSION}

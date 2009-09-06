@@ -2,6 +2,12 @@
 FCT Changes
 +++++++++++
 
+Whats new in FCT 1.1.1
+======================
+ 
+ - ENH: FCTMF - Removed need to call FCTMF_SUITE_DEF. The macro will remain for
+   backwards compatability.
+
 Whats new in FCT 1.1
 ====================
 
