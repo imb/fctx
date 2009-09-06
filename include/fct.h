@@ -726,7 +726,7 @@ enum ts_mode
     ts_mode_end          /* .. The End. */
 };
 
-/* Types of modes the test could be in. */
+/* Types of states the test could be in. */
 typedef enum
 {
     fct_test_status_SUCCESS,
