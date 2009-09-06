@@ -20,4 +20,4 @@ Contents
 
    getting_started.rst
    api_fct.rst
-
+   mfapi_fct.rst

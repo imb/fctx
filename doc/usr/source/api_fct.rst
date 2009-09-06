@@ -4,7 +4,7 @@ FCTest API
 
 .. module:: FCT
    :platform: Unix, Windows
-   :synopsis: Begin and End your test framework.
+   :synopsis: Framework, test suites, tests and checks.
 
 
 Initialize/Finalize
