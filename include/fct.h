@@ -334,29 +334,29 @@ at a reasonable size. */
 /* Helper macros for quickly iterating through a list. You should be able
 to do something like,
 
-  NLIST_FOREACH_BGN(fct_logger_i*, logger, my_list)
+  FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, my_list)
   {
      fct_logger__on_blah(logger);
   }
-  NLIST_FOREACH_END();
+  FCT_NLIST_FOREACH_END();
 
 */
-#define NLIST_FOREACH_BGN(Type, Var, List)\
+#define FCT_NLIST_FOREACH_BGN(Type, Var, List)\
 {\
    if ( List != NULL ) {\
       size_t item_i##Var;\
-      size_t num_items##Var = nlist__size(List);\
+      size_t num_items##Var = fct_nlist__size(List);\
       for( item_i##Var =0; item_i##Var != num_items##Var; ++item_i##Var )\
       {\
-         Type Var = (Type) nlist__at((List), item_i##Var);
+         Type Var = (Type) fct_nlist__at((List), item_i##Var);
 
-#define NLIST_FOREACH_END() }}}
+#define FCT_NLIST_FOREACH_END() }}}
 
 /* Used to manage a list of loggers. This works mostly like
 the STL vector, where the array grows as more items are
 appended. */
-typedef struct _nlist_t nlist_t;
-struct _nlist_t
+typedef struct _fct_nlist_t fct_nlist_t;
+struct _fct_nlist_t
 {
     /* Item's are stored as pointers to void. */
     void **itm_list;
@@ -367,43 +367,14 @@ struct _nlist_t
     /* Indicates the number of actually elements in the array. */
     size_t used_itm_num;
 };
+typedef void (*fct_nlist_on_del_t)(void*);
 
 
-/* Cleans up list, and applies `on_del` to each item in the list.
-If on_del is NULL, it will not be applied. If `list` is NULL this
-function does nothing. */
-typedef void (*on_del_t)(void*);
-static void
-nlist__del(nlist_t *list, on_del_t on_del)
-{
-    size_t itm_i =0;
-
-    if ( list == NULL )
-    {
-        return;
-    }
-
-    /* Walk through the list applying the destroy function, if it was
-    defined. */
-    if ( on_del != NULL )
-    {
-        for ( itm_i =0; itm_i != list->used_itm_num; ++itm_i )
-        {
-            on_del(list->itm_list[itm_i]);
-        }
-    }
-
-    free(list->itm_list);
-    free(list);
-}
-
-
-#if defined(FCT_USEIT__)
 /* Clears the contents of the list, and sets the list count to 0. The
 actual count remains unchanged. If on_del is supplied it is executed
 against each list element. */
 static void
-nlist__clear(nlist_t *list, on_del_t on_del)
+fct_nlist__clear(fct_nlist_t *list, fct_nlist_on_del_t on_del)
 {
     size_t itm_i__ =0;
     assert( list != NULL );
@@ -416,37 +387,66 @@ nlist__clear(nlist_t *list, on_del_t on_del)
     }
     list->used_itm_num =0;
 }
-#endif /* (FCT_USEIT__) */
 
 
-static nlist_t *
-nlist_new(void)
+/* If you used init, then close with final. This is useful for
+working with structures that live on the stack. */
+static void
+fct_nlist__final(fct_nlist_t *list, fct_nlist_on_del_t on_del) {
+    assert( list != NULL );
+    fct_nlist__clear(list, on_del);
+    free(list->itm_list);
+}
+
+
+/* Cleans up list, and applies `on_del` to each item in the list.
+If on_del is NULL, it will not be applied. If `list` is NULL this
+function does nothing. */
+static void
+fct_nlist__del(fct_nlist_t *list, fct_nlist_on_del_t on_del)
 {
-    nlist_t *list = (nlist_t*)calloc(1, sizeof(nlist_t));
-    nbool_t ok =FCT_FALSE;
-
     if ( list == NULL )
     {
-        ok = FCT_FALSE;
-        goto finally;
+        return;
     }
+    fct_nlist__final(list, on_del);
+    free(list);
+}
 
+
+
+/* Initializes a list. Useful for populating existing structures.
+Returns 0 if there was an error allocating memory. Returns 1 otherwise. */
+static int 
+fct_nlist__init(fct_nlist_t *list) {
+    assert( list != NULL );
+    
     list->itm_list = (void**)malloc(sizeof(void*)*FCT_LIST_START_SIZE);
     if ( list->itm_list == NULL )
     {
-        ok = FCT_FALSE;
-        goto finally;
+        return 0;
     }
 
     list->avail_itm_num =FCT_LIST_START_SIZE;
     list->used_itm_num =0;
 
-    ok = FCT_TRUE;
-finally:
-    if ( !ok )
+    return 1;
+}
+
+
+static fct_nlist_t *
+fct_nlist_new(void)
+{
+    fct_nlist_t *list = (fct_nlist_t*)calloc(1, sizeof(fct_nlist_t));
+
+    if ( list == NULL )
     {
-        nlist__del(list, NULL);
-        list =NULL;
+        return NULL;
+    }
+
+    if ( !fct_nlist__init(list) ) {
+        fct_nlist__del(list, NULL);
+        return NULL;
     }
     return list;
 }
@@ -454,7 +454,7 @@ finally:
 
 /* Returns the number of elements within the list. */
 static size_t
-nlist__size(nlist_t const *list)
+fct_nlist__size(fct_nlist_t const *list)
 {
     assert( list != NULL );
     return list->used_itm_num;
@@ -463,7 +463,7 @@ nlist__size(nlist_t const *list)
 
 /* Returns the item at idx, asserts otherwise. */
 static void*
-nlist__at(nlist_t const *list, size_t idx)
+fct_nlist__at(fct_nlist_t const *list, size_t idx)
 {
     assert( list != NULL );
     assert( idx < list->used_itm_num );
@@ -472,7 +472,7 @@ nlist__at(nlist_t const *list, size_t idx)
 
 
 static void
-nlist__append(nlist_t *list, void *itm)
+fct_nlist__append(fct_nlist_t *list, void *itm)
 {
     assert( list != NULL );
     assert( list->itm_list != NULL );
@@ -595,8 +595,8 @@ struct _fct_test_t
     /* List of failed and passed "checks" (fctchk_t). Two seperate
     lists make it faster to determine how many checks passed and how
     many checks failed. */
-    nlist_t *failed_chks;
-    nlist_t *passed_chks;
+    fct_nlist_t failed_chks;
+    fct_nlist_t passed_chks;
 
     /* The name of the test case. */
     char name[FCT_MAX_NAME];
@@ -606,7 +606,7 @@ struct _fct_test_t
 
 /* Clears the failed tests ... partly for internal testing. */
 #define fct_test__clear_failed(test) \
-    nlist__clear(test->failed_chks, (on_del_t)fctchk__del);\
+    fct_nlist__clear(test->failed_chks, (fct_nlist_on_del_t)fctchk__del);\
  
 
 static void
@@ -616,8 +616,8 @@ fct_test__del(fct_test_t *test)
     {
         return;
     }
-    nlist__del(test->passed_chks, (on_del_t)fctchk__del);
-    nlist__del(test->failed_chks, (on_del_t)fctchk__del);
+    fct_nlist__final(&(test->passed_chks), (fct_nlist_on_del_t)fctchk__del);
+    fct_nlist__final(&(test->failed_chks), (fct_nlist_on_del_t)fctchk__del);
     free(test);
 }
 
@@ -635,9 +635,8 @@ fct_test_new(char const *name)
 
     fct_safe_str_cpy(test->name, name, FCT_MAX_NAME);
 
-    test->failed_chks = nlist_new();
-    test->passed_chks = nlist_new();
-    if ( test->failed_chks == NULL || test->passed_chks == NULL )
+    if ( !fct_nlist__init(&(test->failed_chks)) 
+         || !fct_nlist__init(&(test->passed_chks)) )
     {
         ok =FCT_FALSE;
         goto finally;
@@ -658,7 +657,7 @@ static nbool_t
 fct_test__is_pass(fct_test_t const *test)
 {
     assert( test != NULL );
-    return nlist__size(test->failed_chks) == 0;
+    return fct_nlist__size(&(test->failed_chks)) == 0;
 }
 
 
@@ -671,11 +670,11 @@ fct_test__add(fct_test_t *test, fctchk_t *chk)
 
     if ( fctchk__is_pass(chk) )
     {
-        nlist__append(test->passed_chks, (void*)chk);
+        fct_nlist__append(&(test->passed_chks), (void*)chk);
     }
     else
     {
-        nlist__append(test->failed_chks, (void*)chk);
+        fct_nlist__append(&(test->failed_chks), (void*)chk);
     }
 }
 
@@ -684,7 +683,8 @@ static size_t
 fct_test__chk_cnt(fct_test_t const *test)
 {
     assert( test != NULL );
-    return nlist__size(test->failed_chks) + nlist__size(test->passed_chks);
+    return fct_nlist__size(&(test->failed_chks)) \
+           + fct_nlist__size(&(test->passed_chks));
 }
 
 
@@ -749,7 +749,7 @@ struct _fct_ts_t
     char name[FCT_MAX_NAME];
 
     /* List of tests that where executed within the test suite. */
-    nlist_t *test_list;
+    fct_nlist_t *test_list;
 };
 
 
@@ -777,7 +777,7 @@ fct_ts__del(fct_ts_t *ts)
     {
         return;
     }
-    nlist__del(ts->test_list, (on_del_t)fct_test__del);
+    fct_nlist__del(ts->test_list, (fct_nlist_on_del_t)fct_test__del);
     free(ts);
 }
 
@@ -791,7 +791,7 @@ fct_ts_new(char const *name)
     fct_safe_str_cpy(ts->name, name, FCT_MAX_NAME);
     ts->mode = ts_mode_cnt;
 
-    ts->test_list = nlist_new();
+    ts->test_list = fct_nlist_new();
     if ( ts->test_list == NULL )
     {
         fct_ts__del(ts);
@@ -829,7 +829,7 @@ fct_ts__add_test(fct_ts_t *ts, fct_test_t *test)
     assert( ts != NULL && "invalid arg");
     assert( test != NULL && "invalid arg");
     assert( !fct_ts__is_end(ts) );
-    nlist__append(ts->test_list, test);
+    fct_nlist__append(ts->test_list, test);
 }
 
 
@@ -932,7 +932,7 @@ fct_ts__tst_cnt(fct_ts_t const *ts)
         fct_ts__is_end(ts)
         && "can't count number of tests executed until the test suite ends"
     );
-    return nlist__size(ts->test_list);
+    return fct_nlist__size(ts->test_list);
 }
 
 
@@ -945,14 +945,14 @@ fct_ts__tst_cnt_passed(fct_ts_t const *ts)
     assert( ts != NULL );
     assert( fct_ts__is_end(ts) );
 
-    NLIST_FOREACH_BGN(fct_test_t*, test, ts->test_list)
+    FCT_NLIST_FOREACH_BGN(fct_test_t*, test, ts->test_list)
     {
         if ( fct_test__is_pass(test) )
         {
             tally += 1;
         }
     }
-    NLIST_FOREACH_END();
+    FCT_NLIST_FOREACH_END();
     return tally;
 }
 
@@ -965,11 +965,11 @@ fct_ts__chk_cnt(fct_ts_t const *ts)
 
     assert( ts != NULL );
 
-    NLIST_FOREACH_BGN(fct_test_t *, test, ts->test_list)
+    FCT_NLIST_FOREACH_BGN(fct_test_t *, test, ts->test_list)
     {
         tally += fct_test__chk_cnt(test);
     }
-    NLIST_FOREACH_END();
+    FCT_NLIST_FOREACH_END();
     return tally;
 }
 
@@ -1013,15 +1013,15 @@ struct _fctkern_t
 {
     /* This is an list of loggers that can be used in the fct system.
     You/ can attach _MAX_LOGGERS to any framework. */
-    nlist_t *logger_list;
+    fct_nlist_t *logger_list;
 
     /* This is a list of prefix's that can be used to determine if a
     test is should be run or not. */
-    nlist_t *prefix_list;
+    fct_nlist_t *prefix_list;
 
     /* This is a list of test suites that where generated throughout the
     testing process. */
-    nlist_t *ts_list;
+    fct_nlist_t *ts_list;
 
     /* Holds variables used throughout MACRO MAGIC. In order to reduce
     the "noise" in the watch window during a debug trace. */
@@ -1030,7 +1030,7 @@ struct _fctkern_t
 
 
 /* Returns the number of filters defined for the fct kernal. */
-#define fctkern__filter_cnt(_NK_) (nlist__size((_NK_)->prefix_list))
+#define fctkern__filter_cnt(_NK_) (fct_nlist__size((_NK_)->prefix_list))
 
 
 static void
@@ -1038,7 +1038,7 @@ fctkern__add_logger(fctkern_t *fct, fct_logger_i *logger_owns)
 {
     assert(fct != NULL && "invalid arg");
     assert(logger_owns != NULL && "invalid arg");
-    nlist__append(fct->logger_list, logger_owns);
+    fct_nlist__append(fct->logger_list, logger_owns);
     assert( fct->logger_list != NULL && "memory check");
 }
 
@@ -1064,7 +1064,7 @@ fctkern__add_prefix_filter(fctkern_t const *fct, char const *prefix_filter)
     fct_safe_str_cpy(filter, prefix_filter, filter_len);
     filter[filter_len] = '\0';
 
-    nlist__append(fct->prefix_list, (void*)filter);
+    fct_nlist__append(fct->prefix_list, (void*)filter);
 }
 
 
@@ -1077,12 +1077,12 @@ fctkern__final(fctkern_t *fct)
         return;
     }
 
-    nlist__del(fct->logger_list, (on_del_t)fct_logger__del);
+    fct_nlist__del(fct->logger_list, (fct_nlist_on_del_t)fct_logger__del);
 
     /* The prefix list is a list of malloc'd strings. */
-    nlist__del(fct->prefix_list, (on_del_t)free);
+    fct_nlist__del(fct->prefix_list, (fct_nlist_on_del_t)free);
 
-    nlist__del(fct->ts_list, (on_del_t)fct_ts__del);
+    fct_nlist__del(fct->ts_list, (fct_nlist_on_del_t)fct_ts__del);
 }
 
 
@@ -1102,9 +1102,9 @@ fctkern_init(fctkern_t *nk, int argc, char *argv[])
 
     memset(nk, 0, sizeof(fctkern_t));
 
-    nk->logger_list = nlist_new();
-    nk->prefix_list = nlist_new();
-    nk->ts_list = nlist_new();
+    nk->logger_list = fct_nlist_new();
+    nk->prefix_list = fct_nlist_new();
+    nk->ts_list = fct_nlist_new();
     /* Low-budget memory check for now. */
     if ( nk->logger_list == NULL \
             || nk->prefix_list == NULL \
@@ -1155,7 +1155,7 @@ fctkern__add_ts(fctkern_t *nk, fct_ts_t *ts)
 {
     assert( nk != NULL );
     assert( ts != NULL );
-    nlist__append(nk->ts_list, ts);
+    fct_nlist__append(nk->ts_list, ts);
 }
 
 
@@ -1185,7 +1185,7 @@ fctkern__pass_filter(fctkern_t *nk, char const *test_name)
     passes the test in order for us to succeed here. */
     for ( prefix_i = 0; prefix_i != prefix_list_size; ++prefix_i )
     {
-        char const *prefix = (char const*)nlist__at(nk->prefix_list, prefix_i);
+        char const *prefix = (char const*)fct_nlist__at(nk->prefix_list, prefix_i);
         nbool_t pass = fct_filter_pass(prefix, test_name);
         if ( pass )
         {
@@ -1207,11 +1207,11 @@ fctkern__tst_cnt(fctkern_t const *nk)
     size_t tally =0;
     assert( nk != NULL );
 
-    NLIST_FOREACH_BGN(fct_ts_t *, ts, nk->ts_list)
+    FCT_NLIST_FOREACH_BGN(fct_ts_t *, ts, nk->ts_list)
     {
         tally += fct_ts__tst_cnt(ts);
     }
-    NLIST_FOREACH_END();
+    FCT_NLIST_FOREACH_END();
     return tally;
 }
 
@@ -1223,11 +1223,11 @@ fctkern__tst_cnt_passed(fctkern_t const *nk)
     size_t tally =0;
     assert( nk != NULL );
 
-    NLIST_FOREACH_BGN(fct_ts_t*, ts, nk->ts_list)
+    FCT_NLIST_FOREACH_BGN(fct_ts_t*, ts, nk->ts_list)
     {
         tally += fct_ts__tst_cnt_passed(ts);
     }
-    NLIST_FOREACH_END();
+    FCT_NLIST_FOREACH_END();
 
     return tally;
 }
@@ -1245,11 +1245,11 @@ fctkern__chk_cnt(fctkern_t const *nk)
     size_t tally =0;
     assert( nk != NULL );
 
-    NLIST_FOREACH_BGN(fct_ts_t *, ts, nk->ts_list)
+    FCT_NLIST_FOREACH_BGN(fct_ts_t *, ts, nk->ts_list)
     {
         tally += fct_ts__chk_cnt(ts);
     }
-    NLIST_FOREACH_END();
+    FCT_NLIST_FOREACH_END();
     return tally;
 }
 
@@ -1263,11 +1263,11 @@ fctkern__log_suite_start(fctkern_t *kern, fct_ts_t const *ts)
 {
     assert( kern != NULL );
     assert( ts != NULL );
-    NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
+    FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
     {
         fct_logger__on_test_suite_start(logger, ts);
     }
-    NLIST_FOREACH_END();
+    FCT_NLIST_FOREACH_END();
 }
 
 
@@ -1276,11 +1276,11 @@ fctkern__log_suite_end(fctkern_t *kern, fct_ts_t const *ts)
 {
     assert( kern != NULL );
     assert( ts != NULL );
-    NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
+    FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
     {
         fct_logger__on_test_suite_end(logger, ts);
     }
-    NLIST_FOREACH_END();
+    FCT_NLIST_FOREACH_END();
 }
 
 
@@ -1292,11 +1292,11 @@ fctkern__log_chk(fctkern_t *kern, fctchk_t const *chk)
     assert( kern != NULL );
     assert( chk != NULL );
 
-    NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
+    FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
     {
         fct_logger__on_cndtn(logger, chk);
     }
-    NLIST_FOREACH_END();
+    FCT_NLIST_FOREACH_END();
 }
 
 
@@ -1306,11 +1306,11 @@ fctkern__log_warn(fctkern_t *kern, char const *warn)
 {
     assert( kern != NULL );
     assert( warn != NULL );
-    NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
+    FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
     {
         fct_logger__on_warn(logger, warn);
     }
-    NLIST_FOREACH_END();
+    FCT_NLIST_FOREACH_END();
 }
 
 
@@ -1320,11 +1320,11 @@ fctkern__log_test_start(fctkern_t *kern, fct_test_t const *test)
 {
     assert( kern != NULL );
     assert( test != NULL );
-    NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
+    FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
     {
         fct_logger__on_test_start(logger, test);
     }
-    NLIST_FOREACH_END();
+    FCT_NLIST_FOREACH_END();
 }
 
 
@@ -1333,31 +1333,31 @@ fctkern__log_test_end(fctkern_t *kern, fct_test_t const *test)
 {
     assert( kern != NULL );
     assert( test != NULL );
-    NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
+    FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
     {
         fct_logger__on_test_end(logger, test);
     }
-    NLIST_FOREACH_END();
+    FCT_NLIST_FOREACH_END();
 }
 
 
 #define fctkern__log_start(kern) \
    {\
-       NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)\
+       FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)\
        {\
           fct_logger__on_fct_start(logger, kern);\
        }\
-       NLIST_FOREACH_END();\
+       FCT_NLIST_FOREACH_END();\
    }
 
 
 #define fctkern__log_end(kern) \
     {\
-       NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)\
+       FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)\
        {\
           fct_logger__on_fct_end(logger, kern);\
        }\
-       NLIST_FOREACH_END();\
+       FCT_NLIST_FOREACH_END();\
     }
 
 
@@ -1612,7 +1612,7 @@ struct _fct_standard_logger_t
     fct_timer_t timer;
 
     /* A list of char*'s that needs to be cleaned up. */
-    nlist_t *failed_cndtns_list;
+    fct_nlist_t *failed_cndtns_list;
 };
 
 
@@ -1644,7 +1644,7 @@ fct_standard_logger__on_cndtn(fct_logger_i *logger_, fctchk_t const *chk)
         );
 
         /* Append it to the listing ... */
-        nlist__append(logger->failed_cndtns_list, (void*)str);
+        fct_nlist__append(logger->failed_cndtns_list, (void*)str);
     }
 }
 
@@ -1730,7 +1730,7 @@ fct_standard_logger__on_fct_end(fct_logger_i *logger_, fctkern_t const *nk)
 
     fct_timer__stop(&(logger->timer));
 
-    is_success = nlist__size(logger->failed_cndtns_list) ==0;
+    is_success = fct_nlist__size(logger->failed_cndtns_list) ==0;
 
     if (  !is_success )
     {
@@ -1739,11 +1739,11 @@ fct_standard_logger__on_fct_end(fct_logger_i *logger_, fctkern_t const *nk)
         );
         printf("FAILED TESTS\n\n");
 
-        NLIST_FOREACH_BGN(char *, cndtn_str, logger->failed_cndtns_list)
+        FCT_NLIST_FOREACH_BGN(char *, cndtn_str, logger->failed_cndtns_list)
         {
             printf("%s\n", cndtn_str);
         }
-        NLIST_FOREACH_END();
+        FCT_NLIST_FOREACH_END();
 
         printf("\n");
     }
@@ -1780,11 +1780,11 @@ fct_standard_logger__del(fct_logger_i *logger_)
 {
     fct_standard_logger_t *logger = (fct_standard_logger_t*)logger_;
 
-    NLIST_FOREACH_BGN(char *, cndtn_str, logger->failed_cndtns_list)
+    FCT_NLIST_FOREACH_BGN(char *, cndtn_str, logger->failed_cndtns_list)
     {
         free(cndtn_str);
     }
-    NLIST_FOREACH_END();
+    FCT_NLIST_FOREACH_END();
 
     free(logger);
     logger_ =NULL;
@@ -1827,7 +1827,7 @@ fct_standard_logger__new(void)
     fct_logger__init((fct_logger_i*)logger);
     logger->vtable = &fct_standard_logger_vtable;
 
-    logger->failed_cndtns_list = nlist_new();
+    logger->failed_cndtns_list = fct_nlist_new();
     assert( logger->failed_cndtns_list != NULL );
 
     fct_timer__init(&(logger->timer));
