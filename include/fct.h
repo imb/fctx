@@ -392,7 +392,8 @@ fct_nlist__clear(fct_nlist_t *list, fct_nlist_on_del_t on_del)
 /* If you used init, then close with final. This is useful for
 working with structures that live on the stack. */
 static void
-fct_nlist__final(fct_nlist_t *list, fct_nlist_on_del_t on_del) {
+fct_nlist__final(fct_nlist_t *list, fct_nlist_on_del_t on_del)
+{
     assert( list != NULL );
     fct_nlist__clear(list, on_del);
     free(list->itm_list);
@@ -417,10 +418,11 @@ fct_nlist__del(fct_nlist_t *list, fct_nlist_on_del_t on_del)
 
 /* Initializes a list. Useful for populating existing structures.
 Returns 0 if there was an error allocating memory. Returns 1 otherwise. */
-static int 
-fct_nlist__init(fct_nlist_t *list) {
+static int
+fct_nlist__init(fct_nlist_t *list)
+{
     assert( list != NULL );
-    
+
     list->itm_list = (void**)malloc(sizeof(void*)*FCT_LIST_START_SIZE);
     if ( list->itm_list == NULL )
     {
@@ -444,7 +446,8 @@ fct_nlist_new(void)
         return NULL;
     }
 
-    if ( !fct_nlist__init(list) ) {
+    if ( !fct_nlist__init(list) )
+    {
         fct_nlist__del(list, NULL);
         return NULL;
     }
@@ -635,8 +638,8 @@ fct_test_new(char const *name)
 
     fct_safe_str_cpy(test->name, name, FCT_MAX_NAME);
 
-    if ( !fct_nlist__init(&(test->failed_chks)) 
-         || !fct_nlist__init(&(test->passed_chks)) )
+    if ( !fct_nlist__init(&(test->failed_chks))
+            || !fct_nlist__init(&(test->passed_chks)) )
     {
         ok =FCT_FALSE;
         goto finally;
@@ -2226,7 +2229,7 @@ to be referenced. Ohh Me Oh My what a waste! */
 
 
 /* Deprecated, no longer required. */
-#define FCTMF_SUITE_DEF(NAME)  
+#define FCTMF_SUITE_DEF(NAME)
 
 
 /* Executes a test suite defined by FCTMF_SUITE* */
