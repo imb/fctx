@@ -1,19 +1,19 @@
-=====================
-Multi-File FCTest API
-=====================
+===================
+Multi-File FCTX API
+===================
 
 .. module:: FCTMF
    :platform: Unix, Windows
-   :synopsis: FCTest across multiple files.
+   :synopsis: FCTX across multiple files.
 
 .. versionadded:: 1.1
-   The FCTest Multi-File (FCTMF) supersedes the older "include method"
+   The FCTX Multi-File (FCTMF) supersedes the older "include method"
    described in version 1.0.
 
 Introduction
 ------------
 
-When you start unit testing with FCTest you will find that at some point
+When you start unit testing with FCTX you will find that at some point
 holding all your tests in one file can become unwieldy. The Multi-File api
 (FCTMF) attempts to provide a minimal barrier to writing unit tests that span
 multiple files.

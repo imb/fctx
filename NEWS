@@ -5,6 +5,8 @@ FCT Changes
 Whats new in FCT 1.1.1
 ======================
  
+ - PROJECT: Rename from "FCTest" to "FCTX". The term "FCTest" clashes too much
+   on the net, and things with "x" in are cool. ;-P
  - ENH: FCTMF - Removed need to call FCTMF_SUITE_DEF. The macro will remain for
    backwards compatability.
 

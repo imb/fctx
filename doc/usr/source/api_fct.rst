@@ -1,6 +1,6 @@
-==========
-FCTest API
-==========
+========
+FCTX API
+========
 
 .. module:: FCT
    :platform: Unix, Windows
@@ -123,7 +123,7 @@ Test Suites
 Quick Test
 ----------
 
-*New in FCTest 1.1*. This allows you to write tests without any Test Suite
+*New in FCTX 1.1*. This allows you to write tests without any Test Suite
 infrastructure. For example,
 
 .. code-block:: c

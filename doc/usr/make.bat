@@ -73,9 +73,9 @@ if "%1" == "qthelp" (
 	echo.
 	echo.Build finished; now you can run "qcollectiongenerator" with the ^
 .qhcp project file in build/qthelp, like this:
-	echo.^> qcollectiongenerator build\qthelp\FCTest User Documenation.qhcp
+	echo.^> qcollectiongenerator build\qthelp\FCTX User Documenation.qhcp
 	echo.To view the help file:
-	echo.^> assistant -collectionFile build\qthelp\FCTest User Documenation.ghc
+	echo.^> assistant -collectionFile build\qthelp\FCTX User Documenation.ghc
 	goto end
 )
 
