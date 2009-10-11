@@ -1016,15 +1016,15 @@ struct _fctkern_t
 {
     /* This is an list of loggers that can be used in the fct system.
     You/ can attach _MAX_LOGGERS to any framework. */
-    fct_nlist_t *logger_list;
+    fct_nlist_t logger_list;
 
     /* This is a list of prefix's that can be used to determine if a
     test is should be run or not. */
-    fct_nlist_t *prefix_list;
+    fct_nlist_t prefix_list;
 
     /* This is a list of test suites that where generated throughout the
     testing process. */
-    fct_nlist_t *ts_list;
+    fct_nlist_t ts_list;
 
     /* Holds variables used throughout MACRO MAGIC. In order to reduce
     the "noise" in the watch window during a debug trace. */
@@ -1033,16 +1033,15 @@ struct _fctkern_t
 
 
 /* Returns the number of filters defined for the fct kernal. */
-#define fctkern__filter_cnt(_NK_) (fct_nlist__size((_NK_)->prefix_list))
+#define fctkern__filter_cnt(_NK_) (fct_nlist__size(&((_NK_)->prefix_list)))
 
 
 static void
-fctkern__add_logger(fctkern_t *fct, fct_logger_i *logger_owns)
+fctkern__add_logger(fctkern_t *nk, fct_logger_i *logger_owns)
 {
-    assert(fct != NULL && "invalid arg");
+    assert(nk != NULL && "invalid arg");
     assert(logger_owns != NULL && "invalid arg");
-    fct_nlist__append(fct->logger_list, logger_owns);
-    assert( fct->logger_list != NULL && "memory check");
+    fct_nlist__append(&(nk->logger_list), logger_owns);
 }
 
 
@@ -1051,12 +1050,12 @@ be executed or not. If the test starts with the same characters as
 the prefix, then it should be "runnable". The prefix filter must be
 a non-NULL, non-Blank string. */
 static void
-fctkern__add_prefix_filter(fctkern_t const *fct, char const *prefix_filter)
+fctkern__add_prefix_filter(fctkern_t *nk, char const *prefix_filter)
 {
     char *filter =NULL;
     size_t filter_len =0;
 
-    assert( fct != NULL && "invalid arg" );
+    assert( nk != NULL && "invalid arg" );
     assert( prefix_filter != NULL && "invalid arg" );
     assert( strlen(prefix_filter) > 0 && "invalid arg" );
 
@@ -1067,25 +1066,25 @@ fctkern__add_prefix_filter(fctkern_t const *fct, char const *prefix_filter)
     fct_safe_str_cpy(filter, prefix_filter, filter_len);
     filter[filter_len] = '\0';
 
-    fct_nlist__append(fct->prefix_list, (void*)filter);
+    fct_nlist__append(&(nk->prefix_list), (void*)filter);
 }
 
 
 /* Cleans up the contents of a fctkern. NULL does nothing. */
 static void
-fctkern__final(fctkern_t *fct)
+fctkern__final(fctkern_t *nk)
 {
-    if ( fct == NULL )
+    if ( nk == NULL )
     {
         return;
     }
 
-    fct_nlist__del(fct->logger_list, (fct_nlist_on_del_t)fct_logger__del);
+    fct_nlist__final(&(nk->logger_list), (fct_nlist_on_del_t)fct_logger__del);
 
     /* The prefix list is a list of malloc'd strings. */
-    fct_nlist__del(fct->prefix_list, (fct_nlist_on_del_t)free);
+    fct_nlist__final(&(nk->prefix_list), (fct_nlist_on_del_t)free);
 
-    fct_nlist__del(fct->ts_list, (fct_nlist_on_del_t)fct_ts__del);
+    fct_nlist__final(&(nk->ts_list), (fct_nlist_on_del_t)fct_ts__del);
 }
 
 
@@ -1105,17 +1104,9 @@ fctkern_init(fctkern_t *nk, int argc, char *argv[])
 
     memset(nk, 0, sizeof(fctkern_t));
 
-    nk->logger_list = fct_nlist_new();
-    nk->prefix_list = fct_nlist_new();
-    nk->ts_list = fct_nlist_new();
-    /* Low-budget memory check for now. */
-    if ( nk->logger_list == NULL \
-            || nk->prefix_list == NULL \
-            || nk->ts_list == NULL )
-    {
-        ok = FCT_FALSE;
-        goto finally;
-    }
+    fct_nlist__init(&(nk->logger_list));
+    fct_nlist__init(&(nk->prefix_list));
+    fct_nlist__init(&(nk->ts_list));
 
     /* TODO: This is where we can "configure" what logger to pull out. Be nice
     if we can provide some means for the client code to 'override' this
@@ -1158,7 +1149,7 @@ fctkern__add_ts(fctkern_t *nk, fct_ts_t *ts)
 {
     assert( nk != NULL );
     assert( ts != NULL );
-    fct_nlist__append(nk->ts_list, ts);
+    fct_nlist__append(&(nk->ts_list), ts);
 }
 
 
@@ -1188,7 +1179,7 @@ fctkern__pass_filter(fctkern_t *nk, char const *test_name)
     passes the test in order for us to succeed here. */
     for ( prefix_i = 0; prefix_i != prefix_list_size; ++prefix_i )
     {
-        char const *prefix = (char const*)fct_nlist__at(nk->prefix_list, prefix_i);
+        char const *prefix = (char const*)fct_nlist__at(&(nk->prefix_list), prefix_i);
         nbool_t pass = fct_filter_pass(prefix, test_name);
         if ( pass )
         {
@@ -1210,7 +1201,7 @@ fctkern__tst_cnt(fctkern_t const *nk)
     size_t tally =0;
     assert( nk != NULL );
 
-    FCT_NLIST_FOREACH_BGN(fct_ts_t *, ts, nk->ts_list)
+    FCT_NLIST_FOREACH_BGN(fct_ts_t *, ts, &(nk->ts_list))
     {
         tally += fct_ts__tst_cnt(ts);
     }
@@ -1226,7 +1217,7 @@ fctkern__tst_cnt_passed(fctkern_t const *nk)
     size_t tally =0;
     assert( nk != NULL );
 
-    FCT_NLIST_FOREACH_BGN(fct_ts_t*, ts, nk->ts_list)
+    FCT_NLIST_FOREACH_BGN(fct_ts_t*, ts, &(nk->ts_list))
     {
         tally += fct_ts__tst_cnt_passed(ts);
     }
@@ -1248,7 +1239,7 @@ fctkern__chk_cnt(fctkern_t const *nk)
     size_t tally =0;
     assert( nk != NULL );
 
-    FCT_NLIST_FOREACH_BGN(fct_ts_t *, ts, nk->ts_list)
+    FCT_NLIST_FOREACH_BGN(fct_ts_t *, ts, &(nk->ts_list))
     {
         tally += fct_ts__chk_cnt(ts);
     }
@@ -1262,11 +1253,11 @@ fctkern__chk_cnt(fctkern_t const *nk)
 
 
 static void
-fctkern__log_suite_start(fctkern_t *kern, fct_ts_t const *ts)
+fctkern__log_suite_start(fctkern_t *nk, fct_ts_t const *ts)
 {
-    assert( kern != NULL );
+    assert( nk != NULL );
     assert( ts != NULL );
-    FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
+    FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, &(nk->logger_list))
     {
         fct_logger__on_test_suite_start(logger, ts);
     }
@@ -1275,11 +1266,11 @@ fctkern__log_suite_start(fctkern_t *kern, fct_ts_t const *ts)
 
 
 static void
-fctkern__log_suite_end(fctkern_t *kern, fct_ts_t const *ts)
+fctkern__log_suite_end(fctkern_t *nk, fct_ts_t const *ts)
 {
-    assert( kern != NULL );
+    assert( nk != NULL );
     assert( ts != NULL );
-    FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
+    FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, &(nk->logger_list))
     {
         fct_logger__on_test_suite_end(logger, ts);
     }
@@ -1290,12 +1281,12 @@ fctkern__log_suite_end(fctkern_t *kern, fct_ts_t const *ts)
 /* Use this for displaying information about a "Check" (i.e.
 a condition). */
 static void
-fctkern__log_chk(fctkern_t *kern, fctchk_t const *chk)
+fctkern__log_chk(fctkern_t *nk, fctchk_t const *chk)
 {
-    assert( kern != NULL );
+    assert( nk != NULL );
     assert( chk != NULL );
 
-    FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
+    FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, &(nk->logger_list))
     {
         fct_logger__on_cndtn(logger, chk);
     }
@@ -1305,11 +1296,11 @@ fctkern__log_chk(fctkern_t *kern, fctchk_t const *chk)
 
 /* Use this for displaying warning messages. */
 static void
-fctkern__log_warn(fctkern_t *kern, char const *warn)
+fctkern__log_warn(fctkern_t *nk, char const *warn)
 {
-    assert( kern != NULL );
+    assert( nk != NULL );
     assert( warn != NULL );
-    FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
+    FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, &(nk->logger_list))
     {
         fct_logger__on_warn(logger, warn);
     }
@@ -1319,11 +1310,11 @@ fctkern__log_warn(fctkern_t *kern, char const *warn)
 
 /* Called whenever a test is started. */
 static void
-fctkern__log_test_start(fctkern_t *kern, fct_test_t const *test)
+fctkern__log_test_start(fctkern_t *nk, fct_test_t const *test)
 {
-    assert( kern != NULL );
+    assert( nk != NULL );
     assert( test != NULL );
-    FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
+    FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, &(nk->logger_list))
     {
         fct_logger__on_test_start(logger, test);
     }
@@ -1332,11 +1323,11 @@ fctkern__log_test_start(fctkern_t *kern, fct_test_t const *test)
 
 
 static void
-fctkern__log_test_end(fctkern_t *kern, fct_test_t const *test)
+fctkern__log_test_end(fctkern_t *nk, fct_test_t const *test)
 {
-    assert( kern != NULL );
+    assert( nk != NULL );
     assert( test != NULL );
-    FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)
+    FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, &(nk->logger_list))
     {
         fct_logger__on_test_end(logger, test);
     }
@@ -1344,21 +1335,21 @@ fctkern__log_test_end(fctkern_t *kern, fct_test_t const *test)
 }
 
 
-#define fctkern__log_start(kern) \
+#define fctkern__log_start(_NK_) \
    {\
-       FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)\
+       FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, &((_NK_)->logger_list))\
        {\
-          fct_logger__on_fct_start(logger, kern);\
+          fct_logger__on_fct_start(logger, (_NK_));\
        }\
        FCT_NLIST_FOREACH_END();\
    }
 
 
-#define fctkern__log_end(kern) \
+#define fctkern__log_end(_NK_) \
     {\
-       FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, kern->logger_list)\
+       FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, &((_NK_)->logger_list))\
        {\
-          fct_logger__on_fct_end(logger, kern);\
+          fct_logger__on_fct_end(logger, (_NK_));\
        }\
        FCT_NLIST_FOREACH_END();\
     }
