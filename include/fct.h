@@ -1606,7 +1606,7 @@ struct _fct_standard_logger_t
     fct_timer_t timer;
 
     /* A list of char*'s that needs to be cleaned up. */
-    fct_nlist_t *failed_cndtns_list;
+    fct_nlist_t failed_cndtns_list;
 };
 
 
@@ -1638,7 +1638,7 @@ fct_standard_logger__on_cndtn(fct_logger_i *logger_, fctchk_t const *chk)
         );
 
         /* Append it to the listing ... */
-        fct_nlist__append(logger->failed_cndtns_list, (void*)str);
+        fct_nlist__append(&(logger->failed_cndtns_list), (void*)str);
     }
 }
 
@@ -1724,7 +1724,7 @@ fct_standard_logger__on_fct_end(fct_logger_i *logger_, fctkern_t const *nk)
 
     fct_timer__stop(&(logger->timer));
 
-    is_success = fct_nlist__size(logger->failed_cndtns_list) ==0;
+    is_success = fct_nlist__size(&(logger->failed_cndtns_list)) ==0;
 
     if (  !is_success )
     {
@@ -1733,7 +1733,7 @@ fct_standard_logger__on_fct_end(fct_logger_i *logger_, fctkern_t const *nk)
         );
         printf("FAILED TESTS\n\n");
 
-        FCT_NLIST_FOREACH_BGN(char *, cndtn_str, logger->failed_cndtns_list)
+        FCT_NLIST_FOREACH_BGN(char *, cndtn_str, &(logger->failed_cndtns_list))
         {
             printf("%s\n", cndtn_str);
         }
@@ -1773,13 +1773,7 @@ static void
 fct_standard_logger__del(fct_logger_i *logger_)
 {
     fct_standard_logger_t *logger = (fct_standard_logger_t*)logger_;
-
-    FCT_NLIST_FOREACH_BGN(char *, cndtn_str, logger->failed_cndtns_list)
-    {
-        free(cndtn_str);
-    }
-    FCT_NLIST_FOREACH_END();
-
+    fct_nlist__final(&(logger->failed_cndtns_list), free);
     free(logger);
     logger_ =NULL;
 }
@@ -1821,9 +1815,7 @@ fct_standard_logger__new(void)
     fct_logger__init((fct_logger_i*)logger);
     logger->vtable = &fct_standard_logger_vtable;
 
-    logger->failed_cndtns_list = fct_nlist_new();
-    assert( logger->failed_cndtns_list != NULL );
-
+    fct_nlist__init(&(logger->failed_cndtns_list));
     fct_timer__init(&(logger->timer));
 
     return logger;
