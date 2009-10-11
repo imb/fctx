@@ -29,7 +29,10 @@ ENDMACRO(TO_CPP)
 MACRO(TEST_CPP_VERSION _NAME_)
     TO_CPP(${_NAME_})
     ADD_EXECUTABLE(${_NAME_}_cpp ${CMAKE_CURRENT_BINARY_DIR}/${_NAME_}.cpp)
-    ADD_TEST(run_${_NAME_}_cpp ${_NAME_}_cpp)
+    ADD_TEST(
+        run_${_NAME_}_cpp 
+        ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/${_NAME_}_cpp
+    )
 ENDMACRO(TEST_CPP_VERSION)
 
 
@@ -92,12 +95,16 @@ ADD_EXECUTABLE(test_big "${CMAKE_CURRENT_BINARY_DIR}/test_big.c")
 # -------
 
 FOREACH( PROGRAM ${SIMPLE_TESTS}) 
-  ADD_TEST(run_${PROGRAM} ${PROGRAM})
+  ADD_TEST(run_${PROGRAM} 
+      ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/${PROGRAM}
+  )
   TEST_CPP_VERSION(${PROGRAM})
 ENDFOREACH(PROGRAM)
 
-ADD_TEST(run_test_big test_big)
-ADD_TEST(run_test_call_teardown test_call_teardown)
+ADD_TEST(run_test_big ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/test_big)
+ADD_TEST(run_test_call_teardown 
+    ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/test_call_teardown
+)
 
 TO_CPP(test_multi)
 TO_CPP(test_multi_suite1)
@@ -107,10 +114,14 @@ ADD_EXECUTABLE(test_multi_cpp
 	${CMAKE_CURRENT_BINARY_DIR}/test_multi_suite1.cpp
 	${CMAKE_CURRENT_BINARY_DIR}/test_multi_with_fixtures_suite2.cpp
 	)
-ADD_TEST(run_test_multi_cpp test_multi_cpp)
+ADD_TEST(run_test_multi_cpp
+    ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/test_multi_cpp
+)
 
 # The following tests confirm that failure happens.
-ADD_TEST(run_test_fail test_fail)
+ADD_TEST(run_test_fail 
+    ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/test_fail
+)
 SET_TESTS_PROPERTIES(run_test_fail PROPERTIES WILL_FAIL TRUE) 
 
 # We can only be happy with 2 failures, this program will run a test and report
@@ -123,7 +134,7 @@ ELSE()
 ENDIF()
 
 ADD_TEST(run_test_chk_with_runner 
-    ${CMAKE_CURRENT_BINARY_DIR}/runner 
+    ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}//runner 
     ${TEST_PROGRAM}
     2)
 
