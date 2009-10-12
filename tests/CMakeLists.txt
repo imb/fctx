@@ -45,6 +45,7 @@ SET(SIMPLE_TESTS test_1suite
 		 test_multi_old_style
 		 test_quick_test
 		 test_two_names
+                 test_clp
 	)	
 FOREACH( PROGRAM ${SIMPLE_TESTS}) 
 	ADD_EXECUTABLE(${PROGRAM} ${PROGRAM}.c)

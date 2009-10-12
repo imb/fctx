@@ -21,3 +21,4 @@ build
 build/mingw
 build/gcc
 pkg/dist
+build/vc9

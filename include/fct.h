@@ -49,6 +49,7 @@ File: fct.h
 #define FCT_VERSION_MINOR 1
 #define FCT_VERSION_MICRO 0
 
+
 #include <string.h>
 #include <assert.h>
 #include <stdarg.h>
@@ -174,6 +175,23 @@ fct_snprintf(char *buffer, size_t buffer_len, char const *format, ...)
     va_end(args);
     return count;
 }
+
+
+/* Helper to for cloning strings on the heap. Returns NULL for
+an out of memory condition. */
+static char*
+fct_str_clone(char *s)
+{
+    char *k =NULL;
+    size_t klen =0;
+    assert( s != NULL && "invalid arg");
+    klen = strlen(s)+1;
+    k = malloc(sizeof(char)*klen+1);
+    fct_safe_str_cpy(k, s, klen);
+    return k;
+}
+
+
 
 /* A very, very simple "filter". This just compares the supplied prefix
 against the test_str, to see if they both have the same starting
@@ -975,6 +993,352 @@ fct_ts__chk_cnt(fct_ts_t const *ts)
     FCT_NLIST_FOREACH_END();
     return tally;
 }
+
+/*
+--------------------------------------------------------
+FCT COMMAND LINE OPTION (fct_clo)
+--------------------------------------------------------
+
+Specifies the command line configuration options. Use this
+to help initialize the fct_clp (command line parser).
+*/
+
+
+typedef enum
+{
+    FCT_CLO_STORE_UNDEFINED,
+    FCT_CLO_STORE_TRUE,
+    FCT_CLO_STORE_VALUE
+} fct_clo_store_t;
+
+/* Handy strings for storing "true" and "false". We can reference
+these strings throughout the parse operation and not have to
+worry about dealing with memory. */
+#define FCT_CLO_TRUE_STR "1"
+
+
+typedef struct _fct_clo_t
+{
+    /* What to parse for this option. --long versus -s. */
+    char *long_opt;     /* i.e. --help */
+    char *short_opt;    /* i.e. -h */
+
+    /* What action to take when the option is activated. */
+    fct_clo_store_t action;
+
+    /* The help string for the action. */
+    char *help;
+
+    /* The result. */
+    char *value;
+} fct_clo_t;
+
+
+/* Use when defining the option list. */
+#define FCT_CLO_NULL  \
+    {NULL, NULL, FCT_CLO_STORE_UNDEFINED, NULL, NULL}
+
+
+#define fct_clo_new()  ((fct_clo_t*)calloc(1, sizeof(fct_clo_t)))
+
+
+static void
+fct_clo__del(fct_clo_t *clo)
+{
+    if ( clo == NULL )
+    {
+        return;
+    }
+    if ( clo->long_opt )
+    {
+        free(clo->long_opt);
+    }
+    if ( clo->short_opt)
+    {
+        free(clo->short_opt);
+    }
+    if ( clo->value )
+    {
+        free(clo->value);
+    }
+    if ( clo->help )
+    {
+        free(clo->help);
+    }
+    free(clo);
+}
+
+
+
+static fct_clo_t*
+fct_clo__clone(fct_clo_t const *clo)
+{
+    fct_clo_t *clone = NULL;
+    int ok =0;
+
+    clone = fct_clo_new();
+    if ( clone == NULL )
+    {
+        return NULL;
+    }
+
+    clone->action = clo->action;
+    if ( clo->help == NULL )
+    {
+        clone->help = NULL;
+    }
+    else
+    {
+        clone->help = fct_str_clone(clo->help);
+        if ( clone->help == NULL )
+        {
+            ok =0;
+            goto finally;
+        }
+    }
+    if ( clo->long_opt == NULL )
+    {
+        clone->long_opt = NULL;
+    }
+    else
+    {
+        clone->long_opt = fct_str_clone(clo->long_opt);
+        if ( clone->long_opt == NULL )
+        {
+            ok = 0;
+            goto finally;
+        }
+    }
+    if ( clo->short_opt == NULL )
+    {
+        clone->short_opt = NULL;
+    }
+    else
+    {
+        clone->short_opt = fct_str_clone(clo->short_opt);
+        if ( clone->short_opt == NULL )
+        {
+            ok =0;
+            goto finally;
+        }
+    }
+    if ( clo->value == NULL )
+    {
+        clone->value = NULL;
+    }
+    else
+    {
+        clone->value = fct_str_clone(clo->value);
+        if ( clone->value == NULL )
+        {
+            ok =0;
+            goto finally;
+        }
+    }
+
+    ok = 1;
+finally:
+    if ( !ok )
+    {
+        fct_clo__del(clone);
+        clone = NULL;
+    }
+    return clone;
+}
+
+
+static int
+fct_clo__is_option(fct_clo_t *clo, char const *option)
+{
+    assert( option != NULL);
+    assert( clo != NULL );
+    return ((clo->long_opt != NULL
+             && _fct_str_equal(clo->long_opt, option, _fct_check_char))
+            ||
+            (clo->short_opt != NULL
+             && _fct_str_equal(clo->short_opt, option, _fct_check_char))
+           );
+}
+
+
+#define fct_clo__set_value(_CLO_, _VAL_) \
+    (_CLO_)->value = fct_str_clone((_VAL_));
+
+/*
+--------------------------------------------------------
+FCT COMMAND PARSER (fct_clp)
+--------------------------------------------------------
+*/
+
+#define FCT_CLP_MAX_ERR_MSG_LEN     256
+
+typedef struct _fct_clp_t
+{
+    /* List of command line options. */
+    fct_nlist_t clo_list;
+
+    char error_msg[FCT_CLP_MAX_ERR_MSG_LEN];
+    int is_error;
+} fct_clp_t;
+
+
+static void
+fct_clp__final(fct_clp_t *clp)
+{
+    fct_nlist__final(&(clp->clo_list), (fct_nlist_on_del_t)fct_clo__del);
+}
+
+
+/* Returns false if we ran out of memory. */
+static int
+fct_clp__init(fct_clp_t *clp, fct_clo_t const *options)
+{
+    fct_clo_t const *pclo =NULL;
+    int ok =0;
+
+    assert( clp != NULL );
+    assert( options != NULL );
+
+    /* It is just much saner to manage a clone of the options. Then we know
+    who is in charge of the memory. */
+    fct_nlist__init(&(clp->clo_list));
+    for ( pclo = options; pclo->action != FCT_CLO_STORE_UNDEFINED; ++pclo )
+    {
+        fct_clo_t *cpy = fct_clo__clone(pclo);
+        if ( cpy == NULL )
+        {
+            ok = 0;
+            goto finally;
+        }
+        fct_nlist__append(&(clp->clo_list), (void*)cpy);
+    }
+
+    ok =1;
+finally:
+    if ( !ok )
+    {
+        fct_clp__final(clp);
+    }
+    return ok;
+}
+
+
+/* Parses the command line arguments. Use fct_clp__is_error and
+fct_clp__get_error to figure out if something went awry. */
+static void
+fct_clp__parse(fct_clp_t *clp, int argc, char *argv[])
+{
+    int argi =1;
+    char *arg =NULL;
+    char *token =NULL;
+    char *next_token =NULL;
+
+    clp->error_msg[0] = '\0';
+    clp->is_error =0;
+
+    while ( argi < argc )
+    {
+        /* This could be an --option=value type of parameter. What
+        follows could be done better.  */
+        token =NULL;
+        next_token = NULL;
+        arg = argv[argi];
+        token = strtok_s(arg, "=", &next_token);
+
+        FCT_NLIST_FOREACH_BGN(fct_clo_t*, pclo, &(clp->clo_list))
+        {
+            /* Need to reset for each search. strtok below is destructive. */
+            if ( fct_clo__is_option(pclo, token) )
+            {
+                if ( pclo->action == FCT_CLO_STORE_VALUE )
+                {
+                    /* If this is --xxxx=value then the next strtok should succeed.
+                    Otherwise, we need to chew up the next argument. */
+                    if ( next_token != NULL && strlen(next_token) > 0 )
+                    {
+                        fct_clo__set_value(pclo, next_token);
+                    }
+                    else
+                    {
+                        ++argi; /* Chew up the next value */
+                        if ( argi >= argc )
+                        {
+                            /* error */
+                            fct_snprintf(
+                                clp->error_msg,
+                                FCT_CLP_MAX_ERR_MSG_LEN,
+                                "missing argument for %s",
+                                token
+                            );
+                            clp->is_error =1;
+                            break;
+                        }
+                        fct_clo__set_value(pclo, argv[argi]);
+                    }
+                }
+                else if (pclo->action == FCT_CLO_STORE_TRUE)
+                {
+                    fct_clo__set_value(pclo, FCT_CLO_TRUE_STR);
+                }
+                else
+                {
+                    assert("undefined action requested");
+                }
+                ++argi;
+                break;  /* No need to parse this argument further. */
+            }
+        }
+        FCT_NLIST_FOREACH_END();
+    }
+}
+
+
+static fct_clo_t const*
+fct_clp__get_clo(fct_clp_t *clp, char *option)
+{
+    fct_clo_t *found =NULL;
+
+    FCT_NLIST_FOREACH_BGN(fct_clo_t*, pclo, &(clp->clo_list))
+    {
+        if ( fct_clo__is_option(pclo, option) )
+        {
+            found = pclo;
+            break;
+        }
+    }
+    FCT_NLIST_FOREACH_END();
+    return found;
+}
+
+
+static char const*
+fct_clp__value(fct_clp_t *clp, char *option)
+{
+    fct_clo_t const *clo =NULL;
+    assert( clp != NULL );
+    assert( option != NULL );
+    clo = fct_clp__get_clo(clp, option);
+    if ( clo == NULL )
+    {
+        return NULL;
+    }
+    return clo->value;
+}
+
+
+#define fct_clp__is_error(_CLP_) ((_CLP_)->is_error)
+#define fct_clp__get_error(_CLP_) ((_CLP_)->error_msg);
+
+#define fct_clp__num_clo(_CLP_) \
+    (fct_nlist__size(&((_CLP_)->clo_list)))
+
+
+/* Returns true if the given option was on the command line.
+Use either the long or short option name to check against. */
+#define fct_clp__is(_CLP_, _OPTION_) \
+    (fct_clp__value((_CLP_), (_OPTION_)) != NULL)
+
+S
 
 /*
 --------------------------------------------------------
