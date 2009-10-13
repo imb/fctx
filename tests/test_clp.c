@@ -11,6 +11,7 @@ File: test_clp.c
 Runs through tests for the command line parser.
 */
 
+
 #include "fct.h"
 
 FCT_BGN()
@@ -199,15 +200,20 @@ FCT_BGN()
                             "paramc"
                            };
             int argc =4;
+            int is_param =0;
 
             fct_clp__parse(&clp, argc, argv);
             fct_chk( !fct_clp__is_error(&clp) );
-            fct_chk_eq_int( fct_clp__num_params(&clp), 3);
+            fct_chk_eq_int( fct_clp__param_cnt(&clp), 3);
 
-            fct_chk( fct_clp__is_param(&clp, "parama") );
-            fct_chk( fct_clp__is_param(&clp, "paramb") );
-            fct_chk( fct_clp__is_param(&clp, "paramc") );
-            fct_chk( !fct_clp__is_param(&clp, "funk") );
+            fct_clp__is_param(&clp, "parama", &is_param);
+            fct_chk( is_param);
+            fct_clp__is_param(&clp, "funk", &is_param);
+            fct_chk( !is_param);
+            fct_clp__is_param(&clp, "paramb", &is_param);
+            fct_chk( is_param);
+            fct_clp__is_param(&clp, "paramc", &is_param);
+            fct_chk( is_param);
         }
         FCT_TEST_END();
 
@@ -221,24 +227,37 @@ FCT_BGN()
                             "paramc"
                            };
             int argc =5;
+            int is_param;
             char const *optval;
+            char const *paramat;
 
             fct_clp__parse(&clp, argc, argv);
             fct_chk( !fct_clp__is_error(&clp) );
-            fct_chk_eq_int( fct_clp__num_params(&clp), 3);
+            fct_chk_eq_int( fct_clp__param_cnt(&clp), 3);
 
-            fct_chk( fct_clp__is_param(&clp, "parama") );
-            fct_chk( fct_clp__is_param(&clp, "paramb") );
-            fct_chk( fct_clp__is_param(&clp, "paramc") );
-            fct_chk( !fct_clp__is_param(&clp, "funk") );
+            fct_clp__is_param(&clp, "parama", &is_param);
+            fct_chk( is_param);
+            fct_clp__is_param(&clp, "funk", &is_param);
+            fct_chk( !is_param);
+            fct_clp__is_param(&clp, "paramb", &is_param);
+            fct_chk( is_param);
+            fct_clp__is_param(&clp, "paramc", &is_param);
+            fct_chk( is_param);
+
+            /* Parameters should be in same sequence. Not neccessarily
+            going to enforce this, just using the assumption for testing. */
+            paramat = fct_clp__param_at(&clp, 0);
+            fct_chk_eq_str( paramat, "parama");
+            paramat = fct_clp__param_at(&clp, 1);
+            fct_chk_eq_str( paramat, "paramb");
+            paramat = fct_clp__param_at(&clp, 2);
+            fct_chk_eq_str( paramat, "paramc");
 
             fct_chk( fct_clp__is(&clp, "--output") );
             optval = fct_clp__optval(&clp, "--output");
             fct_chk_eq_str( optval, "foo" );
         }
         FCT_TEST_END();
-
-
     }
     FCT_FIXTURE_SUITE_END();
 

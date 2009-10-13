@@ -44,12 +44,16 @@ File: fct.h
 #if !defined(FCT_INCLUDED__IMB)
 #define FCT_INCLUDED__IMB
 
-#define FCT_VERSION_STR   "1.1.0"
 #define FCT_VERSION_MAJOR 1
 #define FCT_VERSION_MINOR 1
 #define FCT_VERSION_MICRO 0
 
+#define _FCT_QUOTEME(x) #x
+#define FCT_QUOTEME(x) _FCT_QUOTEME(x)
 
+#define FCT_VERSION_STR (FCT_QUOTEME(FCT_VERSION_MAJOR) "."\
+                         FCT_QUOTEME(FCT_VERSION_MINOR) "."\
+                         FCT_QUOTEME(FCT_VERSION_MICRO))
 #include <string.h>
 #include <assert.h>
 #include <stdarg.h>
@@ -1207,7 +1211,12 @@ fct_clp__parse(fct_clp_t *clp, int argc, char *argv[])
         token =NULL;
         next_token = NULL;
         arg = fct_str_clone(argv[argi]);
+#if _MVC_VER > 1300
         token = strtok_s(arg, "=", &next_token);
+#else
+        token = strtok(arg, "=");
+        next_token = strtok(NULL, "=");
+#endif
 
         FCT_NLIST_FOREACH_BGN(fct_clo_t*, pclo, &(clp->clo_list))
         {
@@ -1313,30 +1322,32 @@ fct_clp__optval(fct_clp_t *clp, char *option)
 }
 
 
-static int
-fct_clp__is_param(fct_clp_t *clp, char *param)
-{
-    assert( clp != NULL );
-    assert( param != NULL );
-    FCT_NLIST_FOREACH_BGN(char *, aparam, &(clp->param_list))
-    {
-        if ( _fct_str_equal(aparam, param, _fct_check_char) )
-        {
-            return 1;
-        }
-    }
-    FCT_NLIST_FOREACH_END();
-    return 0;
-}
-
+/* Mainly used for unit tests. */
+#define fct_clp__is_param(_CLP_, _PARAM_, _IS_PARAM_OUT_)\
+    *(_IS_PARAM_OUT_) = 0;\
+    FCT_NLIST_FOREACH_BGN(char *, aparam, &((_CLP_)->param_list))\
+    {\
+        if ( _fct_str_equal(aparam, (_PARAM_), _fct_check_char) )\
+        {\
+            *(_IS_PARAM_OUT_) = 1;\
+            break;\
+        }\
+    }\
+    FCT_NLIST_FOREACH_END();\
+ 
 #define fct_clp__is_error(_CLP_) ((_CLP_)->is_error)
 #define fct_clp__get_error(_CLP_) ((_CLP_)->error_msg);
 
 #define fct_clp__num_clo(_CLP_) \
     (fct_nlist__size(&((_CLP_)->clo_list)))
 
-#define fct_clp__num_params(_CLP_) \
+#define fct_clp__param_cnt(_CLP_) \
     (fct_nlist__size(&((_CLP_)->param_list)))
+
+/* Returns a *reference* to the parameter at _IDX_. Do not modify
+its contents. */
+#define fct_clp__param_at(_CLP_, _IDX_) \
+    ((char const*)fct_nlist__at(&((_CLP_)->param_list), (_IDX_)))
 
 
 /* Returns true if the given option was on the command line.
@@ -1384,6 +1395,9 @@ system.
 
 struct _fctkern_t
 {
+    /* Command line parsing. */
+    fct_clp_t clp;
+
     /* This is an list of loggers that can be used in the fct system.
     You/ can attach _MAX_LOGGERS to any framework. */
     fct_nlist_t logger_list;
@@ -1399,6 +1413,17 @@ struct _fctkern_t
     /* Holds variables used throughout MACRO MAGIC. In order to reduce
     the "noise" in the watch window during a debug trace. */
     fct_namespace_t ns;
+};
+
+#define FCT_OPT_VERSION "--version"
+static fct_clo_t FCT_CLP_OPTIONS[] =
+{
+    {FCT_OPT_VERSION,
+        NULL,
+        FCT_CLO_STORE_TRUE,
+        "Displays the FCTX version number and exits.",
+        NULL},
+    FCT_CLO_NULL
 };
 
 
@@ -1464,7 +1489,8 @@ static int
 fctkern__init(fctkern_t *nk, int argc, char *argv[])
 {
     fct_logger_i *standard_logger = NULL;
-    int arg_i =0;
+    int num_params =0;
+    int param_i =0;
     nbool_t ok = FCT_FALSE;
 
     if ( argc == 0 && argv == NULL )
@@ -1477,6 +1503,18 @@ fctkern__init(fctkern_t *nk, int argc, char *argv[])
     fct_nlist__init(&(nk->logger_list));
     fct_nlist__init(&(nk->prefix_list));
     fct_nlist__init(&(nk->ts_list));
+
+    /* TODO: Allow client code to extend the options. */
+    fct_clp__init(&(nk->clp), FCT_CLP_OPTIONS);
+
+    fct_clp__parse(&(nk->clp), argc, argv);
+    if ( fct_clp__is_error(&(nk->clp)) )
+    {
+        char *err = fct_clp__get_error(&(nk->clp));
+        fprintf(stderr, "error: %s", err);
+        ok =0;
+        goto finally;
+    }
 
     /* TODO: This is where we can "configure" what logger to pull out. Be nice
     if we can provide some means for the client code to 'override' this
@@ -1492,16 +1530,17 @@ fctkern__init(fctkern_t *nk, int argc, char *argv[])
     standard_logger = NULL;   /* Owned by the nk list. */
 
     /* Our basic parser. For now we just take each 'argv' and assume
-    that it is a prefix filter. Notice we start at argument 1, since
-    we don't care about the *name* of the program. */
-    for ( arg_i =1; arg_i < argc; ++arg_i )
+    that it is a prefix filter.  */
+    num_params = fct_clp__param_cnt(&(nk->clp));
+    for ( param_i =0; param_i < num_params; ++param_i )
     {
-        fctkern__add_prefix_filter(nk, argv[arg_i]);
+        char const *param = fct_clp__param_at(&(nk->clp), param_i);
+        fctkern__add_prefix_filter(nk, param);
     }
 
     fct_namespace_init(&(nk->ns));
 
-    ok =FCT_TRUE;
+    ok =1;
 finally:
     if ( !ok )
     {
@@ -1521,7 +1560,6 @@ fctkern__add_ts(fctkern_t *nk, fct_ts_t *ts)
     assert( ts != NULL );
     fct_nlist__append(&(nk->ts_list), ts);
 }
-
 
 
 /* Returns FCT_TRUE if the supplied test_name passes the filters set on
@@ -1723,6 +1761,10 @@ fctkern__log_test_end(fctkern_t *nk, fct_test_t const *test)
        }\
        FCT_NLIST_FOREACH_END();\
     }
+
+
+#define fctkern__is_clp_opt(_NK_, _OPT_STR_) \
+    ((_OPT_STR_)[0] != '\0' && fct_clp__is(&((_NK_)->clp), (_OPT_STR_)))
 
 
 /*
@@ -2206,6 +2248,7 @@ referenced in order to avoid the potential to get a
     _fct_check_char('a', 'b');\
     _fct_check_char_lower('a', 'b');\
     _fct_str_equal("a", "b", _fct_check_char);\
+    fctkern__is_clp_opt(fctkern_ptr__, "");\
     }
 
 
@@ -2222,6 +2265,10 @@ main(int argc, char *argv[])\
    if ( !fctkern__init(fctkern_ptr__, argc, argv) ) {\
         (void)printf("FATAL ERROR: Unable to intialize FCT Kernal.");\
         exit(EXIT_FAILURE);\
+   }\
+   if ( fctkern__is_clp_opt(fctkern_ptr__, FCT_OPT_VERSION) ) {\
+       printf("Built using FCTX version %s", FCT_VERSION_STR);\
+       exit(EXIT_SUCCESS);\
    }\
    fctkern__log_start(fctkern_ptr__);
 
