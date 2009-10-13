@@ -186,7 +186,7 @@ fct_str_clone(char *s)
     size_t klen =0;
     assert( s != NULL && "invalid arg");
     klen = strlen(s)+1;
-    k = malloc(sizeof(char)*klen+1);
+    k = (char*)malloc(sizeof(char)*klen+1);
     fct_safe_str_cpy(k, s, klen);
     return k;
 }
@@ -1177,6 +1177,9 @@ typedef struct _fct_clp_t
     /* List of command line options. */
     fct_nlist_t clo_list;
 
+    /* List of parameters (not options). */
+    fct_nlist_t param_list;
+
     char error_msg[FCT_CLP_MAX_ERR_MSG_LEN];
     int is_error;
 } fct_clp_t;
@@ -1186,6 +1189,7 @@ static void
 fct_clp__final(fct_clp_t *clp)
 {
     fct_nlist__final(&(clp->clo_list), (fct_nlist_on_del_t)fct_clo__del);
+    fct_nlist__final(&(clp->param_list), (fct_nlist_on_del_t)free);
 }
 
 
@@ -1213,6 +1217,8 @@ fct_clp__init(fct_clp_t *clp, fct_clo_t const *options)
         fct_nlist__append(&(clp->clo_list), (void*)cpy);
     }
 
+    fct_nlist__init(&(clp->param_list));
+
     ok =1;
 finally:
     if ( !ok )
@@ -1229,6 +1235,7 @@ static void
 fct_clp__parse(fct_clp_t *clp, int argc, char *argv[])
 {
     int argi =1;
+    int is_option =0;
     char *arg =NULL;
     char *token =NULL;
     char *next_token =NULL;
@@ -1238,11 +1245,10 @@ fct_clp__parse(fct_clp_t *clp, int argc, char *argv[])
 
     while ( argi < argc )
     {
-        /* This could be an --option=value type of parameter. What
-        follows could be done better.  */
+        is_option =0;
         token =NULL;
         next_token = NULL;
-        arg = argv[argi];
+        arg = fct_str_clone(argv[argi]);
         token = strtok_s(arg, "=", &next_token);
 
         FCT_NLIST_FOREACH_BGN(fct_clo_t*, pclo, &(clp->clo_list))
@@ -1250,6 +1256,7 @@ fct_clp__parse(fct_clp_t *clp, int argc, char *argv[])
             /* Need to reset for each search. strtok below is destructive. */
             if ( fct_clo__is_option(pclo, token) )
             {
+                is_option =1;
                 if ( pclo->action == FCT_CLO_STORE_VALUE )
                 {
                     /* If this is --xxxx=value then the next strtok should succeed.
@@ -1284,11 +1291,33 @@ fct_clp__parse(fct_clp_t *clp, int argc, char *argv[])
                 {
                     assert("undefined action requested");
                 }
-                ++argi;
                 break;  /* No need to parse this argument further. */
             }
         }
         FCT_NLIST_FOREACH_END();
+
+        /* If we have an error, exit. */
+        if ( clp->is_error )
+        {
+            break;
+        }
+
+        /* If we walked through all the options, and didn't find
+        anything, then we must have a parameter. Forget the fact that
+        an unknown option will be treated like a parameter... */
+        if ( !is_option )
+        {
+            fct_nlist__append(&(clp->param_list), arg);
+            arg =NULL;  /* Owned by the nlist */
+        }
+
+        ++argi;
+
+        if ( arg != NULL )
+        {
+            free(arg);
+            arg =NULL;
+        }
     }
 }
 
@@ -1312,7 +1341,7 @@ fct_clp__get_clo(fct_clp_t *clp, char *option)
 
 
 static char const*
-fct_clp__value(fct_clp_t *clp, char *option)
+fct_clp__optval(fct_clp_t *clp, char *option)
 {
     fct_clo_t const *clo =NULL;
     assert( clp != NULL );
@@ -1326,19 +1355,38 @@ fct_clp__value(fct_clp_t *clp, char *option)
 }
 
 
+static int
+fct_clp__is_param(fct_clp_t *clp, char *param)
+{
+    assert( clp != NULL );
+    assert( param != NULL );
+    FCT_NLIST_FOREACH_BGN(char *, aparam, &(clp->param_list))
+    {
+        if ( _fct_str_equal(aparam, param, _fct_check_char) )
+        {
+            return 1;
+        }
+    }
+    FCT_NLIST_FOREACH_END();
+    return 0;
+}
+
 #define fct_clp__is_error(_CLP_) ((_CLP_)->is_error)
 #define fct_clp__get_error(_CLP_) ((_CLP_)->error_msg);
 
 #define fct_clp__num_clo(_CLP_) \
     (fct_nlist__size(&((_CLP_)->clo_list)))
 
+#define fct_clp__num_params(_CLP_) \
+    (fct_nlist__size(&((_CLP_)->param_list)))
+
 
 /* Returns true if the given option was on the command line.
 Use either the long or short option name to check against. */
 #define fct_clp__is(_CLP_, _OPTION_) \
-    (fct_clp__value((_CLP_), (_OPTION_)) != NULL)
+    (fct_clp__optval((_CLP_), (_OPTION_)) != NULL)
 
-S
+
 
 /*
 --------------------------------------------------------

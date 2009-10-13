@@ -80,6 +80,19 @@ FCT_BGN()
         }
         FCT_TEST_END();
 
+        FCT_TEST_BGN(parse_store_true__short_arg)
+        {
+            char *argv[] = {"program.exe", "-h"};
+            int argc =2;
+
+            fct_clp__parse(&clp, argc, argv);
+
+            fct_chk( fct_clp__is(&clp, "--help") );
+            fct_chk( fct_clp__is(&clp, "-h") );
+            fct_chk( !fct_clp__is(&clp, "--output") );
+        }
+        FCT_TEST_END();
+
 
         FCT_TEST_BGN(parse_store_value__with_2nd_arg)
         {
@@ -90,7 +103,7 @@ FCT_BGN()
 
             fct_chk( !fct_clp__is(&clp, "--help") );
             fct_chk( fct_clp__is(&clp, "--output") );
-            fct_chk_eq_str(fct_clp__value(&clp, "--output"), "foo");
+            fct_chk_eq_str(fct_clp__optval(&clp, "--output"), "foo");
         }
         FCT_TEST_END();
 
@@ -104,7 +117,7 @@ FCT_BGN()
 
             fct_chk( !fct_clp__is(&clp, "--help") );
             fct_chk( fct_clp__is(&clp, "--output") );
-            fct_chk_eq_str(fct_clp__value(&clp, "--output"), "foo");
+            fct_chk_eq_str(fct_clp__optval(&clp, "--output"), "foo");
         }
         FCT_TEST_END();
 
@@ -112,15 +125,13 @@ FCT_BGN()
         FCT_TEST_BGN(parse_store_value__with_equals_but_no_value)
         {
             char *argv[] = {"program.exe", "--output="};
-            char const *output_value =NULL;
             int argc =2;
 
             fct_clp__parse(&clp, argc, argv);
+            fct_chk( fct_clp__is_error(&clp) );
 
             fct_chk( !fct_clp__is(&clp, "--help") );
-            fct_chk( fct_clp__is(&clp, "--output") );
-            output_value = fct_clp__value(&clp, "--output");
-            fct_chk_eq_str(output_value, "foo");
+            fct_chk( !fct_clp__is(&clp, "--output") );
         }
         FCT_TEST_END();
 
@@ -131,9 +142,10 @@ FCT_BGN()
             int argc =2;
 
             fct_clp__parse(&clp, argc, argv);
+            fct_chk( fct_clp__is_error(&clp) );
 
             fct_chk( !fct_clp__is(&clp, "--help") );
-            fct_chk( fct_clp__is(&clp, "--output") );
+            fct_chk( !fct_clp__is(&clp, "--output") );
         }
         FCT_TEST_END();
 
@@ -146,7 +158,7 @@ FCT_BGN()
             fct_clp__parse(&clp, argc, argv);
 
             fct_chk( !fct_clp__is(&clp, "--booga") );
-            fct_chk( fct_clp__value(&clp, "--booga") == NULL );
+            fct_chk( fct_clp__optval(&clp, "--booga") == NULL );
         }
         FCT_TEST_END();
 
@@ -158,25 +170,74 @@ FCT_BGN()
 
             fct_clp__parse(&clp, argc, argv);
 
-            fct_chk( !fct_clp__is(&clp, "--help") );
+            fct_chk( fct_clp__is(&clp, "--help") );
             fct_chk( fct_clp__is(&clp, "--output") );
-            fct_chk_eq_str(fct_clp__value(&clp, "--output"), "foo");
+            fct_chk_eq_str(fct_clp__optval(&clp, "--output"), "foo");
         }
         FCT_TEST_END();
 
 
         FCT_TEST_BGN(parse_store_value__with_multiple_args_diff_order)
         {
-            char *argv[] = {"program.exe",  "--help", "--output", "foo"};
+            char *argv[] = {"program.exe",  "--help", "--output", "xxx"};
             int argc =4;
 
             fct_clp__parse(&clp, argc, argv);
 
-            fct_chk( !fct_clp__is(&clp, "--help") );
+            fct_chk( fct_clp__is(&clp, "--help") );
             fct_chk( fct_clp__is(&clp, "--output") );
-            fct_chk_eq_str(fct_clp__value(&clp, "--output"), "foo");
+            fct_chk_eq_str(fct_clp__optval(&clp, "--output"), "xxx");
         }
         FCT_TEST_END();
+
+
+        FCT_TEST_BGN(parse_store_value__with_params_only)
+        {
+            char *argv[] = {"program.exe",
+                            "parama",
+                            "paramb",
+                            "paramc"
+                           };
+            int argc =4;
+
+            fct_clp__parse(&clp, argc, argv);
+            fct_chk( !fct_clp__is_error(&clp) );
+            fct_chk_eq_int( fct_clp__num_params(&clp), 3);
+
+            fct_chk( fct_clp__is_param(&clp, "parama") );
+            fct_chk( fct_clp__is_param(&clp, "paramb") );
+            fct_chk( fct_clp__is_param(&clp, "paramc") );
+            fct_chk( !fct_clp__is_param(&clp, "funk") );
+        }
+        FCT_TEST_END();
+
+
+        FCT_TEST_BGN(parse_store_value__with_params_only)
+        {
+            char *argv[] = {"program.exe",
+                            "--output=foo",
+                            "parama",
+                            "paramb",
+                            "paramc"
+                           };
+            int argc =5;
+            char const *optval;
+
+            fct_clp__parse(&clp, argc, argv);
+            fct_chk( !fct_clp__is_error(&clp) );
+            fct_chk_eq_int( fct_clp__num_params(&clp), 3);
+
+            fct_chk( fct_clp__is_param(&clp, "parama") );
+            fct_chk( fct_clp__is_param(&clp, "paramb") );
+            fct_chk( fct_clp__is_param(&clp, "paramc") );
+            fct_chk( !fct_clp__is_param(&clp, "funk") );
+
+            fct_chk( fct_clp__is(&clp, "--output") );
+            optval = fct_clp__optval(&clp, "--output");
+            fct_chk_eq_str( optval, "foo" );
+        }
+        FCT_TEST_END();
+
 
     }
     FCT_FIXTURE_SUITE_END();
