@@ -23,6 +23,10 @@ basically the time it takes to compile the file. */
 #define MESSAGE   ("Visual Studio is crippled trying to compile >256\n"\
                    "tests. So we are limiting it to %d tests.\n")
 #define NUM_TESTS 256
+#elif NDEBUG
+#define MESSAGE ("Building %d tests, in release. Release spends to much time "\
+                 "optimizing >256 tests, and gcc runs out of memory.\n")
+#define NUM_TESTS 256
 #else
 #define MESSAGE   "Building %d tests.\n"
 #define NUM_TESTS 1024
