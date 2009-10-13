@@ -418,22 +418,6 @@ fct_nlist__final(fct_nlist_t *list, fct_nlist_on_del_t on_del)
 }
 
 
-/* Cleans up list, and applies `on_del` to each item in the list.
-If on_del is NULL, it will not be applied. If `list` is NULL this
-function does nothing. */
-static void
-fct_nlist__del(fct_nlist_t *list, fct_nlist_on_del_t on_del)
-{
-    if ( list == NULL )
-    {
-        return;
-    }
-    fct_nlist__final(list, on_del);
-    free(list);
-}
-
-
-
 /* Initializes a list. Useful for populating existing structures.
 Returns 0 if there was an error allocating memory. Returns 1 otherwise. */
 static int
@@ -451,25 +435,6 @@ fct_nlist__init(fct_nlist_t *list)
     list->used_itm_num =0;
 
     return 1;
-}
-
-
-static fct_nlist_t *
-fct_nlist_new(void)
-{
-    fct_nlist_t *list = (fct_nlist_t*)calloc(1, sizeof(fct_nlist_t));
-
-    if ( list == NULL )
-    {
-        return NULL;
-    }
-
-    if ( !fct_nlist__init(list) )
-    {
-        fct_nlist__del(list, NULL);
-        return NULL;
-    }
-    return list;
 }
 
 
@@ -770,7 +735,7 @@ struct _fct_ts_t
     char name[FCT_MAX_NAME];
 
     /* List of tests that where executed within the test suite. */
-    fct_nlist_t *test_list;
+    fct_nlist_t test_list;
 };
 
 
@@ -798,7 +763,7 @@ fct_ts__del(fct_ts_t *ts)
     {
         return;
     }
-    fct_nlist__del(ts->test_list, (fct_nlist_on_del_t)fct_test__del);
+    fct_nlist__final(&(ts->test_list), (fct_nlist_on_del_t)fct_test__del);
     free(ts);
 }
 
@@ -811,14 +776,7 @@ fct_ts_new(char const *name)
 
     fct_safe_str_cpy(ts->name, name, FCT_MAX_NAME);
     ts->mode = ts_mode_cnt;
-
-    ts->test_list = fct_nlist_new();
-    if ( ts->test_list == NULL )
-    {
-        fct_ts__del(ts);
-        return NULL;
-    }
-
+    fct_nlist__init(&(ts->test_list));
     return ts;
 }
 
@@ -850,7 +808,7 @@ fct_ts__add_test(fct_ts_t *ts, fct_test_t *test)
     assert( ts != NULL && "invalid arg");
     assert( test != NULL && "invalid arg");
     assert( !fct_ts__is_end(ts) );
-    fct_nlist__append(ts->test_list, test);
+    fct_nlist__append(&(ts->test_list), test);
 }
 
 
@@ -953,7 +911,7 @@ fct_ts__tst_cnt(fct_ts_t const *ts)
         fct_ts__is_end(ts)
         && "can't count number of tests executed until the test suite ends"
     );
-    return fct_nlist__size(ts->test_list);
+    return fct_nlist__size(&(ts->test_list));
 }
 
 
@@ -966,7 +924,7 @@ fct_ts__tst_cnt_passed(fct_ts_t const *ts)
     assert( ts != NULL );
     assert( fct_ts__is_end(ts) );
 
-    FCT_NLIST_FOREACH_BGN(fct_test_t*, test, ts->test_list)
+    FCT_NLIST_FOREACH_BGN(fct_test_t*, test, &(ts->test_list))
     {
         if ( fct_test__is_pass(test) )
         {
@@ -986,7 +944,7 @@ fct_ts__chk_cnt(fct_ts_t const *ts)
 
     assert( ts != NULL );
 
-    FCT_NLIST_FOREACH_BGN(fct_test_t *, test, ts->test_list)
+    FCT_NLIST_FOREACH_BGN(fct_test_t *, test, &(ts->test_list))
     {
         tally += fct_test__chk_cnt(test);
     }
@@ -1503,7 +1461,7 @@ fctkern__final(fctkern_t *nk)
 /* Parses the command line and sets up the framework. The argc and argv
 should be directly from the program's main. */
 static int
-fctkern_init(fctkern_t *nk, int argc, char *argv[])
+fctkern__init(fctkern_t *nk, int argc, char *argv[])
 {
     fct_logger_i *standard_logger = NULL;
     int arg_i =0;
@@ -2261,7 +2219,7 @@ main(int argc, char *argv[])\
    fctkern_t  fctkern__;\
    fctkern_t* fctkern_ptr__ = &fctkern__;\
    FCT_REFERENCE_FUNCS();\
-   if ( !fctkern_init(fctkern_ptr__, argc, argv) ) {\
+   if ( !fctkern__init(fctkern_ptr__, argc, argv) ) {\
         (void)printf("FATAL ERROR: Unable to intialize FCT Kernal.");\
         exit(EXIT_FAILURE);\
    }\
@@ -2604,7 +2562,7 @@ to be referenced. Ohh Me Oh My what a waste! */
 #define FCTMF_FIXTURE_SUITE_BGN(NAME) \
 	void NAME (fctkern_t *fctkern_ptr__) {\
         FCT_REFERENCE_FUNCS();\
-        (void)fctkern_init(NULL, 0, NULL);\
+        (void)fctkern__init(NULL, 0, NULL);\
         (void)fctkern__chk_cnt(fctkern_ptr__);\
         FCT_FIXTURE_SUITE_BGN( NAME ) {
 
@@ -2615,7 +2573,7 @@ to be referenced. Ohh Me Oh My what a waste! */
 #define FCTMF_SUITE_BGN(NAME) \
 	void NAME (fctkern_t *fctkern_ptr__) {\
         FCT_REFERENCE_FUNCS();\
-        (void)fctkern_init(NULL, 0, NULL);\
+        (void)fctkern__init(NULL, 0, NULL);\
         (void)fctkern__chk_cnt(fctkern_ptr__);\
         FCT_SUITE_BGN( NAME ) {
 #define FCTMF_SUITE_END() \
