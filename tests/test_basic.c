@@ -121,6 +121,54 @@ FCT_BGN()
 
         }
         FCT_TEST_END();
+    }
+    FCT_SUITE_END();
+
+    FCT_SUITE_BGN(test_64bit)
+    {
+
+        FCT_TEST_BGN(test_64bit__dont_truncate)
+        {
+#if defined(WIN32)
+            __int64 sixfourval =0;
+#else
+            uint64_t  sixfourval =0;
+#endif
+            /* G++ compilers want to see the LLU (long long unsigned)
+            tag at the of the variable, Microsoft compilers are sad when
+            they see this. */
+#if defined(_MSC_VER)
+#    define     BACK_VAL  0x00000000ffffffff
+#    define     FRONT_VAL 0xffffffff00000000
+#else
+#    define     BACK_VAL 0x00000000ffffffffLLU
+#    define     FRONT_VAL 0xffffffff00000000LLU
+#endif
+            int tv;
+            int is_checked =0;
+
+            sixfourval = BACK_VAL;
+            tv = (int)sixfourval;
+
+            /* Check the truncation and actual value. We
+            may or may not be truncated, depends on endianess. */
+            if ( !tv )
+            {
+                fct_chk(sixfourval);
+                is_checked =1;
+            }
+
+            sixfourval = FRONT_VAL;
+            tv = (int)sixfourval;
+            if ( !tv )
+            {
+                fct_chk(sixfourval);
+                is_checked =1;
+            }
+
+            fct_chk(is_checked);
+        }
+        FCT_TEST_END();
 
     }
     FCT_SUITE_END();

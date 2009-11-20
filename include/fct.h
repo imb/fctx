@@ -46,7 +46,7 @@ File: fct.h
 
 #define FCT_VERSION_MAJOR 1
 #define FCT_VERSION_MINOR 1
-#define FCT_VERSION_MICRO 0
+#define FCT_VERSION_MICRO 1
 
 #define _FCT_QUOTEME(x) #x
 #define FCT_QUOTEME(x) _FCT_QUOTEME(x)
@@ -2475,10 +2475,10 @@ libraries error checking routines. */
 
 /* This checks the condition and reports the condition as a string
 if it fails. */
-#define fct_chk(_CNDTN_)  fct_xchk((int)(_CNDTN_), #_CNDTN_)
+#define fct_chk(_CNDTN_)  fct_xchk((_CNDTN_) ? 1 : 0, #_CNDTN_)
 
 #define fct_req(_CNDTN_)  \
-    if ( !(fct_xchk((int)(_CNDTN_), #_CNDTN_)) ) { break; }
+    if ( !(fct_xchk((_CNDTN_) ? 1 : 0, #_CNDTN_)) ) { break; }
 
 
 #define fct_chk_eq_dbl(V1, V2) \

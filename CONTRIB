@@ -1,0 +1,2 @@
+
+* Raedwulf: Discovered that we may erroneously truncate 64 bit pointer.
