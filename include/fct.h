@@ -1290,7 +1290,7 @@ fct_clp__parse(fct_clp_t *clp, int argc, char const *argv[])
 
 
 static fct_clo_t const*
-fct_clp__get_clo(fct_clp_t *clp, char *option)
+fct_clp__get_clo(fct_clp_t *clp, char const *option)
 {
     fct_clo_t *found =NULL;
 
@@ -1308,7 +1308,7 @@ fct_clp__get_clo(fct_clp_t *clp, char *option)
 
 
 static char const*
-fct_clp__optval(fct_clp_t *clp, char *option)
+fct_clp__optval(fct_clp_t *clp, char const *option)
 {
     fct_clo_t const *clo =NULL;
     assert( clp != NULL );
@@ -1418,10 +1418,13 @@ struct _fctkern_t
 #define FCT_OPT_VERSION "--version"
 static fct_clo_t FCT_CLP_OPTIONS[] =
 {
-    {FCT_OPT_VERSION,
+    /* Totally unsafe, since we are assuming we can clean out this data,
+    what I need to do is have an "initialization" object, full of 
+    const objects. But for now, this should work. */ 
+    {(char*)FCT_OPT_VERSION,
         NULL,
         FCT_CLO_STORE_TRUE,
-        "Displays the FCTX version number and exits.",
+        (char*)"Displays the FCTX version number and exits.",
         NULL},
     FCT_CLO_NULL
 };
@@ -1486,7 +1489,7 @@ fctkern__final(fctkern_t *nk)
 /* Parses the command line and sets up the framework. The argc and argv
 should be directly from the program's main. */
 static int
-fctkern__init(fctkern_t *nk, int argc, char const *argv[])
+fctkern__init(fctkern_t *nk, int argc, const char *argv[])
 {
     fct_logger_i *standard_logger = NULL;
     int num_params =0;
@@ -1763,8 +1766,12 @@ fctkern__log_test_end(fctkern_t *nk, fct_test_t const *test)
     }
 
 
-#define fctkern__is_clp_opt(_NK_, _OPT_STR_) \
-    ((_OPT_STR_)[0] != '\0' && fct_clp__is(&((_NK_)->clp), (_OPT_STR_)))
+static int 
+fctkern__is_clp_opt(fctkern_t *nk, char const *opt_str) {
+    assert( opt_str != NULL );
+    return opt_str[0] != '\0' 
+           && fct_clp__is(&(nk->clp), opt_str);
+}
 
 
 /*
@@ -2248,7 +2255,6 @@ referenced in order to avoid the potential to get a
     _fct_check_char('a', 'b');\
     _fct_check_char_lower('a', 'b');\
     _fct_str_equal("a", "b", _fct_check_char);\
-    fctkern__is_clp_opt(fctkern_ptr__, "");\
     }
 
 
@@ -2257,7 +2263,7 @@ that lives throughout the lifetime of our program. The
 fctkern_ptr__ makes it easier to abstract out macros.  */
 #define FCT_BGN() \
 int \
-main(int argc, char const *argv[])\
+main(int argc, const char* argv[])\
 {\
    fctkern_t  fctkern__;\
    fctkern_t* fctkern_ptr__ = &fctkern__;\
@@ -2270,7 +2276,6 @@ main(int argc, char const *argv[])\
        printf("Built using FCTX version %s", FCT_VERSION_STR);\
        exit(EXIT_SUCCESS);\
    }\
-   fctkern__log_start(fctkern_ptr__);
 
 /* Ends the test suite but returning the number failed. THe "chk_cnt" call is
 made in order allow strict compilers to pass when it encounters unreferenced

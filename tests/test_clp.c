@@ -21,16 +21,20 @@ FCT_BGN()
     /* Test Data */
     fct_clp_t clp;
     fct_clo_t options[] =
-    {
-        {"--help",
-            "-h",
+    {	
+	/* The "casting to char*" is bad mojo here. But until I 
+        grow a "fct_clo_init_t" object with constants, it will 
+        do to quiet down C++. It turns out that you never delete
+        this data, so it is OK to cast it to a char*. */
+        {(char*)"--help",
+            (char*)"-h",
             FCT_CLO_STORE_TRUE,
-            "Shows this message",
+            (char*)"Shows this message",
             NULL},
-        {"--output",
+        {(char*)"--output",
          NULL,
          FCT_CLO_STORE_VALUE,
-         "Name of file to store output.",
+         (char*)"Name of file to store output.",
          NULL
         },
         FCT_CLO_NULL
