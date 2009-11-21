@@ -132,7 +132,7 @@ FCT_BGN()
 #if defined(WIN32)
             __int64 sixfourval =0;
 #else
-            uint64_t  sixfourval =0;
+            unsigned long long  sixfourval =0;
 #endif
             /* G++ compilers want to see the LLU (long long unsigned)
             tag at the of the variable, Microsoft compilers are sad when
