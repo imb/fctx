@@ -184,7 +184,7 @@ fct_snprintf(char *buffer, size_t buffer_len, char const *format, ...)
 /* Helper to for cloning strings on the heap. Returns NULL for
 an out of memory condition. */
 static char*
-fct_str_clone(char *s)
+fct_str_clone(char const *s)
 {
     char *k =NULL;
     size_t klen =0;
@@ -1194,7 +1194,7 @@ finally:
 /* Parses the command line arguments. Use fct_clp__is_error and
 fct_clp__get_error to figure out if something went awry. */
 static void
-fct_clp__parse(fct_clp_t *clp, int argc, char *argv[])
+fct_clp__parse(fct_clp_t *clp, int argc, char const *argv[])
 {
     int argi =1;
     int is_option =0;
@@ -1211,7 +1211,7 @@ fct_clp__parse(fct_clp_t *clp, int argc, char *argv[])
         token =NULL;
         next_token = NULL;
         arg = fct_str_clone(argv[argi]);
-#if _MVC_VER > 1300
+#if _MSC_VER > 1300
         token = strtok_s(arg, "=", &next_token);
 #else
         token = strtok(arg, "=");
@@ -1486,7 +1486,7 @@ fctkern__final(fctkern_t *nk)
 /* Parses the command line and sets up the framework. The argc and argv
 should be directly from the program's main. */
 static int
-fctkern__init(fctkern_t *nk, int argc, char *argv[])
+fctkern__init(fctkern_t *nk, int argc, char const *argv[])
 {
     fct_logger_i *standard_logger = NULL;
     int num_params =0;
@@ -2257,7 +2257,7 @@ that lives throughout the lifetime of our program. The
 fctkern_ptr__ makes it easier to abstract out macros.  */
 #define FCT_BGN() \
 int \
-main(int argc, char *argv[])\
+main(int argc, char const *argv[])\
 {\
    fctkern_t  fctkern__;\
    fctkern_t* fctkern_ptr__ = &fctkern__;\

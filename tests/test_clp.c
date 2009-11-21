@@ -58,7 +58,7 @@ FCT_BGN()
 
         FCT_TEST_BGN(parse_nothing)
         {
-            char *argv[] = {"program.exe" };
+            char const *argv[] = {"program.exe" };
             int argc =1;
 
             fct_clp__parse(&clp, argc, argv);
@@ -71,7 +71,7 @@ FCT_BGN()
 
         FCT_TEST_BGN(parse_store_true)
         {
-            char *argv[] = {"program.exe", "--help"};
+            char const *argv[] = {"program.exe", "--help"};
             int argc =2;
 
             fct_clp__parse(&clp, argc, argv);
@@ -83,7 +83,7 @@ FCT_BGN()
 
         FCT_TEST_BGN(parse_store_true__short_arg)
         {
-            char *argv[] = {"program.exe", "-h"};
+            char const *argv[] = {"program.exe", "-h"};
             int argc =2;
 
             fct_clp__parse(&clp, argc, argv);
@@ -97,7 +97,7 @@ FCT_BGN()
 
         FCT_TEST_BGN(parse_store_value__with_2nd_arg)
         {
-            char *argv[] = {"program.exe", "--output", "foo"};
+            char const *argv[] = {"program.exe", "--output", "foo"};
             int argc =3;
 
             fct_clp__parse(&clp, argc, argv);
@@ -111,7 +111,7 @@ FCT_BGN()
 
         FCT_TEST_BGN(parse_store_value__with_equals)
         {
-            char *argv[] = {"program.exe", "--output=foo"};
+            char const *argv[] = {"program.exe", "--output=foo"};
             int argc =2;
 
             fct_clp__parse(&clp, argc, argv);
@@ -125,7 +125,7 @@ FCT_BGN()
 
         FCT_TEST_BGN(parse_store_value__with_equals_but_no_value)
         {
-            char *argv[] = {"program.exe", "--output="};
+            char const *argv[] = {"program.exe", "--output="};
             int argc =2;
 
             fct_clp__parse(&clp, argc, argv);
@@ -139,7 +139,7 @@ FCT_BGN()
 
         FCT_TEST_BGN(parse_store_value__without_2nd_arg)
         {
-            char *argv[] = {"program.exe", "--output"};
+            char const *argv[] = {"program.exe", "--output"};
             int argc =2;
 
             fct_clp__parse(&clp, argc, argv);
@@ -153,7 +153,7 @@ FCT_BGN()
 
         FCT_TEST_BGN(parse__check_for_invalid_value)
         {
-            char *argv[] = {"program.exe", "--output"};
+            char const *argv[] = {"program.exe", "--output"};
             int argc =2;
 
             fct_clp__parse(&clp, argc, argv);
@@ -166,7 +166,7 @@ FCT_BGN()
 
         FCT_TEST_BGN(parse_store_value__with_multiple_args)
         {
-            char *argv[] = {"program.exe", "--output", "foo", "--help"};
+            char const *argv[] = {"program.exe", "--output", "foo", "--help"};
             int argc =4;
 
             fct_clp__parse(&clp, argc, argv);
@@ -180,7 +180,7 @@ FCT_BGN()
 
         FCT_TEST_BGN(parse_store_value__with_multiple_args_diff_order)
         {
-            char *argv[] = {"program.exe",  "--help", "--output", "xxx"};
+            char const *argv[] = {"program.exe",  "--help", "--output", "xxx"};
             int argc =4;
 
             fct_clp__parse(&clp, argc, argv);
@@ -194,7 +194,7 @@ FCT_BGN()
 
         FCT_TEST_BGN(parse_store_value__with_params_only)
         {
-            char *argv[] = {"program.exe",
+            char const *argv[] = {"program.exe",
                             "parama",
                             "paramb",
                             "paramc"
@@ -220,7 +220,7 @@ FCT_BGN()
 
         FCT_TEST_BGN(parse_store_value__with_params_only)
         {
-            char *argv[] = {"program.exe",
+            char const *argv[] = {"program.exe",
                             "--output=foo",
                             "parama",
                             "paramb",

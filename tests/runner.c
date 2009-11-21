@@ -95,18 +95,22 @@ dirname(char const *path, char *dirname, size_t dirname_len)
 
 
 static int
-run(char *arg0, char *progname)
+run(char const *arg0, const char *progname)
 {
 #define MAX_DIR 256
     char dir[MAX_DIR] = {'\0'};
+    char arg0_clone[MAX_DIR] = {'\0'};
+    char progname_clone[MAX_DIR] = {'\0'};
 
     assert( arg0 != NULL );
     assert( progname != NULL);
-    to_native_inplace(arg0);
-    to_native_inplace(progname);
-    dirname(arg0, dir, MAX_DIR);
+    strncpy(arg0_clone, arg0, MAX_DIR);
+    to_native_inplace(arg0_clone);
+    strncpy(progname_clone, progname, MAX_DIR);
+    to_native_inplace(progname_clone);
+    dirname(arg0_clone, dir, MAX_DIR);
     _chdir(dir);
-    return EXIT_STATUS(system(progname));
+    return EXIT_STATUS(system(progname_clone));
 #undef MAX_DIR
 }
 #else
@@ -120,12 +124,12 @@ run(char const *arg0, char const *progname)
 
 
 int
-main(int argc, char *argv[])
+main(int argc, char const *argv[])
 {
-    char *rv_str =NULL;
+    char const *rv_str =NULL;
     int expected_rv =0;
     int rv =0;
-    char *progname =NULL;
+    char const *progname =NULL;
 
     /* The worlds worst command line parser. ;-) */
     assert( argc == 3 && "Can only accept three arguments!");

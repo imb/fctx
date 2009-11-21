@@ -40,7 +40,7 @@ basically the time it takes to compile the file. */
 #define FILE_NAME "test_big.c"
 
 int
-main(int argc, char *argv[])
+main(int argc, char const *argv[])
 {
     int test_i =0;
     FILE *f = fopen(FILE_NAME, "wt");
