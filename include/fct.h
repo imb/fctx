@@ -2258,10 +2258,10 @@ This is where the show begins!
 referenced in order to avoid the potential to get a
 "unreferenced local function has been removed" warning. */
 #define FCT_REFERENCE_FUNCS() {\
-    0 && _fct_check_char('a', 'b');\
-    0 && _fct_check_char_lower('a', 'b');\
-    0 && _fct_str_equal("a", "b", _fct_check_char);\
-    0 && fctkern__is_clp_opt(NULL, "");\
+    _fct_check_char('a', 'b');\
+    _fct_check_char_lower('a', 'b');\
+    _fct_str_equal("a", "b", _fct_check_char);\
+    fctkern__is_clp_opt(NULL, "");\
     }
 
 
@@ -2646,8 +2646,8 @@ to be referenced. Ohh Me Oh My what a waste! */
 
 /* Executes a test suite defined by FCTMF_SUITE* */
 #define FCTMF_SUITE_CALL(NAME)  {\
-    void NAME (fctkern_t *);\
-    NAME (fctkern_ptr__);\
+    extern void NAME (fctkern_t *);\
+    (void) NAME (fctkern_ptr__);\
     }
 
 
