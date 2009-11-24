@@ -1306,9 +1306,14 @@ fct_clp__get_clo(fct_clp_t *clp, char const *option)
     return found;
 }
 
+#define fct_clp__optval(_CLP_, _OPTION_) \
+    fct_clp__optval2((_CLP_), (_OPTION_), NULL)
 
+
+/* Returns the value parsed by equal to OPTION. If the value wasn't
+parsed, the DEFAULT_VAL is returned instead. */
 static char const*
-fct_clp__optval(fct_clp_t *clp, char const *option)
+fct_clp__optval2(fct_clp_t *clp, char const *option, char const *default_val)
 {
     fct_clo_t const *clo =NULL;
     assert( clp != NULL );
@@ -1316,7 +1321,7 @@ fct_clp__optval(fct_clp_t *clp, char const *option)
     clo = fct_clp__get_clo(clp, option);
     if ( clo == NULL )
     {
-        return NULL;
+        return default_val;
     }
     return clo->value;
 }
@@ -1419,8 +1424,8 @@ struct _fctkern_t
 static fct_clo_t FCT_CLP_OPTIONS[] =
 {
     /* Totally unsafe, since we are assuming we can clean out this data,
-    what I need to do is have an "initialization" object, full of 
-    const objects. But for now, this should work. */ 
+    what I need to do is have an "initialization" object, full of
+    const objects. But for now, this should work. */
     {(char*)FCT_OPT_VERSION,
         NULL,
         FCT_CLO_STORE_TRUE,
@@ -1766,10 +1771,11 @@ fctkern__log_test_end(fctkern_t *nk, fct_test_t const *test)
     }
 
 
-static int 
-fctkern__is_clp_opt(fctkern_t *nk, char const *opt_str) {
+static int
+fctkern__is_clp_opt(fctkern_t *nk, char const *opt_str)
+{
     assert( opt_str != NULL );
-    return opt_str[0] != '\0' 
+    return opt_str[0] != '\0'
            && fct_clp__is(&(nk->clp), opt_str);
 }
 
@@ -2252,9 +2258,10 @@ This is where the show begins!
 referenced in order to avoid the potential to get a
 "unreferenced local function has been removed" warning. */
 #define FCT_REFERENCE_FUNCS() {\
-    _fct_check_char('a', 'b');\
-    _fct_check_char_lower('a', 'b');\
-    _fct_str_equal("a", "b", _fct_check_char);\
+    0 && _fct_check_char('a', 'b');\
+    0 && _fct_check_char_lower('a', 'b');\
+    0 && _fct_str_equal("a", "b", _fct_check_char);\
+    0 && fctkern__is_clp_opt(NULL, "");\
     }
 
 
@@ -2276,7 +2283,7 @@ main(int argc, const char* argv[])\
        printf("Built using FCTX version %s", FCT_VERSION_STR);\
        exit(EXIT_SUCCESS);\
    }\
-
+ 
 /* Ends the test suite but returning the number failed. THe "chk_cnt" call is
 made in order allow strict compilers to pass when it encounters unreferenced
 functions. */
