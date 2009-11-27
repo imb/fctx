@@ -262,7 +262,7 @@ _fct_check_char_lower(char a, char b)
 
 /* Routine checks if two strings match according to a CHECK_CHAR.
 The check is done char-by-char, and if predicate is not satisfied,
-false is returned. V1 and V2 are assumed to not be NULL. */
+false is returned. */
 static int
 _fct_str_equal(char const *v1,
                char const *v2,
@@ -271,8 +271,12 @@ _fct_str_equal(char const *v1,
     char const *pv1 = NULL;
     char const *pv2 = NULL;
 
-    assert( v1 != NULL );
-    assert( v2 != NULL );
+    if ( v1 == NULL && v2 == NULL ) {
+        return 1;
+    }
+    else if ( (v1 != NULL && v2 == NULL) || (v1 == NULL && v2 != NULL) ) {
+        return 0;
+    }
 
     for ( pv1 = v1, pv2 = v2; *pv1 != '\0' && *pv2 != '\0'; ++pv1, ++pv2)
     {
@@ -281,7 +285,7 @@ _fct_str_equal(char const *v1,
             return 0;   /* mismatch! */
         }
     }
-    if ( *pv1 == '\0' && *pv2 != '\0' || *pv1 != '\0' && *pv2 == '\0')
+    if ( (*pv1 == '\0' && *pv2 != '\0') || (*pv1 != '\0' && *pv2 == '\0') )
     {
         /* Different length strings implies they are not equal. */
         return 0;
@@ -2093,7 +2097,7 @@ fct_standard_logger__on_test_start(fct_logger_i *logger_,
         line[test_name_len] = ' ';
     }
     line[FCT_STANDARD_LOGGER_MAX_LINE-1] = '\0';
-    printf(line);
+    fputs(line, stdout);
 #undef FCT_STANDARD_LOGGER_MAX_LINE
 }
 
@@ -2256,14 +2260,20 @@ This is where the show begins!
 
 /* This macro invokes a bunch of functions that need to be
 referenced in order to avoid the potential to get a
-"unreferenced local function has been removed" warning. */
+"unreferenced local function has been removed" warning. Also 
+doing some tricks to let them "be justifed". */
 #define FCT_REFERENCE_FUNCS() {\
-    _fct_check_char('a', 'b');\
-    _fct_check_char_lower('a', 'b');\
-    _fct_str_equal("a", "b", _fct_check_char);\
-    fctkern__is_clp_opt(NULL, "");\
+    int a = _fct_check_char('a', 'b');\
+    if ( a ) { _fct_check_char_lower('a', 'b'); }\
+    if ( a ) { fctkern__is_clp_opt(NULL, ""); }\
     }
 
+
+/*
+_fct_check_char('a', 'b');\
+_fct_check_char_lower('a', 'b');\
+_fct_str_equal("a", "b", _fct_check_char);\
+*/
 
 /* This defines our start. The fctkern__ is a kernal object
 that lives throughout the lifetime of our program. The
@@ -2512,10 +2522,7 @@ if it fails. */
 
 
 #define fct_chk_eq_str(V1, V2) \
-    fct_xchk(\
-          ((char*)(V1) == (char*)NULL && (char*)(V2) == (char*)NULL) ||\
-           ((char*)(V1) != (char*)NULL && (char*)(V2) != (char*)NULL)\
-          && (_fct_str_equal((V1), (V2), _fct_check_char)),\
+    fct_xchk(_fct_str_equal((V1), (V2), _fct_check_char),\
           "chk_eq_str: '%s' != '%s'",\
           (V1),\
           (V2)\
@@ -2523,11 +2530,7 @@ if it fails. */
 
 
 #define fct_chk_neq_str(V1, V2) \
-    fct_xchk(\
-          ((char*)(V1) != (char*)NULL && (char*)(V2) == (char*)NULL) ||\
-          ((char*)(V1) == (char*)NULL && (char*)(V2) != (char*)NULL) ||\
-          ((char*)(V1) != (char*)NULL && (char*)(V2) != (char*)NULL)\
-          && (!_fct_str_equal((V1), (V2), _fct_check_char)),\
+    fct_xchk(!_fct_str_equal((V1), (V2), _fct_check_char),\
           "chk_neq_str: '%s' == '%s'",\
           (V1),\
           (V2)\
@@ -2535,10 +2538,7 @@ if it fails. */
 
 
 #define fct_chk_eq_istr(V1, V2) \
-    fct_xchk(\
-          ((char*)(V1) == (char*)NULL && (char*)(V2) == (char*)NULL) ||\
-           ((char*)(V1) != (char*)NULL && (char*)(V2) != (char*)NULL)\
-          && (_fct_str_equal((V1), (V2), _fct_check_char_lower)),\
+    fct_xchk(_fct_str_equal((V1), (V2), _fct_check_char_lower),\
           "chk_eq_str: '%s' != '%s'",\
           (V1),\
           (V2)\
@@ -2546,12 +2546,8 @@ if it fails. */
 
 
 #define fct_chk_neq_istr(V1, V2) \
-    fct_xchk(\
-          ((char*)(V1) != (char*)NULL && (char*)(V2) == (char*)NULL) ||\
-          ((char*)(V1) == (char*)NULL && (char*)(V2) != (char*)NULL) ||\
-          ((char*)(V1) != (char*)NULL && (char*)(V2) != (char*)NULL)\
-          && (!_fct_str_equal((V1), (V2), _fct_check_char_lower)),\
-          "chk_neq_istr: '%s' == '%s'",\
+    fct_xchk(!_fct_str_equal((V1), (V2), _fct_check_char_lower),\
+          "chk_neq_str: '%s' == '%s'",\
           (V1),\
           (V2)\
           )
@@ -2643,10 +2639,22 @@ to be referenced. Ohh Me Oh My what a waste! */
 /* Deprecated, no longer required. */
 #define FCTMF_SUITE_DEF(NAME)
 
+/* Visual Studio 6, C++ compiler really has a trouble with
+this trick done in FCTMF_SUITE_CALL. The following tries
+to handle it so the old compiler can keep on going. */
+#if defined(__cplusplus)
+#if _MSC_VER > 1200
+#    define FCT_EXTERN_FCTMF extern
+#else 
+#    define FCT_EXTERN_FCTMF
+#endif /* _MSC_VER > 1200 */
+#else 
+#    define FCT_EXTERN_FCTMF extern 
+#endif /* __cplusplus */
 
 /* Executes a test suite defined by FCTMF_SUITE* */
 #define FCTMF_SUITE_CALL(NAME)  {\
-    extern void NAME (fctkern_t *);\
+    FCT_EXTERN_FCTMF void NAME (fctkern_t *);\
     (void) NAME (fctkern_ptr__);\
     }
 

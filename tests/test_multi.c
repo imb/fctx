@@ -17,18 +17,22 @@ method.
 
 #include "fct.h"
 
-/* You can get away without defining this if you don't mind a warning
-about a function not being defined. The linker will make it all work
-in the end. However, if you like to be formal, you need to specify this
-line. */
+/* These no longer do anything, but are left here to insure backwards compatability. */
 FCTMF_SUITE_DEF(test_suite1);
 FCTMF_SUITE_DEF(test_fixture_suite2);
 
 FCT_BGN()
 {
-    /* This suite is called *OUTSIDE* of this compilation unit. */
+    /* This suite is called *OUTSIDE* of this compilation unit. The pragma's are to 
+    tackle a /W4 problem on MVC compilers. */
+#if defined(_MSC_VER)
+#   pragma warning(push, 3)
+#endif /* _MSC_VER */
     FCTMF_SUITE_CALL(test_suite1);
     FCTMF_SUITE_CALL(test_fixture_suite2);
+#if defined(_MSC_VER)
+#   pragma warning(pop)
+#endif /* _MSC_VER */
 
     /* Provide a co-existing "embedded" version for completness. */
     FCT_SUITE_BGN(test_embedded)

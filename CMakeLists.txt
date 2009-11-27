@@ -37,7 +37,11 @@ IF (MSVC)
 	SET(CXX_WARNINGS "/WX /W4")
     ENDIF()
 ELSEIF (CMAKE_COMPILER_IS_GNUCC)
-    SET(WARNINGS "-Wall -Wextra")
+    set(GCC_COMMON_WARNING_FLAGS 
+        "-Wall -Wextra -O -Werror -Wformat=2 -Wshadow -Wfloat-equal"
+        )
+    SET(C_WARNINGS "${GCC_COMMON_WARNING_FLAGS}")
+    set(CXX_WARNINGS "${GCC_COMMON_WARNING_FLAGS}")
 ENDIF()
 
 SET(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   ${C_WARNINGS}")

@@ -82,13 +82,64 @@ the following,
 
    } FCTMF_FIXTURE_SUITE_END();
 
-.. /* (Just fixes VIM highligher)
+.. /* (Just fixes VIM highlighter)
 
 the only difference here being the introduction of "FIXTURE" into scope
 statements as well as the SETUP and TEARDOWN fixtures themselves.
 
 The key thing to also notice is that all the testing, checking, setup and
-teardown macros follow the existing :mod:`FCT` module. 
+teardown macros follow the existing :mod:`FCT` module.
+
+Note for MVC Compilers
+----------------------
+
+Using the FCTMF API with warning level 4 will produce the following warning::
+
+    warning C4210: nonstandard extension used : function given file scope
+
+so far testing both with MVC and GCC FCTMF has yet to fail, except for this
+warning level above.
+
+So what's happening here?
+
+The FCTMF_SUITE_CALL uses the following little trick whereby,
+
+.. code-block:: c
+
+   FCTMF_SUITE_CALL(my_test_suite);
+
+becomes,
+
+.. code-block:: c
+
+   void my_test_suite(fctkern_t *fk);
+   my_test_suite(fctkern_ptr__);
+
+
+.. /* (Just fixes VM highlighter)
+
+where we make a "variable" and "run it", and let the linker sort it out all in
+the end.
+
+The goal here was to prevent you from having to type repeatedly to "setup" your
+test suite. To stay at warning level 4, but quite down the compiler in this
+area, you can do the following,
+
+.. code-block:: c
+
+    #if defined(_MSC_VER) 
+    #   pragma warning(push, 3)
+    #endif /* _MSC_VER */
+        FCTMF_SUITE_CALL(my_test_suite);
+        FCTMF_SUITE_CALL(test_fixture_suite2);
+    #if defined(_MSC_VER)
+    #   pragma warning(pop)
+    #endif /* _MSC_VER */
+
+.. /* (Just fixes VM highlighter)
+
+and you will be able to continue to use /W4 with MVC as well as GCC.
+
    
 Multi-File Test Suites
 ----------------------

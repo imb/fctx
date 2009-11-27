@@ -62,10 +62,10 @@ FCT_BGN()
 
         FCT_TEST_BGN(parse_nothing)
         {
-            char const *argv[] = {"program.exe" };
-            int argc =1;
+            char const *test_argv[] = {"program.exe" };
+            int test_argc =1;
 
-            fct_clp__parse(&clp, argc, argv);
+            fct_clp__parse(&clp, test_argc, test_argv);
 
             fct_chk( !fct_clp__is(&clp, "--help") );
             fct_chk( !fct_clp__is(&clp, "--output") );
@@ -75,10 +75,10 @@ FCT_BGN()
 
         FCT_TEST_BGN(parse_store_true)
         {
-            char const *argv[] = {"program.exe", "--help"};
-            int argc =2;
+            char const *test_argv[] = {"program.exe", "--help"};
+            int test_argc =2;
 
-            fct_clp__parse(&clp, argc, argv);
+            fct_clp__parse(&clp, test_argc, test_argv);
 
             fct_chk( fct_clp__is(&clp, "--help") );
             fct_chk( !fct_clp__is(&clp, "--output") );
@@ -87,10 +87,10 @@ FCT_BGN()
 
         FCT_TEST_BGN(parse_store_true__short_arg)
         {
-            char const *argv[] = {"program.exe", "-h"};
-            int argc =2;
+            char const *test_argv[] = {"program.exe", "-h"};
+            int test_argc =2;
 
-            fct_clp__parse(&clp, argc, argv);
+            fct_clp__parse(&clp, test_argc, test_argv);
 
             fct_chk( fct_clp__is(&clp, "--help") );
             fct_chk( fct_clp__is(&clp, "-h") );
@@ -101,10 +101,10 @@ FCT_BGN()
 
         FCT_TEST_BGN(parse_store_value__with_2nd_arg)
         {
-            char const *argv[] = {"program.exe", "--output", "foo"};
-            int argc =3;
+            char const *test_argv[] = {"program.exe", "--output", "foo"};
+            int test_argc =3;
 
-            fct_clp__parse(&clp, argc, argv);
+            fct_clp__parse(&clp, test_argc, test_argv);
 
             fct_chk( !fct_clp__is(&clp, "--help") );
             fct_chk( fct_clp__is(&clp, "--output") );
@@ -115,10 +115,10 @@ FCT_BGN()
 
         FCT_TEST_BGN(parse_store_value__with_equals)
         {
-            char const *argv[] = {"program.exe", "--output=foo"};
-            int argc =2;
+            char const *test_argv[] = {"program.exe", "--output=foo"};
+            int test_argc =2;
 
-            fct_clp__parse(&clp, argc, argv);
+            fct_clp__parse(&clp, test_argc, test_argv);
 
             fct_chk( !fct_clp__is(&clp, "--help") );
             fct_chk( fct_clp__is(&clp, "--output") );
@@ -129,10 +129,10 @@ FCT_BGN()
 
         FCT_TEST_BGN(parse_store_value__with_equals_but_no_value)
         {
-            char const *argv[] = {"program.exe", "--output="};
-            int argc =2;
+            char const *test_argv[] = {"program.exe", "--output="};
+            int test_argc =2;
 
-            fct_clp__parse(&clp, argc, argv);
+            fct_clp__parse(&clp, test_argc, test_argv);
             fct_chk( fct_clp__is_error(&clp) );
 
             fct_chk( !fct_clp__is(&clp, "--help") );
@@ -143,10 +143,10 @@ FCT_BGN()
 
         FCT_TEST_BGN(parse_store_value__without_2nd_arg)
         {
-            char const *argv[] = {"program.exe", "--output"};
-            int argc =2;
+            char const *test_argv[] = {"program.exe", "--output"};
+            int test_argc =2;
 
-            fct_clp__parse(&clp, argc, argv);
+            fct_clp__parse(&clp, test_argc, test_argv);
             fct_chk( fct_clp__is_error(&clp) );
 
             fct_chk( !fct_clp__is(&clp, "--help") );
@@ -157,10 +157,10 @@ FCT_BGN()
 
         FCT_TEST_BGN(parse__check_for_invalid_value)
         {
-            char const *argv[] = {"program.exe", "--output"};
-            int argc =2;
+            char const *test_argv[] = {"program.exe", "--output"};
+            int test_argc =2;
 
-            fct_clp__parse(&clp, argc, argv);
+            fct_clp__parse(&clp, test_argc, test_argv);
 
             fct_chk( !fct_clp__is(&clp, "--booga") );
             fct_chk( fct_clp__optval(&clp, "--booga") == NULL );
@@ -170,10 +170,10 @@ FCT_BGN()
 
         FCT_TEST_BGN(parse_store_value__with_multiple_args)
         {
-            char const *argv[] = {"program.exe", "--output", "foo", "--help"};
-            int argc =4;
+            char const *test_argv[] = {"program.exe", "--output", "foo", "--help"};
+            int test_argc =4;
 
-            fct_clp__parse(&clp, argc, argv);
+            fct_clp__parse(&clp, test_argc, test_argv);
 
             fct_chk( fct_clp__is(&clp, "--help") );
             fct_chk( fct_clp__is(&clp, "--output") );
@@ -184,10 +184,10 @@ FCT_BGN()
 
         FCT_TEST_BGN(parse_store_value__with_multiple_args_diff_order)
         {
-            char const *argv[] = {"program.exe",  "--help", "--output", "xxx"};
-            int argc =4;
+            char const *test_argv[] = {"program.exe",  "--help", "--output", "xxx"};
+            int test_argc =4;
 
-            fct_clp__parse(&clp, argc, argv);
+            fct_clp__parse(&clp, test_argc, test_argv);
 
             fct_chk( fct_clp__is(&clp, "--help") );
             fct_chk( fct_clp__is(&clp, "--output") );
@@ -198,15 +198,15 @@ FCT_BGN()
 
         FCT_TEST_BGN(parse_store_value__with_params_only)
         {
-            char const *argv[] = {"program.exe",
+            char const *test_argv[] = {"program.exe",
                                   "parama",
                                   "paramb",
                                   "paramc"
                                  };
-            int argc =4;
+            int test_argc =4;
             int is_param =0;
 
-            fct_clp__parse(&clp, argc, argv);
+            fct_clp__parse(&clp, test_argc, test_argv);
             fct_chk( !fct_clp__is_error(&clp) );
             fct_chk_eq_int( fct_clp__param_cnt(&clp), 3);
 
@@ -224,18 +224,18 @@ FCT_BGN()
 
         FCT_TEST_BGN(parse_store_value__with_params_only)
         {
-            char const *argv[] = {"program.exe",
+            char const *test_argv[] = {"program.exe",
                                   "--output=foo",
                                   "parama",
                                   "paramb",
                                   "paramc"
                                  };
-            int argc =5;
+            int test_argc =5;
             int is_param;
             char const *optval;
             char const *paramat;
 
-            fct_clp__parse(&clp, argc, argv);
+            fct_clp__parse(&clp, test_argc, test_argv);
             fct_chk( !fct_clp__is_error(&clp) );
             fct_chk_eq_int( fct_clp__param_cnt(&clp), 3);
 
