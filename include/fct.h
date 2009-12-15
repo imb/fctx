@@ -2268,12 +2268,12 @@ MACRO MAGIC
 This is where the show begins!
 */
 
-/* This macro invokes a bunch of functions that need to be
-referenced in order to avoid the potential to get a
-"unreferenced local function has been removed" warning. Also
-doing some tricks to let them "be justifed". */
+/* This macro invokes a bunch of functions that need to be referenced in
+order to avoid  a "unreferenced local function has been removed" warning. 
+The logical acrobatics below try and make it appear to the compiler that 
+they are needed, but at runtime, only the cheap, first call is made. */ 
 #define FCT_REFERENCE_FUNCS() {\
-    int a = _fct_check_char('a', 'b');\
+    int a = 0 && _fct_check_char('a', 'b');\
     if ( a ) { _fct_check_char_lower('a', 'b'); }\
     if ( a ) { fctkern__is_clp_opt(NULL, ""); }\
     }
