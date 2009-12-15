@@ -271,10 +271,12 @@ _fct_str_equal(char const *v1,
     char const *pv1 = NULL;
     char const *pv2 = NULL;
 
-    if ( v1 == NULL && v2 == NULL ) {
+    if ( v1 == NULL && v2 == NULL )
+    {
         return 1;
     }
-    else if ( (v1 != NULL && v2 == NULL) || (v1 == NULL && v2 != NULL) ) {
+    else if ( (v1 != NULL && v2 == NULL) || (v1 == NULL && v2 != NULL) )
+    {
         return 0;
     }
 
@@ -962,11 +964,11 @@ fct_ts__chk_cnt(fct_ts_t const *ts)
 
 /*
 --------------------------------------------------------
-FCT COMMAND LINE OPTION (fct_clo)
+FCT COMMAND LINE OPTION INITIALIZATION (fct_clo_init)
 --------------------------------------------------------
 
-Specifies the command line configuration options. Use this
-to help initialize the fct_clp (command line parser).
+Structure used for command line initialization. To keep it clear that we do
+not delete the char*'s present on this structure.
 */
 
 
@@ -976,6 +978,36 @@ typedef enum
     FCT_CLO_STORE_TRUE,
     FCT_CLO_STORE_VALUE
 } fct_clo_store_t;
+
+
+typedef struct _fct_clo_init_t
+{
+    /* What to parse for this option. --long versus -s. */
+    char const *long_opt;     /* i.e. --help */
+    char const *short_opt;    /* i.e. -h */
+
+    /* What action to take when the option is activated. */
+    fct_clo_store_t action;
+
+    /* The help string for the action. */
+    char const *help;
+} fct_clo_init_t;
+
+
+/* Use when defining the option list. */
+#define FCT_CLO_INIT_NULL  \
+    {NULL, NULL, FCT_CLO_STORE_UNDEFINED, NULL}
+
+
+/*
+--------------------------------------------------------
+FCT COMMAND LINE OPTION (fct_clo)
+--------------------------------------------------------
+
+Specifies the command line configuration options. Use this
+to help initialize the fct_clp (command line parser).
+*/
+
 
 /* Handy strings for storing "true" and "false". We can reference
 these strings throughout the parse operation and not have to
@@ -998,11 +1030,6 @@ typedef struct _fct_clo_t
     /* The result. */
     char *value;
 } fct_clo_t;
-
-
-/* Use when defining the option list. */
-#define FCT_CLO_NULL  \
-    {NULL, NULL, FCT_CLO_STORE_UNDEFINED, NULL, NULL}
 
 
 #define fct_clo_new()  ((fct_clo_t*)calloc(1, sizeof(fct_clo_t)))
@@ -1035,73 +1062,56 @@ fct_clo__del(fct_clo_t *clo)
 }
 
 
-
 static fct_clo_t*
-fct_clo__clone(fct_clo_t const *clo)
+fct_clo_new2(fct_clo_init_t const *clo_init)
 {
     fct_clo_t *clone = NULL;
     int ok =0;
-
     clone = fct_clo_new();
     if ( clone == NULL )
     {
         return NULL;
     }
-
-    clone->action = clo->action;
-    if ( clo->help == NULL )
+    clone->action = clo_init->action;
+    if ( clo_init->help == NULL )
     {
         clone->help = NULL;
     }
     else
     {
-        clone->help = fct_str_clone(clo->help);
+        clone->help = fct_str_clone(clo_init->help);
         if ( clone->help == NULL )
         {
             ok =0;
             goto finally;
         }
     }
-    if ( clo->long_opt == NULL )
+    if ( clo_init->long_opt == NULL )
     {
         clone->long_opt = NULL;
     }
     else
     {
-        clone->long_opt = fct_str_clone(clo->long_opt);
+        clone->long_opt = fct_str_clone(clo_init->long_opt);
         if ( clone->long_opt == NULL )
         {
             ok = 0;
             goto finally;
         }
     }
-    if ( clo->short_opt == NULL )
+    if ( clo_init->short_opt == NULL )
     {
         clone->short_opt = NULL;
     }
     else
     {
-        clone->short_opt = fct_str_clone(clo->short_opt);
+        clone->short_opt = fct_str_clone(clo_init->short_opt);
         if ( clone->short_opt == NULL )
         {
             ok =0;
             goto finally;
         }
     }
-    if ( clo->value == NULL )
-    {
-        clone->value = NULL;
-    }
-    else
-    {
-        clone->value = fct_str_clone(clo->value);
-        if ( clone->value == NULL )
-        {
-            ok =0;
-            goto finally;
-        }
-    }
-
     ok = 1;
 finally:
     if ( !ok )
@@ -1114,7 +1124,7 @@ finally:
 
 
 static int
-fct_clo__is_option(fct_clo_t *clo, char const *option)
+fct_clo__is_option(fct_clo_t const *clo, char const *option)
 {
     assert( option != NULL);
     assert( clo != NULL );
@@ -1161,9 +1171,9 @@ fct_clp__final(fct_clp_t *clp)
 
 /* Returns false if we ran out of memory. */
 static int
-fct_clp__init(fct_clp_t *clp, fct_clo_t const *options)
+fct_clp__init(fct_clp_t *clp, fct_clo_init_t const *options)
 {
-    fct_clo_t const *pclo =NULL;
+    fct_clo_init_t const *pclo =NULL;
     int ok =0;
 
     assert( clp != NULL );
@@ -1174,7 +1184,7 @@ fct_clp__init(fct_clp_t *clp, fct_clo_t const *options)
     fct_nlist__init(&(clp->clo_list));
     for ( pclo = options; pclo->action != FCT_CLO_STORE_UNDEFINED; ++pclo )
     {
-        fct_clo_t *cpy = fct_clo__clone(pclo);
+        fct_clo_t *cpy = fct_clo_new2(pclo);
         if ( cpy == NULL )
         {
             ok = 0;
@@ -1294,11 +1304,11 @@ fct_clp__parse(fct_clp_t *clp, int argc, char const *argv[])
 
 
 static fct_clo_t const*
-fct_clp__get_clo(fct_clp_t *clp, char const *option)
+fct_clp__get_clo(fct_clp_t const *clp, char const *option)
 {
-    fct_clo_t *found =NULL;
+    fct_clo_t const *found =NULL;
 
-    FCT_NLIST_FOREACH_BGN(fct_clo_t*, pclo, &(clp->clo_list))
+    FCT_NLIST_FOREACH_BGN(fct_clo_t const*, pclo, &(clp->clo_list))
     {
         if ( fct_clo__is_option(pclo, option) )
         {
@@ -1424,18 +1434,18 @@ struct _fctkern_t
     fct_namespace_t ns;
 };
 
+
 #define FCT_OPT_VERSION "--version"
-static fct_clo_t FCT_CLP_OPTIONS[] =
+static fct_clo_init_t FCT_CLP_OPTIONS[] =
 {
     /* Totally unsafe, since we are assuming we can clean out this data,
     what I need to do is have an "initialization" object, full of
     const objects. But for now, this should work. */
-    {(char*)FCT_OPT_VERSION,
-        NULL,
+    {FCT_OPT_VERSION,
+        NULL,   /* No short version */
         FCT_CLO_STORE_TRUE,
-        (char*)"Displays the FCTX version number and exits.",
-        NULL},
-    FCT_CLO_NULL
+        "Displays the FCTX version number and exits."},
+    FCT_CLO_INIT_NULL /* Sentinel */
 };
 
 
@@ -2260,7 +2270,7 @@ This is where the show begins!
 
 /* This macro invokes a bunch of functions that need to be
 referenced in order to avoid the potential to get a
-"unreferenced local function has been removed" warning. Also 
+"unreferenced local function has been removed" warning. Also
 doing some tricks to let them "be justifed". */
 #define FCT_REFERENCE_FUNCS() {\
     int a = _fct_check_char('a', 'b');\
@@ -2645,11 +2655,11 @@ to handle it so the old compiler can keep on going. */
 #if defined(__cplusplus)
 #if _MSC_VER > 1200
 #    define FCT_EXTERN_FCTMF extern
-#else 
+#else
 #    define FCT_EXTERN_FCTMF
 #endif /* _MSC_VER > 1200 */
-#else 
-#    define FCT_EXTERN_FCTMF extern 
+#else
+#    define FCT_EXTERN_FCTMF extern
 #endif /* __cplusplus */
 
 /* Executes a test suite defined by FCTMF_SUITE* */

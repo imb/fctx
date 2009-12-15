@@ -20,24 +20,21 @@ FCT_BGN()
 
     /* Test Data */
     fct_clp_t clp;
-    fct_clo_t options[] =
+    fct_clo_init_t options[] =
     {
         /* The "casting to char*" is bad mojo here. But until I
             grow a "fct_clo_init_t" object with constants, it will
             do to quiet down C++. It turns out that you never delete
             this data, so it is OK to cast it to a char*. */
-        {(char*)"--help",
-            (char*)"-h",
+        {"--help",
+            "-h",
             FCT_CLO_STORE_TRUE,
-            (char*)"Shows this message",
-            NULL},
-        {(char*)"--output",
+            "Shows this message"},
+        {"--output",
          NULL,
          FCT_CLO_STORE_VALUE,
-         (char*)"Name of file to store output.",
-         NULL
-        },
-        FCT_CLO_NULL
+         "Name of file to store output."},
+        FCT_CLO_INIT_NULL /* Sentinel. */
     };
 
     FCT_FIXTURE_SUITE_BGN(clp__parse_scenarios)
@@ -199,10 +196,10 @@ FCT_BGN()
         FCT_TEST_BGN(parse_store_value__with_params_only)
         {
             char const *test_argv[] = {"program.exe",
-                                  "parama",
-                                  "paramb",
-                                  "paramc"
-                                 };
+                                       "parama",
+                                       "paramb",
+                                       "paramc"
+                                      };
             int test_argc =4;
             int is_param =0;
 
@@ -225,11 +222,11 @@ FCT_BGN()
         FCT_TEST_BGN(parse_store_value__with_params_only)
         {
             char const *test_argv[] = {"program.exe",
-                                  "--output=foo",
-                                  "parama",
-                                  "paramb",
-                                  "paramc"
-                                 };
+                                       "--output=foo",
+                                       "parama",
+                                       "paramb",
+                                       "paramc"
+                                      };
             int test_argc =5;
             int is_param;
             char const *optval;
