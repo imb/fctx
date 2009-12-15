@@ -300,7 +300,7 @@ These are used to verify that a condition is true. They are executed within
         }
         FCT_QTEST_END();
              
-    in the above example, the second check should generate an test error.
+    in the above example, the second check should generate a test error.
 
 .. cfunction:: fct_req(condition)
 
