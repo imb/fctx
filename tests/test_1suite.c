@@ -17,9 +17,12 @@ and execution of a test suite.
 
 FCT_BGN()
 {
-     int a = 0 && _fct_check_char('a', 'b');
-     if ( a ) { _fct_check_char_lower('a', 'b'); } 
-     
+    int a = 0 && _fct_check_char('a', 'b');
+    if ( a )
+    {
+        _fct_check_char_lower('a', 'b');
+    }
+
     {
         void *data =NULL;
         FCT_FIXTURE_SUITE_BGN("1Suite")
