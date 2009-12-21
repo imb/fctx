@@ -113,12 +113,19 @@ FCT_BGN()
         FCT_TEST_BGN(filtering__blank_or_null_filter_always_passes)
         {
             int ok;
-
             ok = fct_filter_pass("", "green_eggs_and_ham");
             fct_chk( ok );
             ok = fct_filter_pass(NULL, "green_eggs_and_ham");
             fct_chk( ok );
+        }
+        FCT_TEST_END();
 
+        FCT_TEST_BGN(filtering__last_character_truncated)
+        {
+            /* See bug #499089 */
+            int ok;
+            ok = fct_filter_pass("aaaa", "aaab");
+            fct_chk( !ok );
         }
         FCT_TEST_END();
     }

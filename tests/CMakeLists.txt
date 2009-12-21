@@ -41,6 +41,7 @@ SET(SIMPLE_TESTS test_1suite
 		 test_call_teardown
                  test_chk_types
 		 test_count
+                 test_fctkern
                  test_money
 		 test_multi_old_style
 		 test_quick_test

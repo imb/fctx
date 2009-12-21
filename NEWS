@@ -1,28 +1,36 @@
-+++++++++++
-FCT Changes
-+++++++++++
+++++++++++++
+FCTX Changes
+++++++++++++
 
 Whats new in FCT 1.2
-====================
+--------------------
 
  - FIX (486457): #pragma down to warning level 3 for MSC during FCTMF calls.
  - FIX: CMAKE now configures MSC to compile with /W4. 
  - FIX: GCC now compiles with higher warning levels.
 
-Whats new in FCT 1.1.3
-======================
+Whats new in FCTX 1.1.4
+-----------------------
+
+ - FIX (499089): Handle last character truncation in prefix filter.  Turns out
+   that a string buffer was missing a +1 for the null terminator.  Also added
+   new test_fctkern as a place to start testing the fctkern object. Thanks to
+   Roel Schroeven for finding this bug.
+
+Whats new in FCTX 1.1.3
+-----------------------
 
  - FIX (482943): handle 64 bit variables. Thanks to Raedwulf for pointing out
    that the current fct_(x)chk functions may truncate a 64 bit pointer and
    erroneously report false for a true result.
 
-Whats new in FCT 1.1.2
-======================
+Whats new in FCTX 1.1.2
+-----------------------
 
  - FIX: memory leak in fct_standard_logger_t. 
 
-Whats new in FCT 1.1.1
-======================
+Whats new in FCTX 1.1.1
+-----------------------
  
  - PROJECT: Rename from "FCTest" to "FCTX". The term "FCTest" clashes too much
    on the net, and things with "x" in it are cool. ;-P
@@ -30,7 +38,7 @@ Whats new in FCT 1.1.1
    backwards compatibility.
 
 Whats new in FCT 1.1
-====================
+--------------------
 
  - Addition of fct_xchk: Allows you to customize your checking and error
    reporting. Implementation of fct_chk_eq_str/int/dbl based on the fct_xchk
@@ -56,7 +64,7 @@ Whats new in FCT 1.1
  - #398286: Fixed to use _vsnprintf for Microsoft compilers.
 
 Whats new in FCT 1.0.4
-======================
+----------------------
 
  - Bring down select changes from 1.1 Release Branch:
      - Modified standard logger output to provide a straight continuous line of
@@ -68,16 +76,16 @@ Whats new in FCT 1.0.4
      - #398286: Fixed to use _vsnprintf for Microsoft compilers.
 
 Whats new in FCT 1.0.3
-======================
+----------------------
 
  -  #385063: Call free on fct_test_t.
 
 Whats new in FCT 1.0.2
-======================
+----------------------
 
  - #382628: Fix tests so tear-down gets executed. Added test case.
 
 Whats new in FCT 1.0.1
-======================
+----------------------
 
  - #376783: Applied proper casting so the header works within a C++ project. 

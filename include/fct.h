@@ -131,7 +131,8 @@ UTILITIES
 --------------------------------------------------------
 */
 
-/* Utility for truncated, safe string copies. */
+/* Utility for truncated, safe string copies. The NUM
+should be the length of DST plus the null-termintor. */
 static void
 fct_safe_str_cpy(char *dst, char const *src, size_t num)
 {
@@ -1471,18 +1472,14 @@ fctkern__add_prefix_filter(fctkern_t *nk, char const *prefix_filter)
 {
     char *filter =NULL;
     size_t filter_len =0;
-
     assert( nk != NULL && "invalid arg" );
     assert( prefix_filter != NULL && "invalid arg" );
     assert( strlen(prefix_filter) > 0 && "invalid arg" );
-
     /* First we make a copy of the prefix, then we store it away
     in our little list. */
     filter_len = strlen(prefix_filter);
     filter = (char*)malloc(sizeof(char)*(filter_len+1));
-    fct_safe_str_cpy(filter, prefix_filter, filter_len);
-    filter[filter_len] = '\0';
-
+    fct_safe_str_cpy(filter, prefix_filter, filter_len+1);
     fct_nlist__append(&(nk->prefix_list), (void*)filter);
 }
 
