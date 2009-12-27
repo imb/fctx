@@ -676,6 +676,7 @@ fct_test__add(fct_test_t *test, fctchk_t *chk)
 }
 
 /* Returns the number of checks made throughout the test. */
+#if defined(FCT_USE_TEST_COUNT)
 static size_t
 fct_test__chk_cnt(fct_test_t const *test)
 {
@@ -683,10 +684,7 @@ fct_test__chk_cnt(fct_test_t const *test)
     return fct_nlist__size(&(test->failed_chks)) \
            + fct_nlist__size(&(test->passed_chks));
 }
-
-
-
-
+#endif /* FCT_USE_TEST_COUNT */
 
 
 /*
@@ -948,6 +946,7 @@ fct_ts__tst_cnt_passed(fct_ts_t const *ts)
 
 
 /* Returns the # of checks made throughout a test suite. */
+#if defined(FCT_USE_TEST_COUNT)
 static size_t
 fct_ts__chk_cnt(fct_ts_t const *ts)
 {
@@ -962,6 +961,8 @@ fct_ts__chk_cnt(fct_ts_t const *ts)
     FCT_NLIST_FOREACH_END();
     return tally;
 }
+#endif /* FCT_USE_TEST_COUNT */
+
 
 /*
 --------------------------------------------------------
@@ -1660,6 +1661,7 @@ fctkern__tst_cnt_passed(fctkern_t const *nk)
 
 
 /* Returns the number of checks made throughout the entire test. */
+#if defined(FCT_USE_TEST_COUNT)
 static size_t
 fctkern__chk_cnt(fctkern_t const *nk)
 {
@@ -1673,6 +1675,7 @@ fctkern__chk_cnt(fctkern_t const *nk)
     FCT_NLIST_FOREACH_END();
     return tally;
 }
+#endif /* FCT_USE_TEST_COUNT */
 
 
 /* Indicates the very end of all the tests. */
@@ -2307,8 +2310,6 @@ functions. */
 #define FCT_END()\
    {\
       size_t num_failed__ =0;\
-      size_t num_run =0;\
-      num_run = fctkern__chk_cnt(fctkern_ptr__);\
       num_failed__ = fctkern__tst_cnt_failed((fctkern_ptr__));\
       fctkern__log_end(fctkern_ptr__);\
       fctkern__end(fctkern_ptr__);\
@@ -2625,7 +2626,6 @@ to be referenced. Ohh Me Oh My what a waste! */
 	void NAME (fctkern_t *fctkern_ptr__) {\
         FCT_REFERENCE_FUNCS();\
         (void)fctkern__init(NULL, 0, NULL);\
-        (void)fctkern__chk_cnt(fctkern_ptr__);\
         FCT_FIXTURE_SUITE_BGN( NAME ) {
 
 #define FCTMF_FIXTURE_SUITE_END() \
@@ -2636,7 +2636,6 @@ to be referenced. Ohh Me Oh My what a waste! */
 	void NAME (fctkern_t *fctkern_ptr__) {\
         FCT_REFERENCE_FUNCS();\
         (void)fctkern__init(NULL, 0, NULL);\
-        (void)fctkern__chk_cnt(fctkern_ptr__);\
         FCT_SUITE_BGN( NAME ) {
 #define FCTMF_SUITE_END() \
        } FCT_SUITE_END(); \

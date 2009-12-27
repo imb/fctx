@@ -13,6 +13,8 @@ TODO - Run this in verbose mode. This is currently waiting for
 the verbose mode to be released.
 */
 
+/* To activate some "gut check" functions that are not used normally. */
+#define FCT_USE_TEST_COUNT
 #include "fct.h"
 
 FCT_BGN()

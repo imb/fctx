@@ -7,7 +7,8 @@ Whats new in FCT 1.2
 
  - FIX (486457): #pragma down to warning level 3 for MSC during FCTMF calls.
  - FIX: CMAKE now configures MSC to compile with /W4. 
- - FIX: GCC now compiles with higher warning levels.
+ - FIX: GCC now compiles with higher warning levels
+ - FIX: Removed redundant count found in FCT_END.
 
 Whats new in FCTX 1.1.4
 -----------------------
