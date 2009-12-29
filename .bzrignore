@@ -22,3 +22,14 @@ build/mingw
 build/gcc
 pkg/dist
 build/vc9
+include/*.h.orig
+tests/*.c.orig
+*.cbp
+bin
+include
+include
+vc6
+tests
+build/tests
+build/*.layout
+build/doc

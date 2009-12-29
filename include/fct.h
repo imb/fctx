@@ -618,6 +618,7 @@ fct_test__del(fct_test_t *test)
     free(test);
 }
 
+
 static fct_test_t*
 fct_test_new(char const *name)
 {
@@ -1171,19 +1172,12 @@ fct_clp__final(fct_clp_t *clp)
 }
 
 
-/* Returns false if we ran out of memory. */
+/* Add an configuration options. */
 static int
-fct_clp__init(fct_clp_t *clp, fct_clo_init_t const *options)
+fct_clp__add_options(fct_clp_t *clp, fct_clo_init_t const *options)
 {
     fct_clo_init_t const *pclo =NULL;
-    int ok =0;
-
-    assert( clp != NULL );
-    assert( options != NULL );
-
-    /* It is just much saner to manage a clone of the options. Then we know
-    who is in charge of the memory. */
-    fct_nlist__init(&(clp->clo_list));
+    int ok;
     for ( pclo = options; pclo->action != FCT_CLO_STORE_UNDEFINED; ++pclo )
     {
         fct_clo_t *cpy = fct_clo_new2(pclo);
@@ -1194,9 +1188,37 @@ fct_clp__init(fct_clp_t *clp, fct_clo_init_t const *options)
         }
         fct_nlist__append(&(clp->clo_list), (void*)cpy);
     }
+    ok =1;
+finally:
+    return ok;
+}
 
-    fct_nlist__init(&(clp->param_list));
-
+/* Returns false if we ran out of memory. */
+static int
+fct_clp__init(fct_clp_t *clp, fct_clo_init_t const *options)
+{
+    int ok =0;
+    assert( clp != NULL );
+    /* It is just much saner to manage a clone of the options. Then we know
+    who is in charge of the memory. */
+    ok = fct_nlist__init(&(clp->clo_list));
+    if ( !ok )
+    {
+        goto finally;
+    }
+    if ( options != NULL )
+    {
+        ok = fct_clp__add_options(clp, options);
+        if ( !ok )
+        {
+            goto finally;
+        }
+    }
+    ok = fct_nlist__init(&(clp->param_list));
+    if ( !ok )
+    {
+        goto finally;
+    }
     ok =1;
 finally:
     if ( !ok )
@@ -1278,13 +1300,11 @@ fct_clp__parse(fct_clp_t *clp, int argc, char const *argv[])
             }
         }
         FCT_NLIST_FOREACH_END();
-
         /* If we have an error, exit. */
         if ( clp->is_error )
         {
             break;
         }
-
         /* If we walked through all the options, and didn't find
         anything, then we must have a parameter. Forget the fact that
         an unknown option will be treated like a parameter... */
@@ -1293,9 +1313,7 @@ fct_clp__parse(fct_clp_t *clp, int argc, char const *argv[])
             fct_nlist__append(&(clp->param_list), arg);
             arg =NULL;  /* Owned by the nlist */
         }
-
         ++argi;
-
         if ( arg != NULL )
         {
             free(arg);
@@ -1326,8 +1344,8 @@ fct_clp__get_clo(fct_clp_t const *clp, char const *option)
     fct_clp__optval2((_CLP_), (_OPTION_), NULL)
 
 
-/* Returns the value parsed by equal to OPTION. If the value wasn't
-parsed, the DEFAULT_VAL is returned instead. */
+/* Returns the value parsed at the command line, and equal to OPTION.
+If the value wasn't parsed, the DEFAULT_VAL is returned instead. */
 static char const*
 fct_clp__optval2(fct_clp_t *clp, char const *option, char const *default_val)
 {
@@ -1417,7 +1435,17 @@ system.
 struct _fctkern_t
 {
     /* Command line parsing. */
-    fct_clp_t clp;
+    fct_clp_t cl_parser;
+
+    /* Hold onto the command line arguments. */
+    int cl_argc;
+    char const **cl_argv;
+
+    /* Track user options. */
+    fct_clo_init_t const *cl_user_opts;
+
+    /* Tracks the delay parsing. */
+    int cl_is_parsed;
 
     /* This is an list of loggers that can be used in the fct system.
     You/ can attach _MAX_LOGGERS to any framework. */
@@ -1493,14 +1521,81 @@ fctkern__final(fctkern_t *nk)
     {
         return;
     }
-
+    fct_clp__final(&(nk->cl_parser));
     fct_nlist__final(&(nk->logger_list), (fct_nlist_on_del_t)fct_logger__del);
-
     /* The prefix list is a list of malloc'd strings. */
     fct_nlist__final(&(nk->prefix_list), (fct_nlist_on_del_t)free);
-
     fct_nlist__final(&(nk->ts_list), (fct_nlist_on_del_t)fct_ts__del);
 }
+
+
+#define fctkern__cl_is_parsed(_NK_) ((_NK_)->cl_is_parsed)
+
+
+static int
+fctkern__cl_is(fctkern_t *nk, char const *opt_str)
+{
+    assert( opt_str != NULL );
+    return opt_str[0] != '\0'
+           && fct_clp__is(&(nk->cl_parser), opt_str);
+}
+
+
+/* Call this if you want to (re)parse the command line options with a new
+set of options. Returns -1 if you are to abort with EXIT_SUCCESS, returns
+0 if you are to abort with EXIT_FAILURE and returns 1 if you are to continue. */
+static int
+fctkern__cl_parse(fctkern_t *nk)
+{
+    int status =0;
+    int num_params =0;
+    int param_i =0;
+    if ( nk == NULL )
+    {
+        return 0;
+    }
+    if ( nk->cl_user_opts != NULL )
+    {
+        if ( !fct_clp__add_options(&(nk->cl_parser), nk->cl_user_opts) )
+        {
+            status =0;
+            goto finally;
+        }
+    }
+    /* You want to add the "house options" after the user defined ones. The
+    options are stored as a list so it means that any option listed after
+    the above ones won't get parsed. */
+    if ( !fct_clp__add_options(&(nk->cl_parser), FCT_CLP_OPTIONS) )
+    {
+        status =0;
+        goto finally;
+    }
+    fct_clp__parse(&(nk->cl_parser), nk->cl_argc, nk->cl_argv);
+    if ( fct_clp__is_error(&(nk->cl_parser)) )
+    {
+        char *err = fct_clp__get_error(&(nk->cl_parser));
+        fprintf(stderr, "error: %s", err);
+        status =0;
+        goto finally;
+    }
+    num_params = fct_clp__param_cnt(&(nk->cl_parser));
+    for ( param_i =0; param_i != num_params; ++param_i )
+    {
+        char const *param = fct_clp__param_at(&(nk->cl_parser), param_i);
+        fctkern__add_prefix_filter(nk, param);
+    }
+    if ( fctkern__cl_is(nk, FCT_OPT_VERSION) )
+    {
+        (void)printf("Built using FCTX version %s.\n", FCT_VERSION_STR);
+        status = -1;
+        goto finally;
+    }
+    status =1;
+    nk->cl_is_parsed =1;
+finally:
+    return status;
+}
+
 
 
 /* Parses the command line and sets up the framework. The argc and argv
@@ -1509,57 +1604,34 @@ static int
 fctkern__init(fctkern_t *nk, int argc, const char *argv[])
 {
     fct_logger_i *standard_logger = NULL;
-    int num_params =0;
-    int param_i =0;
     nbool_t ok = FCT_FALSE;
-
     if ( argc == 0 && argv == NULL )
     {
         return 0;
     }
-
     memset(nk, 0, sizeof(fctkern_t));
-
+    fct_clp__init(&(nk->cl_parser), NULL);
     fct_nlist__init(&(nk->logger_list));
     fct_nlist__init(&(nk->prefix_list));
     fct_nlist__init(&(nk->ts_list));
-
-    /* TODO: Allow client code to extend the options. */
-    fct_clp__init(&(nk->clp), FCT_CLP_OPTIONS);
-
-    fct_clp__parse(&(nk->clp), argc, argv);
-    if ( fct_clp__is_error(&(nk->clp)) )
-    {
-        char *err = fct_clp__get_error(&(nk->clp));
-        fprintf(stderr, "error: %s", err);
-        ok =0;
-        goto finally;
-    }
-
+    nk->cl_is_parsed =0;
+    /* Save a copy of the arguments. We do a delay parse of the command
+    line arguments in order to allow the client code to optionally configure
+    the command line parser.*/
+    nk->cl_argc = argc;
+    nk->cl_argv = argv;
     /* TODO: This is where we can "configure" what logger to pull out. Be nice
     if we can provide some means for the client code to 'override' this
-    as well as from the command prompt. */
+    as well as from the command prompt. (Actually should move into cl_parse). */
     standard_logger = (fct_logger_i*) fct_standard_logger__new();
     if ( standard_logger == NULL )
     {
         ok = FCT_FALSE;
         goto finally;
     }
-
     fctkern__add_logger(nk, standard_logger);
     standard_logger = NULL;   /* Owned by the nk list. */
-
-    /* Our basic parser. For now we just take each 'argv' and assume
-    that it is a prefix filter.  */
-    num_params = fct_clp__param_cnt(&(nk->clp));
-    for ( param_i =0; param_i < num_params; ++param_i )
-    {
-        char const *param = fct_clp__param_at(&(nk->clp), param_i);
-        fctkern__add_prefix_filter(nk, param);
-    }
-
     fct_namespace_init(&(nk->ns));
-
     ok =1;
 finally:
     if ( !ok )
@@ -1589,32 +1661,29 @@ fctkern__pass_filter(fctkern_t *nk, char const *test_name)
 {
     size_t prefix_i =0;
     size_t prefix_list_size =0;
-
     assert( nk != NULL && "invalid arg");
     assert( test_name != NULL );
     assert( strlen(test_name) > 0 );
-
     prefix_list_size = fctkern__filter_cnt(nk);
-
     /* If there is no filter list, then we return FCT_TRUE always. */
     if ( prefix_list_size == 0 )
     {
         return FCT_TRUE;
     }
-
     /* Iterate through the prefix filter list, and see if we have
     anything that does not pass. All we require is ONE item that
     passes the test in order for us to succeed here. */
     for ( prefix_i = 0; prefix_i != prefix_list_size; ++prefix_i )
     {
-        char const *prefix = (char const*)fct_nlist__at(&(nk->prefix_list), prefix_i);
+        char const *prefix = (char const*)fct_nlist__at(
+                                 &(nk->prefix_list), prefix_i
+                             );
         nbool_t pass = fct_filter_pass(prefix, test_name);
         if ( pass )
         {
             return FCT_TRUE;
         }
     }
-
     /* Otherwise, we never managed to find a prefix that satisfied the
     supplied test name. Therefore we have failed to pass to the filter
     list test. */
@@ -1628,7 +1697,6 @@ fctkern__tst_cnt(fctkern_t const *nk)
 {
     size_t tally =0;
     assert( nk != NULL );
-
     FCT_NLIST_FOREACH_BGN(fct_ts_t *, ts, &(nk->ts_list))
     {
         tally += fct_ts__tst_cnt(ts);
@@ -1785,12 +1853,19 @@ fctkern__log_test_end(fctkern_t *nk, fct_test_t const *test)
     }
 
 
-static int
-fctkern__is_clp_opt(fctkern_t *nk, char const *opt_str)
+/* Returns the command line value given by OPT_STR. If OPT_STR was not defined
+at the command line, DEF_STR is returned (you can use NULL for the DEF_STR).
+The result returned should not be mofidied, and MAY even be the same pointer
+to DEF_STR. */
+static char const *
+fctkern__cl_val2(fctkern_t *nk, char const *opt_str, char const *def_str)
 {
     assert( opt_str != NULL );
-    return opt_str[0] != '\0'
-           && fct_clp__is(&(nk->clp), opt_str);
+    if ( nk == NULL )
+    {
+        return NULL;
+    }
+    return fct_clp__optval2(&(nk->cl_parser), opt_str, def_str);
 }
 
 
@@ -2269,21 +2344,19 @@ This is where the show begins!
 */
 
 /* This macro invokes a bunch of functions that need to be referenced in
-order to avoid  a "unreferenced local function has been removed" warning. 
-The logical acrobatics below try and make it appear to the compiler that 
-they are needed, but at runtime, only the cheap, first call is made. */ 
-#define FCT_REFERENCE_FUNCS() {\
-    int a = 0 && _fct_check_char('a', 'b');\
-    if ( a ) { _fct_check_char_lower('a', 'b'); }\
-    if ( a ) { fctkern__is_clp_opt(NULL, ""); }\
+order to avoid  a "unreferenced local function has been removed" warning.
+The logical acrobatics below try and make it appear to the compiler that
+they are needed, but at runtime, only the cheap, first call is made. */
+#define FCT_REFERENCE_FUNCS() \
+    {\
+        int check = 0 && _fct_check_char('a', 'b');\
+        if ( check ) { \
+            _fct_check_char_lower('a', 'b');\
+            fctkern__cl_is(NULL, "");\
+            fctkern__cl_val2(NULL, NULL, NULL);\
+        }\
     }
 
-
-/*
-_fct_check_char('a', 'b');\
-_fct_check_char_lower('a', 'b');\
-_fct_str_equal("a", "b", _fct_check_char);\
-*/
 
 /* This defines our start. The fctkern__ is a kernal object
 that lives throughout the lifetime of our program. The
@@ -2298,12 +2371,9 @@ main(int argc, const char* argv[])\
    if ( !fctkern__init(fctkern_ptr__, argc, argv) ) {\
         (void)printf("FATAL ERROR: Unable to intialize FCT Kernal.");\
         exit(EXIT_FAILURE);\
-   }\
-   if ( fctkern__is_clp_opt(fctkern_ptr__, FCT_OPT_VERSION) ) {\
-       printf("Built using FCTX version %s", FCT_VERSION_STR);\
-       exit(EXIT_SUCCESS);\
-   }\
- 
+   }
+
+
 /* Ends the test suite but returning the number failed. THe "chk_cnt" call is
 made in order allow strict compilers to pass when it encounters unreferenced
 functions. */
@@ -2319,26 +2389,57 @@ functions. */
    }\
 }
 
+/* Re-parses the command line options with the addition of user defined
+options. */
+#define FCT_CL_INSTALL(_CLO_INIT_) fctkern_ptr__->cl_user_opts = (_CLO_INIT_)
+
+#define FCT_CL_IS(_OPT_STR_) (fctkern__cl_is(fctkern_ptr__, (_OPT_STR_)))
+
+#define FCT_CL_VAL(_OPT_STR_) (FCT_CL_VAL2((_OPT_STR_), NULL))
+
+#define FCT_CL_VAL2(_OPT_STR_, _DEF_STR_) \
+   (fctkern__cl_val2(fctkern_ptr__, (_OPT_STR_), (_DEF_STR_)))
+
+
+/* We delay the first parse of the command line until we get the first
+test fixture. This allows the user to possibly add their own parse
+specification. */
 #define FCT_FIXTURE_SUITE_BGN(_NAME_) \
    {\
       fct_ts_t *ts__ = fct_ts_new( #_NAME_ );\
-      if ( ts__ == NULL ) {\
-        fctkern__log_warn((fctkern_ptr__), "out of memory");\
+      _fct_cmt("Delay parse in order to allow for user customization.");\
+      if ( !fctkern__cl_is_parsed((fctkern_ptr__)) ) {\
+          int status = fctkern__cl_parse((fctkern_ptr__));\
+          switch( status ) {\
+          case -1:\
+          case 0:\
+              fct_ts__del(ts__);\
+              fctkern__final(fctkern_ptr__);\
+              exit( (status == 0) ? (EXIT_FAILURE) : (EXIT_SUCCESS) );\
+              break;\
+          default:\
+              fct_pass();\
+          }\
       }\
-      else {\
-          fctkern__log_suite_start((fctkern_ptr__), ts__);\
-          for (;;)\
-          {\
+      if ( ts__ == NULL ) {\
+         fctkern__log_warn((fctkern_ptr__), "out of memory");\
+      }\
+      else\
+      {\
+         fctkern__log_suite_start((fctkern_ptr__), ts__);\
+         for (;;)\
+         {\
              int fct_test_num__ = -1;\
-             _fct_cmt("Strict compiler warnings will complain in 'blank' suites.")\
-             _fct_cmt("so we are going to do a 'noop' to trick them.")\
+             _fct_cmt("Strict compiler warnings will complain in 'blank' suites.");\
+             _fct_cmt("so we are going to do a 'noop' to trick them.");\
              fct_test_num__ = fct_test_num__;\
              if ( fct_ts__is_ending_mode(ts__) )\
              {\
-                _fct_cmt("flag the test suite as complete.");\
-                fct_ts__end(ts__);\
-                break;\
-             }
+               _fct_cmt("flag the test suite as complete.");\
+               fct_ts__end(ts__);\
+               break;\
+             }\
+ 
 
 
 /*  Closes off a "Fixture" test suite. */
@@ -2352,8 +2453,8 @@ functions. */
           fctkern__log_suite_end((fctkern_ptr__), ts__);\
           fct_ts__end(ts__);\
           ts__ = NULL;\
-      }\
-   }
+          }\
+      }
 
 
 

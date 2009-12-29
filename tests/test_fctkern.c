@@ -21,7 +21,7 @@ FCT_BGN()
         char const *argv_dummy[] = {"test"};
         int argc_dummy = 1;
         fctkern_t k;
-        fctkern__init(&k, argc_dummy, argv_dummy);  
+        fctkern__init(&k, argc_dummy, argv_dummy);
         fctkern__add_prefix_filter(&k, "aaaa");
         fct_chk( fctkern__filter_cnt(&k) == 1 );
         fct_chk( fctkern__pass_filter(&k, "aaaa") );

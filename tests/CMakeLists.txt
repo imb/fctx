@@ -124,7 +124,7 @@ ADD_TEST(run_test_multi_cpp
 ADD_TEST(run_test_fail 
     ${EXECUTABLE_OUTPUT_PATH}/test_fail
 )
-SET_TESTS_PROPERTIES(run_test_fail PROPERTIES WILL_FAIL TRUE) 
+SET_TESTS_PROPERTIES(run_test_fail PROPERTIES WILL_FAIL 1) 
 
 # We can only be happy with 2 failures, this program will run a test and report
 # false if the test program has a return value other than the one supplied.
@@ -142,13 +142,48 @@ ADD_TEST(run_test_chk_with_runner
 
 # Test money uses 'strcpy', and its just an example, so lets add a definition
 # for that one program.
-set_target_properties(test_money 
+SET_TARGET_PROPERTIES(test_money 
     PROPERTIES
     COMPILE_DEFINITIONS "_CRT_SECURE_NO_WARNINGS"
     )
-set_target_properties(test_money_cpp
+SET_TARGET_PROPERTIES(test_money_cpp
     PROPERTIES
     COMPILE_DEFINITIONS "_CRT_SECURE_NO_WARNINGS"
     )
 
 
+# Tests for the custom command line parse involve generating different
+# configurations based on a common template file.
+MACRO(TEST_COMMAND_LINE NAME USE_FLAG USE_VALUE) 
+    SET(CL_PASSED_IN_VALUE "scooby-doo")
+    SET(CL_USE_FLAG  ${USE_FLAG})
+    SET(CL_USE_VALUE ${USE_VALUE})
+    SET(CL_USE_NAME  ${NAME})
+    CONFIGURE_FILE(
+        test_cl_customize.c.in 
+        test_cl_customize_${NAME}.c
+    )
+    ADD_EXECUTABLE(test_cl_customize_${NAME}
+        test_cl_customize_${NAME}.c
+    )
+    IF(${USE_FLAG})
+        LIST(APPEND ARGS "--flag")
+    ENDIF()
+    IF(${USE_VALUE})
+        LIST(APPEND ARGS "--value" ${CL_PASSED_IN_VALUE})
+    ENDIF()
+    ADD_TEST(test_cl_customize_${NAME}
+        ${EXECUTABLE_OUTPUT_PATH}/test_cl_customize_${NAME}
+        ${ARGS}
+    )
+    SET(CL_PASSED_IN_VALUE )
+    SET(CL_USE_FLAG )
+    SET(CL_UES_VALUE )
+    SET(ARGS )
+ENDMACRO()
+
+# Truth table the combinations.
+TEST_COMMAND_LINE(noflag_novalue 0 0)
+TEST_COMMAND_LINE(noflag_value   0 1)
+TEST_COMMAND_LINE(flag_novalue   1 0)
+TEST_COMMAND_LINE(flag_value     1 1)
