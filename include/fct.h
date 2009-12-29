@@ -45,8 +45,8 @@ File: fct.h
 #define FCT_INCLUDED__IMB
 
 #define FCT_VERSION_MAJOR 1
-#define FCT_VERSION_MINOR 1
-#define FCT_VERSION_MICRO 1
+#define FCT_VERSION_MINOR 2
+#define FCT_VERSION_MICRO 0
 
 #define _FCT_QUOTEME(x) #x
 #define FCT_QUOTEME(x) _FCT_QUOTEME(x)
