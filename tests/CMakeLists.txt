@@ -161,10 +161,10 @@ MACRO(TEST_COMMAND_LINE NAME USE_FLAG USE_VALUE)
     SET(CL_USE_NAME  ${NAME})
     CONFIGURE_FILE(
         test_cl_customize.c.in 
-        test_cl_customize_${NAME}.c
+        ${CMAKE_CURRENT_BINARY_DIR}/test_cl_customize_${NAME}.c
     )
     ADD_EXECUTABLE(test_cl_customize_${NAME}
-        test_cl_customize_${NAME}.c
+       	${CMAKE_CURRENT_BINARY_DIR}/test_cl_customize_${NAME}.c
     )
     IF(${USE_FLAG})
         LIST(APPEND ARGS "--flag")
