@@ -1,6 +1,6 @@
-===================
-Multi-File FCTX API
-===================
+======================
+FCT_MF: Multi-file API
+======================
 
 .. module:: FCTMF
    :platform: Unix, Windows
