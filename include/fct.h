@@ -2391,7 +2391,24 @@ functions. */
 
 /* Re-parses the command line options with the addition of user defined
 options. */
-#define FCT_CL_INSTALL(_CLO_INIT_) fctkern_ptr__->cl_user_opts = (_CLO_INIT_)
+#define FCT_CL_INSTALL(_CLO_INIT_) \
+    {\
+        fctkern_ptr__->cl_user_opts = (_CLO_INIT_);\
+        _fct_cmt("Delay parse in order to allow for user customization.");\
+        if ( !fctkern__cl_is_parsed((fctkern_ptr__)) ) {\
+              int status = fctkern__cl_parse((fctkern_ptr__));\
+              switch( status ) {\
+              case -1:\
+              case 0:\
+                  fctkern__final(fctkern_ptr__);\
+                  exit( (status == 0) ? (EXIT_FAILURE) : (EXIT_SUCCESS) );\
+                  break;\
+              default:\
+                  fct_pass();\
+              }\
+          }\
+    }
+
 
 #define FCT_CL_IS(_OPT_STR_) (fctkern__cl_is(fctkern_ptr__, (_OPT_STR_)))
 

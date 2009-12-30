@@ -35,24 +35,37 @@ static fct_clo_init_t my_options[] = {
 
 FCT_BGN()
 {
-    printf("Testing Custom Command Line Options: '%s'\n", CL_USE_NAME);
-    FCT_CL_INSTALL(my_options);
+    int g_is_flag =-1;
+    char const *g_value =NULL;
     
+    FCT_CL_INSTALL(my_options);
+
+    /* Want to make sure a parse happens AFTER the my_options. */
+    g_is_flag = FCT_CL_IS("--flag");
+    g_value = FCT_CL_VAL("--value");
+    
+    /* -------------------------------------------------------------------- */
     FCT_QTEST_BGN(test_flag) {
         int is_flag = FCT_CL_IS("--flag");
 #if defined(CL_USE_FLAG)
         fct_chk( is_flag );
+        fct_chk( g_is_flag );
 #else
         fct_chk( !is_flag);
+        fct_chk( !g_is_flag );
 #endif /* CL_USE_FLAG */
     } FCT_QTEST_END();
 
+
+    /* -------------------------------------------------------------------- */
     FCT_QTEST_BGN(test_value) {
         char const *val = FCT_CL_VAL2("--value", NULL);
 #if defined(CL_USE_VALUE)
         fct_chk_eq_str(val, CL_PASSED_IN_VALUE);
+        fct_chk_eq_str(g_value, CL_PASSED_IN_VALUE);
 #else
         fct_chk_neq_str(val, CL_PASSED_IN_VALUE);
+        fct_chk_neq_str(g_value, CL_PASSED_IN_VALUE);
 #endif /* CL_USE_VALUE */
     } FCT_QTEST_END();
 }
