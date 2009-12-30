@@ -1255,7 +1255,6 @@ fct_clp__parse(fct_clp_t *clp, int argc, char const *argv[])
         token = strtok(arg, "=");
         next_token = strtok(NULL, "=");
 #endif
-
         FCT_NLIST_FOREACH_BGN(fct_clo_t*, pclo, &(clp->clo_list))
         {
             /* Need to reset for each search. strtok below is destructive. */
@@ -1340,6 +1339,7 @@ fct_clp__get_clo(fct_clp_t const *clp, char const *option)
     return found;
 }
 
+
 #define fct_clp__optval(_CLP_, _OPTION_) \
     fct_clp__optval2((_CLP_), (_OPTION_), NULL)
 
@@ -1358,6 +1358,29 @@ fct_clp__optval2(fct_clp_t *clp, char const *option, char const *default_val)
         return default_val;
     }
     return clo->value;
+}
+
+
+/* Writes the output to the OUTPUT stream. */
+static void
+fct_clp__write_help(fct_clp_t *clp, FILE *out)
+{
+    fprintf(out, "test.exe [options] prefix_filter ...\n\n");
+    FCT_NLIST_FOREACH_BGN(fct_clo_t*, clo, &(clp->clo_list))
+    {
+        if ( clo->short_opt != NULL )
+        {
+            fprintf(out, "%s, %s\n", clo->short_opt, clo->long_opt);
+        }
+        else
+        {
+            fprintf(out, "%s\n", clo->long_opt);
+        }
+        /* For now lets not get to fancy with the text wrapping. */
+        fprintf(out, "  %s\n", clo->help);
+    }
+    FCT_NLIST_FOREACH_END();
+    fputs("\n", out);
 }
 
 
@@ -1465,16 +1488,29 @@ struct _fctkern_t
 };
 
 
-#define FCT_OPT_VERSION "--version"
+#define FCT_OPT_VERSION       "--version"
+#define FCT_OPT_VERSION_SHORT "-v"
+#define FCT_OPT_HELP          "--help"
+#define FCT_OPT_HELP_SHORT    "-h"
+#define FCT_OPT_LOGGER        "--logger"
+#define FCT_OPT_LOGGER_SHORT  "-l"
 static fct_clo_init_t FCT_CLP_OPTIONS[] =
 {
     /* Totally unsafe, since we are assuming we can clean out this data,
     what I need to do is have an "initialization" object, full of
     const objects. But for now, this should work. */
     {FCT_OPT_VERSION,
-        NULL,   /* No short version */
+        FCT_OPT_VERSION_SHORT,
         FCT_CLO_STORE_TRUE,
         "Displays the FCTX version number and exits."},
+    {FCT_OPT_HELP,
+     FCT_OPT_HELP_SHORT,
+     FCT_CLO_STORE_TRUE,
+     "Shows this help."},
+    {FCT_OPT_LOGGER,
+     FCT_OPT_LOGGER_SHORT,
+     FCT_CLO_STORE_VALUE,
+     "RESERVED. Will handle different logger types in the future."},
     FCT_CLO_INIT_NULL /* Sentinel */
 };
 
@@ -1587,6 +1623,12 @@ fctkern__cl_parse(fctkern_t *nk)
     if ( fctkern__cl_is(nk, FCT_OPT_VERSION) )
     {
         (void)printf("Built using FCTX version %s.\n", FCT_VERSION_STR);
+        status = -1;
+        goto finally;
+    }
+    if ( fctkern__cl_is(nk, FCT_OPT_HELP) )
+    {
+        fct_clp__write_help(&(nk->cl_parser), stdout);
         status = -1;
         goto finally;
     }
