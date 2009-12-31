@@ -212,11 +212,20 @@ Types
 Functions
 ---------
 
+.. cfunction:: void FCT_CL_INSTALL(cl_options)
+
+   Installs your :ctype:`fct_clo_init_t` NULL terminated array of *cl_options*
+   into the command line parser. The command line is then parsed at this
+   moment, and any subsequent queries via :cfunc:`FCT_CL_IS` or
+   :cfunc:`FCT_CL_VAL` will return the parse results. See `Customizing
+   the Command Line`_ for an example of installing your own command line
+   options.
+
 .. cfunction:: int FCT_CL_IS(flag)
 
    Returns true if the *flag* has been used. The *flag* is the either the long
    or short option used during the configuration stage. Use this macro to
-   retrieve :cmacro:`FCT_CLO_STORE_TRUE` command line options.
+   retrieve :cmacro:`FCT_CLO_STORE_TRUE` command line options. 
 
 .. cfunction:: const char* FCT_CL_VAL(flag)
 
