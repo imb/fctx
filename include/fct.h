@@ -1430,6 +1430,11 @@ attempt to hide all the "system" variables in one place.
 */
 typedef struct _fct_namespace_t
 {
+    /* The currently active test suite. */
+    fct_ts_t *curr_ts;
+
+    /* Current test name. */
+    char const* curr_test_name;
     fct_test_t *curr_test;
 
     /* Counts the number of tests in a test suite. */
@@ -2464,14 +2469,14 @@ test fixture. This allows the user to possibly add their own parse
 specification. */
 #define FCT_FIXTURE_SUITE_BGN(_NAME_) \
    {\
-      fct_ts_t *ts__ = fct_ts_new( #_NAME_ );\
+      fctkern_ptr__->ns.curr_ts = fct_ts_new( #_NAME_ );\
       _fct_cmt("Delay parse in order to allow for user customization.");\
       if ( !fctkern__cl_is_parsed((fctkern_ptr__)) ) {\
           int status = fctkern__cl_parse((fctkern_ptr__));\
           switch( status ) {\
           case -1:\
           case 0:\
-              fct_ts__del(ts__);\
+              fct_ts__del((fctkern_ptr__->ns.curr_ts));\
               fctkern__final(fctkern_ptr__);\
               exit( (status == 0) ? (EXIT_FAILURE) : (EXIT_SUCCESS) );\
               break;\
@@ -2479,19 +2484,19 @@ specification. */
               fct_pass();\
           }\
       }\
-      if ( ts__ == NULL ) {\
+      if ( fctkern_ptr__->ns.curr_ts == NULL ) {\
          fctkern__log_warn((fctkern_ptr__), "out of memory");\
       }\
       else\
       {\
-         fctkern__log_suite_start((fctkern_ptr__), ts__);\
+         fctkern__log_suite_start((fctkern_ptr__), fctkern_ptr__->ns.curr_ts);\
          for (;;)\
          {\
              fctkern_ptr__->ns.test_num = -1;\
-             if ( fct_ts__is_ending_mode(ts__) )\
+             if ( fct_ts__is_ending_mode(fctkern_ptr__->ns.curr_ts) )\
              {\
                _fct_cmt("flag the test suite as complete.");\
-               fct_ts__end(ts__);\
+               fct_ts__end(fctkern_ptr__->ns.curr_ts);\
                break;\
              }\
  
@@ -2499,31 +2504,31 @@ specification. */
 
 /*  Closes off a "Fixture" test suite. */
 #define FCT_FIXTURE_SUITE_END() \
-             if ( fct_ts__is_cnt_mode(ts__) )\
+             if ( fct_ts__is_cnt_mode(fctkern_ptr__->ns.curr_ts) )\
              {\
-                fct_ts__cnt_end(ts__);\
+                fct_ts__cnt_end(fctkern_ptr__->ns.curr_ts);\
              }\
           }\
-          fctkern__add_ts((fctkern_ptr__), ts__);\
-          fctkern__log_suite_end((fctkern_ptr__), ts__);\
-          fct_ts__end(ts__);\
-          ts__ = NULL;\
+          fctkern__add_ts((fctkern_ptr__), fctkern_ptr__->ns.curr_ts);\
+          fctkern__log_suite_end((fctkern_ptr__), fctkern_ptr__->ns.curr_ts);\
+          fct_ts__end(fctkern_ptr__->ns.curr_ts);\
+          fctkern_ptr__->ns.curr_ts = NULL;\
           }\
       }
 
 
 
 #define FCT_SETUP_BGN()\
-   if ( fct_ts__is_setup_mode(ts__) ) {
+   if ( fct_ts__is_setup_mode(fctkern_ptr__->ns.curr_ts) ) {
 
 #define FCT_SETUP_END() \
-   fct_ts__setup_end(ts__); }
+   fct_ts__setup_end(fctkern_ptr__->ns.curr_ts); }
 
 #define FCT_TEARDOWN_BGN() \
-   if ( fct_ts__is_teardown_mode(ts__) ) {\
+   if ( fct_ts__is_teardown_mode(fctkern_ptr__->ns.curr_ts) ) {\
  
 #define FCT_TEARDOWN_END() \
-   fct_ts__teardown_end(ts__); \
+   fct_ts__teardown_end(fctkern_ptr__->ns.curr_ts); \
    continue; \
    }
 
@@ -2555,23 +2560,21 @@ __NOFAIL variants are used for my own internal testing to help
 confirm that checks/requirements are doing what are required. */
 #define FCT_TEST_BGN(_NAME_) \
          {\
-            char const *test_name__ = #_NAME_;\
+            fctkern_ptr__->ns.curr_test_name = #_NAME_;\
             ++(fctkern_ptr__->ns.test_num);\
-            if ( fct_ts__is_cnt_mode(ts__) )\
+            if ( fct_ts__is_cnt_mode(fctkern_ptr__->ns.curr_ts) )\
             {\
-               fct_ts__inc_total_test_num(ts__);\
+               fct_ts__inc_total_test_num(fctkern_ptr__->ns.curr_ts);\
             }\
-            else if ( fct_ts__is_test_mode(ts__) \
-                      && fct_ts__is_test_cnt(ts__, fctkern_ptr__->ns.test_num) )\
+            else if ( fct_ts__is_test_mode(fctkern_ptr__->ns.curr_ts) \
+                      && fct_ts__is_test_cnt(fctkern_ptr__->ns.curr_ts, fctkern_ptr__->ns.test_num) )\
             {\
-               int is_pass__= FCT_FALSE;\
-               fct_ts__test_begin(ts__);\
-               if ( fctkern__pass_filter(fctkern_ptr__,  test_name__ ) )\
+               fct_ts__test_begin(fctkern_ptr__->ns.curr_ts);\
+               if ( fctkern__pass_filter(fctkern_ptr__,  fctkern_ptr__->ns.curr_test_name ) )\
                {\
-                  fctkern_ptr__->ns.curr_test = fct_test_new( test_name__ );\
+                  fctkern_ptr__->ns.curr_test = fct_test_new( fctkern_ptr__->ns.curr_test_name );\
                   if ( fctkern_ptr__->ns.curr_test  == NULL ) {\
                     fctkern__log_warn(fctkern_ptr__, "out of memory");\
-                    is_pass__ = FCT_FALSE;\
                   }\
                   else {\
                       fctkern__log_test_start(fctkern_ptr__, fctkern_ptr__->ns.curr_test);\
@@ -2582,10 +2585,10 @@ confirm that checks/requirements are doing what are required. */
                          break;\
                       }\
                }\
-               fct_ts__add_test(ts__, fctkern_ptr__->ns.curr_test);\
+               fct_ts__add_test(fctkern_ptr__->ns.curr_ts, fctkern_ptr__->ns.curr_test);\
                fctkern__log_test_end(fctkern_ptr__, fctkern_ptr__->ns.curr_test);\
                }\
-               fct_ts__test_end(ts__);\
+               fct_ts__test_end(fctkern_ptr__->ns.curr_ts);\
                continue;\
             }\
          }
