@@ -1427,14 +1427,13 @@ FCT NAMESPACE
 The macros below start to pollute the watch window with
 lots of "system" variables. This NAMESPACE is an
 attempt to hide all the "system" variables in one place.
-
-At the moment it is an ad-hoc operation. There is a
-blueprint to address this further in the 1.2 release.
 */
-
 typedef struct _fct_namespace_t
 {
     fct_test_t *curr_test;
+
+    /* Counts the number of tests in a test suite. */
+    int test_num;
 } fct_namespace_t;
 
 
@@ -2488,10 +2487,7 @@ specification. */
          fctkern__log_suite_start((fctkern_ptr__), ts__);\
          for (;;)\
          {\
-             int fct_test_num__ = -1;\
-             _fct_cmt("Strict compiler warnings will complain in 'blank' suites.");\
-             _fct_cmt("so we are going to do a 'noop' to trick them.");\
-             fct_test_num__ = fct_test_num__;\
+             fctkern_ptr__->ns.test_num = -1;\
              if ( fct_ts__is_ending_mode(ts__) )\
              {\
                _fct_cmt("flag the test suite as complete.");\
@@ -2560,13 +2556,13 @@ confirm that checks/requirements are doing what are required. */
 #define FCT_TEST_BGN(_NAME_) \
          {\
             char const *test_name__ = #_NAME_;\
-            ++fct_test_num__;\
+            ++(fctkern_ptr__->ns.test_num);\
             if ( fct_ts__is_cnt_mode(ts__) )\
             {\
                fct_ts__inc_total_test_num(ts__);\
             }\
             else if ( fct_ts__is_test_mode(ts__) \
-                      && fct_ts__is_test_cnt(ts__, fct_test_num__) )\
+                      && fct_ts__is_test_cnt(ts__, fctkern_ptr__->ns.test_num) )\
             {\
                int is_pass__= FCT_FALSE;\
                fct_ts__test_begin(ts__);\
