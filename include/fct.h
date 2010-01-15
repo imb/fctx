@@ -3017,6 +3017,15 @@ The basic idea is that there is one test per test suite.
 		} FCT_TEST_END();\
 	} FCT_SUITE_END();
 
+
+#define FCT_QTEST_BGN_IF(_CONDITION_, _NAME_) \
+	FCT_SUITE_BGN_IF(_CONDITION_,_NAME_) {\
+		FCT_TEST_BGN(_NAME_) {\
+ 
+#define FCT_QTEST_END_IF() \
+		} FCT_TEST_END();\
+	} FCT_SUITE_END_IF();
+
 /*
 ---------------------------------------------------------
 CLOSING STATEMENTS

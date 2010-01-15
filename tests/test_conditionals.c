@@ -62,7 +62,7 @@ FCT_BGN()
     FCT_FIXTURE_SUITE_END_IF();
 
     /* ------------------------------------------------------------- */
-    
+
     FCT_SUITE_BGN_IF(true_condition, test_suite_if_true)
     {
         FCT_TEST_BGN(run_test_if_true)
@@ -85,22 +85,41 @@ FCT_BGN()
 
     /* ------------------------------------------------------------- */
 
+    FCT_QTEST_BGN_IF(true_condition, test_qtest_if_true)
+    {
+        is_qtest_if_true = 1;
+    }
+    FCT_QTEST_END_IF();
 
-    /* -------------------------------------------------------------
-    NOW confirm that everything worked.
-    -------------------------------------------------------------- */
+    FCT_QTEST_BGN_IF(false_condition, test_qtest_if_false)
+    {
+        is_qtest_if_false = 1;
+    }
+    FCT_QTEST_END_IF();
+
+    /* ------------------------------------------------------------- */
+    puts("--- Confirm Conditionals Worked -- \n");
+
     FCT_QTEST_BGN(confirm_conditionals__fixture_suite)
     {
         fct_chk( is_test_suite_fixture_if_true );
         fct_chk( !is_test_suite_fixture_if_false );
-    } FCT_QTEST_END();
+    }
+    FCT_QTEST_END();
 
-    FCT_QTEST_BGN(confirm_conditionals__nofixture_suite) {
+    FCT_QTEST_BGN(confirm_conditionals__nofixture_suite)
+    {
         fct_chk( is_test_suite_if_true );
         fct_chk( !is_test_suite_if_false );
     }
     FCT_QTEST_END();
 
+    FCT_QTEST_BGN(confirm_conditionals__qtest)
+    {
+        fct_chk( is_qtest_if_true );
+        fct_chk( !is_qtest_if_false );
+    }
+    FCT_QTEST_END();
 }
 FCT_END();
 

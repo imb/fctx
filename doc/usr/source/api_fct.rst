@@ -189,9 +189,18 @@ of the ground quickly and start writing tests.
 
    Opens the quick test block with the given *name*.
 
-.. cfunction:: FCT_TEST_END()
+.. cfunction:: FCT_QTEST_END()
 
    Ends the quick test block.
+
+.. cfunction:: FCT_QTEST_BGN_IF(condition, name)
+
+   Opens the quick test block with the given *name*. The contents of the test
+   block are only executed if the *condition* is a non-zero (TRUE) value.
+
+.. cfunction:: FCT_QTEST_END_IF()
+
+   Ends the conditional quick test block.
 
 
 Tests
