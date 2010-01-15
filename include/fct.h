@@ -113,12 +113,12 @@ fct_logger__on_test_suite_skip(
     char const *name
 );
 
-static void 
+static void
 fct_logger__on_test_skip(
     fct_logger_i *logger,
     char const *condition,
     char const *name
-);                        
+);
 
 
 static void
@@ -1875,7 +1875,8 @@ fctkern__log_suite_end(fctkern_t *nk, fct_ts_t const *ts)
 static void
 fctkern__log_suite_skip(fctkern_t *nk, char const *condition, char const *name)
 {
-    if ( nk == NULL ) {
+    if ( nk == NULL )
+    {
         return;
     }
     FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, &(nk->logger_list))
@@ -1887,7 +1888,8 @@ fctkern__log_suite_skip(fctkern_t *nk, char const *condition, char const *name)
 
 
 static void
-fctkern__log_test_skip(fctkern_t *nk, char const *condition, char const *name) {
+fctkern__log_test_skip(fctkern_t *nk, char const *condition, char const *name)
+{
     FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, &(nk->logger_list))
     {
         fct_logger__on_test_skip(logger, condition, name);
@@ -2173,12 +2175,13 @@ fct_logger__on_test_suite_skip(
 }
 
 
-static void 
+static void
 fct_logger__on_test_skip(
     fct_logger_i *logger,
     char const *condition,
     char const *name
-    ) {
+)
+{
     if ( logger->vtable->on_test_skip != NULL )
     {
         logger->vtable->on_test_skip(logger, name, condition);
@@ -2700,7 +2703,7 @@ do it by 'stubbing' out the setup/teardown logic. */
     FCT_FIXTURE_SUITE_BGN_IF(_CONDITION_, (_NAME_)) {\
     FCT_SETUP_BGN() {_fct_cmt("stubbed"); } FCT_SETUP_END()\
     FCT_TEARDOWN_BGN() {_fct_cmt("stubbed");} FCT_TEARDOWN_END()\
-
+ 
 #define FCT_SUITE_END_IF() } FCT_FIXTURE_SUITE_END_IF()
 
 typedef enum
@@ -2764,7 +2767,7 @@ confirm that checks/requirements are doing what are required. */
                continue;\
             }\
          }\
-
+ 
 
 
 /*

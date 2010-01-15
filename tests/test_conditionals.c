@@ -24,6 +24,10 @@ FCT_BGN()
     int is_test_suite_fixture_if_false =0;
     int is_test_suite_if_true =0;
     int is_test_suite_if_false =0;
+    int is_qtest_if_true =0;
+    int is_qtest_if_false =0;
+
+    /* ------------------------------------------------------------- */
 
     FCT_FIXTURE_SUITE_BGN_IF(true_condition, test_suite_if_true)
     {
@@ -57,6 +61,8 @@ FCT_BGN()
     }
     FCT_FIXTURE_SUITE_END_IF();
 
+    /* ------------------------------------------------------------- */
+    
     FCT_SUITE_BGN_IF(true_condition, test_suite_if_true)
     {
         FCT_TEST_BGN(run_test_if_true)
@@ -76,6 +82,8 @@ FCT_BGN()
         FCT_TEST_END();
     }
     FCT_SUITE_END_IF();
+
+    /* ------------------------------------------------------------- */
 
 
     /* -------------------------------------------------------------
