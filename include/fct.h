@@ -107,6 +107,21 @@ static void
 fct_logger__on_test_suite_end(fct_logger_i *logger, fct_ts_t const *ts);
 
 static void
+fct_logger__on_test_suite_skip(
+    fct_logger_i *logger,
+    char const *condition,
+    char const *name
+);
+
+static void 
+fct_logger__on_test_skip(
+    fct_logger_i *logger,
+    char const *condition,
+    char const *name
+);                        
+
+
+static void
 fct_logger__on_warn(fct_logger_i *logger, char const *warn);
 
 
@@ -296,6 +311,39 @@ _fct_str_equal(char const *v1,
     return 1; /* Same length strings, never failed to mismatch. */
 }
 
+
+/* Use this with the _end variant to get the
+
+STARTSWITH ........................................ END
+
+effect. Assumes that the line will be maxwidth in characters. The
+maxwidth can't be greater than FCT_DOTTED_MAX_LEN. */
+#define FCT_DOTTED_MAX_LEN  256
+static void
+fct_dotted_line_start(size_t maxwidth, char const *startwith)
+{
+    char line[FCT_DOTTED_MAX_LEN];
+    size_t len =0;
+    size_t line_len =0;
+
+    memset(line, '.', sizeof(char)*maxwidth);
+    len = strlen(startwith);
+    line_len = FCTMIN(maxwidth-1, len);
+    memcpy(line, startwith, sizeof(char)*line_len);
+    if ( len < maxwidth-1)
+    {
+        line[len] = ' ';
+    }
+    line[maxwidth-1] = '\0';
+    fputs(line, stdout);
+}
+
+
+static void
+fct_dotted_line_end(char const *endswith)
+{
+    printf(" %s\n", endswith);
+}
 
 
 /*
@@ -1431,7 +1479,9 @@ attempt to hide all the "system" variables in one place.
 typedef struct _fct_namespace_t
 {
     /* The currently active test suite. */
-    fct_ts_t *curr_ts;
+    fct_ts_t *ts_curr;
+    int ts_is_skip_suite;
+    char const *ts_skip_cndtn;
 
     /* Current test name. */
     char const* curr_test_name;
@@ -1822,6 +1872,30 @@ fctkern__log_suite_end(fctkern_t *nk, fct_ts_t const *ts)
 }
 
 
+static void
+fctkern__log_suite_skip(fctkern_t *nk, char const *condition, char const *name)
+{
+    if ( nk == NULL ) {
+        return;
+    }
+    FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, &(nk->logger_list))
+    {
+        fct_logger__on_test_suite_skip(logger, condition, name);
+    }
+    FCT_NLIST_FOREACH_END();
+}
+
+
+static void
+fctkern__log_test_skip(fctkern_t *nk, char const *condition, char const *name) {
+    FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, &(nk->logger_list))
+    {
+        fct_logger__on_test_skip(logger, condition, name);
+    }
+    FCT_NLIST_FOREACH_END();
+}
+
+
 /* Use this for displaying information about a "Check" (i.e.
 a condition). */
 static void
@@ -1933,15 +2007,55 @@ typedef void (*fct_logger_on_cndtn_fn)(fct_logger_i *self,
 
 typedef struct _fct_logger_i_vtable_t
 {
-    fct_logger_on_cndtn_fn on_cndtn;
-    void (*on_test_start)(fct_logger_i *logger, fct_test_t const *test);
-    void (*on_test_end)(fct_logger_i *logger, fct_test_t const *test);
-    void (*on_test_suite_start)(fct_logger_i *logger, fct_ts_t const *ts);
-    void (*on_test_suite_end)(fct_logger_i *logger, fct_ts_t const *ts);
-    void (*on_fct_start)(fct_logger_i *logger, fctkern_t const *kern);
-    void (*on_fct_end)(fct_logger_i *logger, fctkern_t const *kern);
+    /* 1 */
+    void (*on_cndtn)(fct_logger_i *logger, fctchk_t const *chk);
+    /* 2 */
+    void (*on_test_start)(
+        fct_logger_i *logger,
+        fct_test_t const *test
+    );
+    /* 3 */
+    void (*on_test_end)(
+        fct_logger_i *logger,
+        fct_test_t const *test
+    );
+    /* 4 */
+    void (*on_test_suite_start)(
+        fct_logger_i *logger,
+        fct_ts_t const *ts
+    );
+    /* 5 */
+    void (*on_test_suite_end)(
+        fct_logger_i *logger,
+        fct_ts_t const *ts
+    );
+    /* 6 */
+    void (*on_fct_start)(
+        fct_logger_i *logger,
+        fctkern_t const *kern
+    );
+    /* 7 */
+    void (*on_fct_end)(
+        fct_logger_i *logger,
+        fctkern_t const *kern
+    );
+    /* 8 */
     void (*on_delete)(fct_logger_i *logger);
+    /* 9 */
     void (*on_warn)(fct_logger_i *logger, char const *msg);
+    /* -- new in 1.2 -- */
+    /* 10 */
+    void (*on_test_suite_skip)(
+        fct_logger_i *logger,
+        char const *condition,
+        char const *name
+    );
+    /* 11 */
+    void (*on_test_skip)(
+        fct_logger_i *logger,
+        char const *condition,
+        char const *name
+    );
 } fct_logger_i_vtable_t;
 
 #define _fct_logger_head \
@@ -1955,15 +2069,17 @@ struct _fct_logger_i
 
 static fct_logger_i_vtable_t fct_logger_default_vtable =
 {
-    NULL,   /* on_cndtn */
-    NULL,   /* on_test_start */
-    NULL,   /* on_test_end */
-    NULL,   /* on_test_suite_start */
-    NULL,   /* on_test_suite_end */
-    NULL,   /* on_fct_start */
-    NULL,   /* on_fct_end */
-    NULL,   /* on_delete */
-    NULL    /* on_warn */
+    NULL,   /* 1.  on_cndtn */
+    NULL,   /* 2.  on_test_start */
+    NULL,   /* 3.  on_test_end */
+    NULL,   /* 4.  on_test_suite_start */
+    NULL,   /* 5.  on_test_suite_end */
+    NULL,   /* 6.  on_fct_start */
+    NULL,   /* 7.  on_fct_end */
+    NULL,   /* 8.  on_delete */
+    NULL,   /* 9.  on_warn */
+    NULL,   /* 10. on_test_suite_skip */
+    NULL,   /* 11. on_test_skip */
 };
 
 
@@ -2042,6 +2158,33 @@ fct_logger__on_test_suite_end(fct_logger_i *logger, fct_ts_t const *ts)
     }
 }
 
+
+static void
+fct_logger__on_test_suite_skip(
+    fct_logger_i *logger,
+    char const *condition,
+    char const *name
+)
+{
+    if ( logger->vtable->on_test_suite_skip != NULL )
+    {
+        logger->vtable->on_test_suite_skip(logger, condition, name);
+    }
+}
+
+
+static void 
+fct_logger__on_test_skip(
+    fct_logger_i *logger,
+    char const *condition,
+    char const *name
+    ) {
+    if ( logger->vtable->on_test_skip != NULL )
+    {
+        logger->vtable->on_test_skip(logger, name, condition);
+    }
+
+}
 
 static void
 fct_logger__on_cndtn(fct_logger_i *logger, fctchk_t const *chk)
@@ -2170,6 +2313,9 @@ struct _fct_standard_logger_t
 };
 
 
+#define FCT_STANDARD_LOGGER_MAX_LINE 68
+
+
 /* When a failure occurrs, we will record the details so we can display
 them when the log "finishes" up. */
 static void
@@ -2204,32 +2350,28 @@ fct_standard_logger__on_cndtn(fct_logger_i *logger_, fctchk_t const *chk)
 
 
 static void
+fct_standard_logger__on_test_skip(
+    fct_logger_i* logger_,
+    char const *condition,
+    char const *name
+)
+{
+    char msg[256] = {'\0'};
+    fct_unused(logger_);
+    fct_unused(condition);
+    fct_snprintf(msg, sizeof(msg), "%s (%s)", name, condition);
+    msg[sizeof(msg)-1] = '\0';
+    fct_dotted_line_start(FCT_STANDARD_LOGGER_MAX_LINE, msg);
+    fct_dotted_line_end("- SKIP -");
+}
+
+
+static void
 fct_standard_logger__on_test_start(fct_logger_i *logger_,
                                    fct_test_t const *test)
 {
-#define FCT_STANDARD_LOGGER_MAX_LINE 64
-    char line[FCT_STANDARD_LOGGER_MAX_LINE];
-    char const *test_name =NULL;
-    size_t test_name_len =0;
-    size_t test_name_line_len =0;
     fct_unused(logger_);
-
-    memset(line, '.', sizeof(char)*FCT_STANDARD_LOGGER_MAX_LINE);
-    test_name = fct_test__name(test);
-    test_name_len = strlen(test_name);
-    test_name_line_len = FCTMIN(
-                             FCT_STANDARD_LOGGER_MAX_LINE-1,
-                             test_name_len
-                         );
-    memcpy(line, test_name, sizeof(char)*test_name_line_len);
-    if ( test_name_len < FCT_STANDARD_LOGGER_MAX_LINE-1)
-    {
-        line[test_name_len] = ' ';
-        line[test_name_len] = ' ';
-    }
-    line[FCT_STANDARD_LOGGER_MAX_LINE-1] = '\0';
-    fputs(line, stdout);
-#undef FCT_STANDARD_LOGGER_MAX_LINE
+    fct_dotted_line_start(FCT_STANDARD_LOGGER_MAX_LINE, fct_test__name(test));
 }
 
 
@@ -2241,7 +2383,7 @@ fct_standard_logger__on_test_end(fct_logger_i *logger_,
     fct_unused(logger_);
 
     is_pass = fct_test__is_pass(test);
-    printf(" %s\n", (is_pass) ? "PASS" : "FAIL ***" );
+    fct_dotted_line_end((is_pass) ? "PASS" : "FAIL ***" );
 }
 
 
@@ -2288,10 +2430,10 @@ fct_standard_logger__on_fct_end(fct_logger_i *logger_, fctkern_t const *nk)
 
     if (  !is_success )
     {
-        printf(
-            "\n------------------------------------------------------------------------\n"
+        puts(
+            "\n----------------------------------------------------------------------------\n"
         );
-        printf("FAILED TESTS\n\n");
+        puts("FAILED TESTS\n\n");
 
         FCT_NLIST_FOREACH_BGN(char *, cndtn_str, &(logger->failed_cndtns_list))
         {
@@ -2299,11 +2441,11 @@ fct_standard_logger__on_fct_end(fct_logger_i *logger_, fctkern_t const *nk)
         }
         FCT_NLIST_FOREACH_END();
 
-        printf("\n");
+        puts("\n");
     }
 
-    printf(
-        "\n------------------------------------------------------------------------\n"
+    puts(
+        "\n----------------------------------------------------------------------------\n"
     );
 
     num_tests = fctkern__tst_cnt(nk);
@@ -2324,7 +2466,7 @@ fct_standard_logger__on_fct_end(fct_logger_i *logger_, fctkern_t const *nk)
     else
     {
         /* Don't bother displaying the time to execute. */
-        printf(")\n");
+        puts(")\n");
     }
 }
 
@@ -2337,7 +2479,6 @@ fct_standard_logger__del(fct_logger_i *logger_)
     free(logger);
     logger_ =NULL;
 }
-
 
 
 static void
@@ -2358,7 +2499,9 @@ static fct_logger_i_vtable_t fct_standard_logger_vtable =
     fct_standard_logger__on_fct_start,          /* on_fct_start */
     fct_standard_logger__on_fct_end,            /* on_fct_end */
     fct_standard_logger__del,                   /* on_delete */
-    fct_standard_logger__warn                   /* on_warn */
+    fct_standard_logger__warn,                  /* on_warn */
+    NULL,                                       /* on_test_suite_skip */
+    fct_standard_logger__on_test_skip           /* on_test_skip */
 };
 
 
@@ -2400,6 +2543,7 @@ they are needed, but at runtime, only the cheap, first call is made. */
             _fct_check_char_lower('a', 'b');\
             fctkern__cl_is(NULL, "");\
             fctkern__cl_val2(NULL, NULL, NULL);\
+            fctkern__log_suite_skip(NULL, NULL, NULL);\
         }\
     }
 
@@ -2469,14 +2613,14 @@ test fixture. This allows the user to possibly add their own parse
 specification. */
 #define FCT_FIXTURE_SUITE_BGN(_NAME_) \
    {\
-      fctkern_ptr__->ns.curr_ts = fct_ts_new( #_NAME_ );\
+      fctkern_ptr__->ns.ts_curr = fct_ts_new( #_NAME_ );\
       _fct_cmt("Delay parse in order to allow for user customization.");\
       if ( !fctkern__cl_is_parsed((fctkern_ptr__)) ) {\
           int status = fctkern__cl_parse((fctkern_ptr__));\
           switch( status ) {\
           case -1:\
           case 0:\
-              fct_ts__del((fctkern_ptr__->ns.curr_ts));\
+              fct_ts__del((fctkern_ptr__->ns.ts_curr));\
               fctkern__final(fctkern_ptr__);\
               exit( (status == 0) ? (EXIT_FAILURE) : (EXIT_SUCCESS) );\
               break;\
@@ -2484,19 +2628,19 @@ specification. */
               fct_pass();\
           }\
       }\
-      if ( fctkern_ptr__->ns.curr_ts == NULL ) {\
+      if ( fctkern_ptr__->ns.ts_curr == NULL ) {\
          fctkern__log_warn((fctkern_ptr__), "out of memory");\
       }\
       else\
       {\
-         fctkern__log_suite_start((fctkern_ptr__), fctkern_ptr__->ns.curr_ts);\
+         fctkern__log_suite_start((fctkern_ptr__), fctkern_ptr__->ns.ts_curr);\
          for (;;)\
          {\
              fctkern_ptr__->ns.test_num = -1;\
-             if ( fct_ts__is_ending_mode(fctkern_ptr__->ns.curr_ts) )\
+             if ( fct_ts__is_ending_mode(fctkern_ptr__->ns.ts_curr) )\
              {\
                _fct_cmt("flag the test suite as complete.");\
-               fct_ts__end(fctkern_ptr__->ns.curr_ts);\
+               fct_ts__end(fctkern_ptr__->ns.ts_curr);\
                break;\
              }\
  
@@ -2504,31 +2648,42 @@ specification. */
 
 /*  Closes off a "Fixture" test suite. */
 #define FCT_FIXTURE_SUITE_END() \
-             if ( fct_ts__is_cnt_mode(fctkern_ptr__->ns.curr_ts) )\
+             if ( fct_ts__is_cnt_mode(fctkern_ptr__->ns.ts_curr) )\
              {\
-                fct_ts__cnt_end(fctkern_ptr__->ns.curr_ts);\
+                fct_ts__cnt_end(fctkern_ptr__->ns.ts_curr);\
              }\
           }\
-          fctkern__add_ts((fctkern_ptr__), fctkern_ptr__->ns.curr_ts);\
-          fctkern__log_suite_end((fctkern_ptr__), fctkern_ptr__->ns.curr_ts);\
-          fct_ts__end(fctkern_ptr__->ns.curr_ts);\
-          fctkern_ptr__->ns.curr_ts = NULL;\
+          fctkern__add_ts((fctkern_ptr__), fctkern_ptr__->ns.ts_curr);\
+          fctkern__log_suite_end((fctkern_ptr__), fctkern_ptr__->ns.ts_curr);\
+          fct_ts__end(fctkern_ptr__->ns.ts_curr);\
+          fctkern_ptr__->ns.ts_curr = NULL;\
           }\
       }
 
+#define FCT_FIXTURE_SUITE_BGN_IF(_CONDITION_, _NAME_) \
+    fctkern_ptr__->ns.ts_is_skip_suite = !(_CONDITION_);\
+    fctkern_ptr__->ns.ts_skip_cndtn = #_CONDITION_;\
+    if ( fctkern_ptr__->ns.ts_is_skip_suite ) {\
+       fctkern__log_suite_skip((fctkern_ptr__), #_CONDITION_, #_NAME_);\
+    }\
+    FCT_FIXTURE_SUITE_BGN(_NAME_);
 
-
+#define FCT_FIXTURE_SUITE_END_IF() \
+    FCT_FIXTURE_SUITE_END();\
+    fctkern_ptr__->ns.ts_is_skip_suite =0;\
+    fctkern_ptr__->ns.ts_skip_cndtn =NULL;\
+ 
 #define FCT_SETUP_BGN()\
-   if ( fct_ts__is_setup_mode(fctkern_ptr__->ns.curr_ts) ) {
+   if ( fct_ts__is_setup_mode(fctkern_ptr__->ns.ts_curr) ) {
 
 #define FCT_SETUP_END() \
-   fct_ts__setup_end(fctkern_ptr__->ns.curr_ts); }
+   fct_ts__setup_end(fctkern_ptr__->ns.ts_curr); }
 
 #define FCT_TEARDOWN_BGN() \
-   if ( fct_ts__is_teardown_mode(fctkern_ptr__->ns.curr_ts) ) {\
+   if ( fct_ts__is_teardown_mode(fctkern_ptr__->ns.ts_curr) ) {\
  
 #define FCT_TEARDOWN_END() \
-   fct_ts__teardown_end(fctkern_ptr__->ns.curr_ts); \
+   fct_ts__teardown_end(fctkern_ptr__->ns.ts_curr); \
    continue; \
    }
 
@@ -2541,6 +2696,12 @@ do it by 'stubbing' out the setup/teardown logic. */
  
 #define FCT_SUITE_END() } FCT_FIXTURE_SUITE_END()
 
+#define FCT_SUITE_BGN_IF(_CONDITION_, _NAME_) \
+    FCT_FIXTURE_SUITE_BGN_IF(_CONDITION_, (_NAME_)) {\
+    FCT_SETUP_BGN() {_fct_cmt("stubbed"); } FCT_SETUP_END()\
+    FCT_TEARDOWN_BGN() {_fct_cmt("stubbed");} FCT_TEARDOWN_END()\
+
+#define FCT_SUITE_END_IF() } FCT_FIXTURE_SUITE_END_IF()
 
 typedef enum
 {
@@ -2562,36 +2723,47 @@ confirm that checks/requirements are doing what are required. */
          {\
             fctkern_ptr__->ns.curr_test_name = #_NAME_;\
             ++(fctkern_ptr__->ns.test_num);\
-            if ( fct_ts__is_cnt_mode(fctkern_ptr__->ns.curr_ts) )\
+            if ( fct_ts__is_cnt_mode(fctkern_ptr__->ns.ts_curr) )\
             {\
-               fct_ts__inc_total_test_num(fctkern_ptr__->ns.curr_ts);\
+               fct_ts__inc_total_test_num(fctkern_ptr__->ns.ts_curr);\
             }\
-            else if ( fct_ts__is_test_mode(fctkern_ptr__->ns.curr_ts) \
-                      && fct_ts__is_test_cnt(fctkern_ptr__->ns.curr_ts, fctkern_ptr__->ns.test_num) )\
+            else if ( fct_ts__is_test_mode(fctkern_ptr__->ns.ts_curr) \
+                      && fct_ts__is_test_cnt(fctkern_ptr__->ns.ts_curr, fctkern_ptr__->ns.test_num) )\
             {\
-               fct_ts__test_begin(fctkern_ptr__->ns.curr_ts);\
+               fct_ts__test_begin(fctkern_ptr__->ns.ts_curr);\
                if ( fctkern__pass_filter(fctkern_ptr__,  fctkern_ptr__->ns.curr_test_name ) )\
                {\
                   fctkern_ptr__->ns.curr_test = fct_test_new( fctkern_ptr__->ns.curr_test_name );\
                   if ( fctkern_ptr__->ns.curr_test  == NULL ) {\
                     fctkern__log_warn(fctkern_ptr__, "out of memory");\
-                  }\
-                  else {\
-                      fctkern__log_test_start(fctkern_ptr__, fctkern_ptr__->ns.curr_test);\
+                  } else if ( fctkern_ptr__->ns.ts_is_skip_suite ) {\
+                       fct_ts__test_begin(fctkern_ptr__->ns.ts_curr);\
+                       fctkern__log_test_skip(\
+                            fctkern_ptr__,\
+                            fctkern_ptr__->ns.curr_test_name,\
+                            fctkern_ptr__->ns.ts_skip_cndtn\
+                       );\
+                       fct_ts__test_end(fctkern_ptr__->ns.ts_curr);\
+                       continue;\
+                 } else {\
+                     fctkern__log_test_start(fctkern_ptr__, fctkern_ptr__->ns.curr_test);\
                       for (;;) \
                       {
+
+
+
 
 #define FCT_TEST_END() \
                          break;\
                       }\
+                 }\
+                 fct_ts__add_test(fctkern_ptr__->ns.ts_curr, fctkern_ptr__->ns.curr_test);\
+                 fctkern__log_test_end(fctkern_ptr__, fctkern_ptr__->ns.curr_test);\
                }\
-               fct_ts__add_test(fctkern_ptr__->ns.curr_ts, fctkern_ptr__->ns.curr_test);\
-               fctkern__log_test_end(fctkern_ptr__, fctkern_ptr__->ns.curr_test);\
-               }\
-               fct_ts__test_end(fctkern_ptr__->ns.curr_ts);\
+               fct_ts__test_end(fctkern_ptr__->ns.ts_curr);\
                continue;\
             }\
-         }
+         }\
 
 
 

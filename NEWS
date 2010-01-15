@@ -7,6 +7,8 @@ Whats new in FCT 1.2
 
  - ENH: (sys-command-line-parser) ability to parse and read command line
    options.
+ - ENH: (sys-conditional-test-runs): ability to run test suites based on a
+   conditional. See FCT_FIXTURE_SUITE_BGN_IF and FCT_SUITE_BGN_IF macros.
  - FIX: (486457) #pragma down to warning level 3 for MSC during FCTMF calls.
  - FIX: (501472) CMAKE now configures MSC to compile with /W4. 
  - FIX: (501474) GCC now compiles with higher warning levels

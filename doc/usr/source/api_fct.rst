@@ -68,7 +68,7 @@ Test Suites
 .. /*  (Just fixes VIM highlighter)
 
 
-.. cfunction:: FCT_FIXTURE_SUITE_END(name)
+.. cfunction:: FCT_FIXTURE_SUITE_END()
 
 	This closes a test suite that contains fixtures. If you do not wish to
 	specify a setup/teardown you would use the :cfunc:`FCT_SUITE_END` 
@@ -101,7 +101,7 @@ Test Suites
 
 .. cfunction:: FCT_SUITE_END()
 
-        Closes the FCT_SUITE_BGN function.
+        Closes the FCT_SUITE_BGN macro.
 
 .. cfunction:: FCT_SETUP_BGN()
 
@@ -119,6 +119,31 @@ Test Suites
 
         Ends a teardown block. 
 
+Conditional Test Suites
+-----------------------
+
+The following macros provide you with the ability to run a test suite based on
+some condition. If the condition is TRUE (non-zero) then the test suite and its
+tests will be executed.
+
+.. cfunction:: FCT_FIXTURE_SUITE_BGN_IF(condition, name)
+
+        Same as :cfunc:`FCT_SUITE_BGN`, but will only run if the *condition* is
+        a non-zero value (TRUE).
+	
+.. cfunction:: FCT_FIXTURE_SUITE_END_IF()
+
+        Closes the :cfunc:`FCT_FIXTURE_SUITE_BGN_IF` macro.
+
+
+.. cfunction:: FCT_SUITE_BGN_IF(condition, name)
+
+        Same as :cfunc:`FCT_SUITE_BGN`, but will only run if the *condition* is
+        a non-zero value (TRUE).
+
+.. cfunction:: FCT_SUITE_END_IF()
+
+        Closes the :cfunc:`FCT_SUITE_BGN_IF` macro.
 
 Quick Test
 ----------
