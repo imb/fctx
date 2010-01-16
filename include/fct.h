@@ -1486,6 +1486,8 @@ typedef struct _fct_namespace_t
     /* Current test name. */
     char const* curr_test_name;
     fct_test_t *curr_test;
+    const char *test_skip_cndtn;
+    int test_is_skip;
 
     /* Counts the number of tests in a test suite. */
     int test_num;
@@ -2713,15 +2715,24 @@ typedef enum
 } FCT_TEST_END_FLAG;
 
 
+#define FCT_TEST_BGN_IF(_CONDITION_, _NAME_) { \
+    fctkern_ptr__->ns.test_is_skip = !(_CONDITION_);\
+    fctkern_ptr__->ns.test_skip_cndtn = #_CONDITION_;\
+    FCT_TEST_BGN(_NAME_) {\
+
+#define FCT_TEST_END_IF() \
+    } FCT_TEST_END();\
+    fctkern_ptr__->ns.test_is_skip = 0;\
+    fctkern_ptr__->ns.test_skip_cndtn = NULL;\
+    }
+
+
 /* Depending on whether or not we are counting the tests, we will have to
 first determine if the test is the "current" count. Then we have to determine
 if we can pass the filter. Finally we will execute everything so that when a
 check fails, we can "break" out to the end of the test. And in between all
 that we do a memory check and fail a test if we can't build a fct_test
-object (should be rare).
-
-__NOFAIL variants are used for my own internal testing to help
-confirm that checks/requirements are doing what are required. */
+object (should be rare). */
 #define FCT_TEST_BGN(_NAME_) \
          {\
             fctkern_ptr__->ns.curr_test_name = #_NAME_;\
@@ -2739,12 +2750,15 @@ confirm that checks/requirements are doing what are required. */
                   fctkern_ptr__->ns.curr_test = fct_test_new( fctkern_ptr__->ns.curr_test_name );\
                   if ( fctkern_ptr__->ns.curr_test  == NULL ) {\
                     fctkern__log_warn(fctkern_ptr__, "out of memory");\
-                  } else if ( fctkern_ptr__->ns.ts_is_skip_suite ) {\
+                  } else if ( fctkern_ptr__->ns.ts_is_skip_suite \
+                              || fctkern_ptr__->ns.test_is_skip ) {\
                        fct_ts__test_begin(fctkern_ptr__->ns.ts_curr);\
                        fctkern__log_test_skip(\
                             fctkern_ptr__,\
                             fctkern_ptr__->ns.curr_test_name,\
-                            fctkern_ptr__->ns.ts_skip_cndtn\
+                            (fctkern_ptr__->ns.test_is_skip) ?\
+                                (fctkern_ptr__->ns.test_skip_cndtn) :\
+                                (fctkern_ptr__->ns.ts_skip_cndtn)\
                        );\
                        fct_ts__test_end(fctkern_ptr__->ns.ts_curr);\
                        continue;\
@@ -3019,12 +3033,12 @@ The basic idea is that there is one test per test suite.
 
 
 #define FCT_QTEST_BGN_IF(_CONDITION_, _NAME_) \
-	FCT_SUITE_BGN_IF(_CONDITION_,_NAME_) {\
-		FCT_TEST_BGN(_NAME_) {\
+	FCT_SUITE_BGN(_NAME_) {\
+		FCT_TEST_BGN_IF(_CONDITION_, _NAME_) {\
  
 #define FCT_QTEST_END_IF() \
-		} FCT_TEST_END();\
-	} FCT_SUITE_END_IF();
+		} FCT_TEST_END_IF();\
+	} FCT_SUITE_END();
 
 /*
 ---------------------------------------------------------

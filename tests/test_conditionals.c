@@ -26,6 +26,8 @@ FCT_BGN()
     int is_test_suite_if_false =0;
     int is_qtest_if_true =0;
     int is_qtest_if_false =0;
+    int is_test_if_true =0;
+    int is_test_if_false =0;
 
     /* ------------------------------------------------------------- */
 
@@ -98,6 +100,28 @@ FCT_BGN()
     FCT_QTEST_END_IF();
 
     /* ------------------------------------------------------------- */
+
+    FCT_SUITE_BGN(test_if_true)
+    {
+        FCT_TEST_BGN_IF(true_condition, run_test_if_true)
+        {
+            is_test_if_true =1;
+        }
+        FCT_TEST_END_IF();
+    }
+    FCT_SUITE_END_IF();
+
+    FCT_SUITE_BGN(test_if_false)
+    {
+        FCT_TEST_BGN_IF(false_condition, run_test_if_false)
+        {
+            is_test_if_false =1;
+        }
+        FCT_TEST_END_IF();
+    }
+    FCT_SUITE_END();
+
+    /* ------------------------------------------------------------- */
     puts("--- Confirm Conditionals Worked -- \n");
 
     FCT_QTEST_BGN(confirm_conditionals__fixture_suite)
@@ -118,6 +142,13 @@ FCT_BGN()
     {
         fct_chk( is_qtest_if_true );
         fct_chk( !is_qtest_if_false );
+    }
+    FCT_QTEST_END();
+
+    FCT_QTEST_BGN(confirm_conditionals__test)
+    {
+        fct_chk( is_test_if_true );
+        fct_chk( !is_test_if_false );
     }
     FCT_QTEST_END();
 }

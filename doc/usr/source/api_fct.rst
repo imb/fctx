@@ -217,6 +217,20 @@ These define a beginning and end of a test block. See also
 
    Closes a test block. 
 
+Conditional Tests
+-----------------
+
+Use these variants to run a test based on a conditional value.
+
+.. cfunction:: FCT_TEST_BGN_IF(condition, name)
+
+   Opens a test block with the given *name*. The test is only executed if the
+   *condition* is a non-zero (TRUE) value.
+
+.. cfunction:: FCT_TEST_END_IF()
+
+   Closes a test block. 
+
 
 Checks
 ------
