@@ -21,10 +21,10 @@ File: test_cl_customize.c.in
 
 #include "fct.h"
 
-static fct_clo_init_t my_options[] = {
-    {"--flag", "-f",  FCT_CLO_STORE_TRUE, "Test boolean flag."}, 
-    {"--value", "-v", FCT_CLO_STORE_VALUE, "Test store value."}, 
-    FCT_CLO_INIT_NULL
+static fctcl_init_t my_options[] = {
+    {"--flag", "-f",  FCTCL_STORE_TRUE, "Test boolean flag."}, 
+    {"--value", "-v", FCTCL_STORE_VALUE, "Test store value."}, 
+    FCTCL_INIT_NULL
 };
 
 /* Configuration settings configured by cmake. */
@@ -38,15 +38,15 @@ FCT_BGN()
     int g_is_flag =-1;
     char const *g_value =NULL;
     
-    FCT_CL_INSTALL(my_options);
+    fctcl_install(my_options);
 
     /* Want to make sure a parse happens AFTER the my_options. */
-    g_is_flag = FCT_CL_IS("--flag");
-    g_value = FCT_CL_VAL("--value");
+    g_is_flag = fctcl_is("--flag");
+    g_value = fctcl_val("--value");
     
     /* -------------------------------------------------------------------- */
     FCT_QTEST_BGN(test_flag) {
-        int is_flag = FCT_CL_IS("--flag");
+        int is_flag = fctcl_is("--flag");
 #if defined(CL_USE_FLAG)
         fct_chk( is_flag );
         fct_chk( g_is_flag );
@@ -59,7 +59,7 @@ FCT_BGN()
 
     /* -------------------------------------------------------------------- */
     FCT_QTEST_BGN(test_value) {
-        char const *val = FCT_CL_VAL2("--value", NULL);
+        char const *val = fctcl_val2("--value", NULL);
 #if defined(CL_USE_VALUE)
         fct_chk_eq_str(val, CL_PASSED_IN_VALUE);
         fct_chk_eq_str(g_value, CL_PASSED_IN_VALUE);
