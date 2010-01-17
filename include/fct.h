@@ -149,7 +149,7 @@ UTILITIES
 /* Utility for truncated, safe string copies. The NUM
 should be the length of DST plus the null-termintor. */
 static void
-fct_safe_str_cpy(char *dst, char const *src, size_t num)
+fctstr_safe_cpy(char *dst, char const *src, size_t num)
 {
     assert( dst != NULL );
     assert( src != NULL );
@@ -200,14 +200,14 @@ fct_snprintf(char *buffer, size_t buffer_len, char const *format, ...)
 /* Helper to for cloning strings on the heap. Returns NULL for
 an out of memory condition. */
 static char*
-fct_str_clone(char const *s)
+fctstr_clone(char const *s)
 {
     char *k =NULL;
     size_t klen =0;
     assert( s != NULL && "invalid arg");
     klen = strlen(s)+1;
     k = (char*)malloc(sizeof(char)*klen+1);
-    fct_safe_str_cpy(k, s, klen);
+    fctstr_safe_cpy(k, s, klen);
     return k;
 }
 
@@ -262,54 +262,56 @@ fct_filter_pass(char const *prefix, char const *test_str)
 }
 
 
-/* Small little predicates to use with fct_str_eq function. */
+/* Routine checks if two strings are equal. Taken from
+http://publications.gbdirect.co.uk/c_book/chapter5/character_handling.html
+*/
 static int
-_fct_check_char(char a, char b)
+fctstr_eq(char const *s1, char const *s2)
 {
-    return a == b;
-}
-
-static int
-_fct_check_char_lower(char a, char b)
-{
-    return tolower(a) == tolower(b);
-}
-
-
-/* Routine checks if two strings match according to a CHECK_CHAR.
-The check is done char-by-char, and if predicate is not satisfied,
-false is returned. */
-static int
-_fct_str_equal(char const *v1,
-               char const *v2,
-               int (*check_char)(char, char))
-{
-    char const *pv1 = NULL;
-    char const *pv2 = NULL;
-
-    if ( v1 == NULL && v2 == NULL )
+    if ( s1 == s2 )
     {
         return 1;
     }
-    else if ( (v1 != NULL && v2 == NULL) || (v1 == NULL && v2 != NULL) )
+    if ( (s1 == NULL && s2 != NULL)
+            || (s1 != NULL && s2 == NULL) )
     {
         return 0;
     }
-
-    for ( pv1 = v1, pv2 = v2; *pv1 != '\0' && *pv2 != '\0'; ++pv1, ++pv2)
+    while (*s1 == *s2)
     {
-        if ( !check_char(*pv1, *pv2) )
-        {
-            return 0;   /* mismatch! */
-        }
+        if (*s1 == '\0')
+            return 1;
+        s1++;
+        s2++;
     }
-    if ( (*pv1 == '\0' && *pv2 != '\0') || (*pv1 != '\0' && *pv2 == '\0') )
-    {
-        /* Different length strings implies they are not equal. */
-        return 0;
-    }
-    return 1; /* Same length strings, never failed to mismatch. */
+    /* Difference detected! */
+    return 0;
 }
+
+
+static int
+fctstr_ieq(char const *s1, char const *s2)
+{
+    if ( s1 == s2 )
+    {
+        return 1;
+    }
+    if ( (s1 == NULL && s2 != NULL)
+            || (s1 != NULL && s2 == NULL) )
+    {
+        return 0;
+    }
+    while (tolower(*s1) == tolower(*s2))
+    {
+        if (*s1 == '\0')
+            return 1;
+        s1++;
+        s2++;
+    }
+    /* Difference detected! */
+    return 0;
+}
+
 
 
 /* Use this with the _end variant to get the
@@ -593,8 +595,8 @@ fctchk_new(int is_pass,
         return NULL;
     }
 
-    fct_safe_str_cpy(chk->cndtn, cndtn, FCT_MAX_LOG_LINE);
-    fct_safe_str_cpy(chk->file, file, FCT_MAX_LOG_LINE);
+    fctstr_safe_cpy(chk->cndtn, cndtn, FCT_MAX_LOG_LINE);
+    fctstr_safe_cpy(chk->file, file, FCT_MAX_LOG_LINE);
     chk->lineno = lineno;
 
     chk->is_pass =is_pass;
@@ -607,7 +609,7 @@ fctchk_new(int is_pass,
     {
         /* Default to make the condition be the message, if there was no format
         specified. */
-        fct_safe_str_cpy(chk->msg, cndtn, FCT_MAX_LOG_LINE);
+        fctstr_safe_cpy(chk->msg, cndtn, FCT_MAX_LOG_LINE);
     }
 
     return chk;
@@ -679,7 +681,7 @@ fct_test_new(char const *name)
         return NULL;
     }
 
-    fct_safe_str_cpy(test->name, name, FCT_MAX_NAME);
+    fctstr_safe_cpy(test->name, name, FCT_MAX_NAME);
 
     if ( !fct_nlist__init(&(test->failed_chks))
             || !fct_nlist__init(&(test->passed_chks)) )
@@ -832,7 +834,7 @@ fct_ts_new(char const *name)
     ts = (fct_ts_t*)calloc(1, sizeof(fct_ts_t));
     assert( ts != NULL );
 
-    fct_safe_str_cpy(ts->name, name, FCT_MAX_NAME);
+    fctstr_safe_cpy(ts->name, name, FCT_MAX_NAME);
     ts->mode = ts_mode_cnt;
     fct_nlist__init(&(ts->test_list));
     return ts;
@@ -1130,7 +1132,7 @@ fct_clo_new2(fct_clo_init_t const *clo_init)
     }
     else
     {
-        clone->help = fct_str_clone(clo_init->help);
+        clone->help = fctstr_clone(clo_init->help);
         if ( clone->help == NULL )
         {
             ok =0;
@@ -1143,7 +1145,7 @@ fct_clo_new2(fct_clo_init_t const *clo_init)
     }
     else
     {
-        clone->long_opt = fct_str_clone(clo_init->long_opt);
+        clone->long_opt = fctstr_clone(clo_init->long_opt);
         if ( clone->long_opt == NULL )
         {
             ok = 0;
@@ -1156,7 +1158,7 @@ fct_clo_new2(fct_clo_init_t const *clo_init)
     }
     else
     {
-        clone->short_opt = fct_str_clone(clo_init->short_opt);
+        clone->short_opt = fctstr_clone(clo_init->short_opt);
         if ( clone->short_opt == NULL )
         {
             ok =0;
@@ -1180,16 +1182,16 @@ fct_clo__is_option(fct_clo_t const *clo, char const *option)
     assert( option != NULL);
     assert( clo != NULL );
     return ((clo->long_opt != NULL
-             && _fct_str_equal(clo->long_opt, option, _fct_check_char))
+             && fctstr_eq(clo->long_opt, option))
             ||
             (clo->short_opt != NULL
-             && _fct_str_equal(clo->short_opt, option, _fct_check_char))
+             && fctstr_eq(clo->short_opt, option))
            );
 }
 
 
 #define fct_clo__set_value(_CLO_, _VAL_) \
-    (_CLO_)->value = fct_str_clone((_VAL_));
+    (_CLO_)->value = fctstr_clone((_VAL_));
 
 /*
 --------------------------------------------------------
@@ -1296,7 +1298,7 @@ fct_clp__parse(fct_clp_t *clp, int argc, char const *argv[])
         is_option =0;
         token =NULL;
         next_token = NULL;
-        arg = fct_str_clone(argv[argi]);
+        arg = fctstr_clone(argv[argi]);
 #if _MSC_VER > 1300
         token = strtok_s(arg, "=", &next_token);
 #else
@@ -1437,7 +1439,7 @@ fct_clp__write_help(fct_clp_t *clp, FILE *out)
     *(_IS_PARAM_OUT_) = 0;\
     FCT_NLIST_FOREACH_BGN(char *, aparam, &((_CLP_)->param_list))\
     {\
-        if ( _fct_str_equal(aparam, (_PARAM_), _fct_check_char) )\
+        if ( fctstr_eq(aparam, (_PARAM_)) )\
         {\
             *(_IS_PARAM_OUT_) = 1;\
             break;\
@@ -1600,7 +1602,7 @@ fctkern__add_prefix_filter(fctkern_t *nk, char const *prefix_filter)
     in our little list. */
     filter_len = strlen(prefix_filter);
     filter = (char*)malloc(sizeof(char)*(filter_len+1));
-    fct_safe_str_cpy(filter, prefix_filter, filter_len+1);
+    fctstr_safe_cpy(filter, prefix_filter, filter_len+1);
     fct_nlist__append(&(nk->prefix_list), (void*)filter);
 }
 
@@ -2543,9 +2545,8 @@ The logical acrobatics below try and make it appear to the compiler that
 they are needed, but at runtime, only the cheap, first call is made. */
 #define FCT_REFERENCE_FUNCS() \
     {\
-        int check = 0 && _fct_check_char('a', 'b');\
+        int check = 0 && fctstr_ieq(NULL, NULL);\
         if ( check ) { \
-            _fct_check_char_lower('a', 'b');\
             fctkern__cl_is(NULL, "");\
             fctkern__cl_val2(NULL, NULL, NULL);\
             fctkern__log_suite_skip(NULL, NULL, NULL);\
@@ -2719,7 +2720,7 @@ typedef enum
     fctkern_ptr__->ns.test_is_skip = !(_CONDITION_);\
     fctkern_ptr__->ns.test_skip_cndtn = #_CONDITION_;\
     FCT_TEST_BGN(_NAME_) {\
-
+ 
 #define FCT_TEST_END_IF() \
     } FCT_TEST_END();\
     fctkern_ptr__->ns.test_is_skip = 0;\
@@ -2878,7 +2879,7 @@ if it fails. */
 
 
 #define fct_chk_eq_str(V1, V2) \
-    fct_xchk(_fct_str_equal((V1), (V2), _fct_check_char),\
+    fct_xchk(fctstr_eq((V1), (V2)),\
           "chk_eq_str: '%s' != '%s'",\
           (V1),\
           (V2)\
@@ -2886,7 +2887,7 @@ if it fails. */
 
 
 #define fct_chk_neq_str(V1, V2) \
-    fct_xchk(!_fct_str_equal((V1), (V2), _fct_check_char),\
+    fct_xchk(!fctstr_eq((V1), (V2)),\
           "chk_neq_str: '%s' == '%s'",\
           (V1),\
           (V2)\
@@ -2894,7 +2895,7 @@ if it fails. */
 
 
 #define fct_chk_eq_istr(V1, V2) \
-    fct_xchk(_fct_str_equal((V1), (V2), _fct_check_char_lower),\
+    fct_xchk(fctstr_ieq((V1), (V2)),\
           "chk_eq_str: '%s' != '%s'",\
           (V1),\
           (V2)\
@@ -2902,7 +2903,7 @@ if it fails. */
 
 
 #define fct_chk_neq_istr(V1, V2) \
-    fct_xchk(!_fct_str_equal((V1), (V2), _fct_check_char_lower),\
+    fct_xchk(!fctstr_ieq((V1), (V2)),\
           "chk_neq_str: '%s' == '%s'",\
           (V1),\
           (V2)\

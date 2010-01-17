@@ -74,6 +74,7 @@ FCT_BGN()
         fct_chk_neq_str(NULL, "b");
         fct_chk_neq_str("a", NULL);
         fct_chk_neq_istr("different", "differentlengths");
+        fct_chk_neq_istr("differentlengths", "different");
     }
     FCT_QTEST_END();
 
@@ -89,6 +90,7 @@ FCT_BGN()
     FCT_QTEST_BGN(chk_neq_istr)
     {
         fct_chk_neq_istr("mismatch", "misMatchLength");
+        fct_chk_neq_istr("misMatchLength", "mismatch");
         fct_chk_neq_istr("a", "b");
         fct_chk_neq_istr("A", "b");
         fct_chk_neq_istr(NULL, "b");
