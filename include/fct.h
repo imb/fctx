@@ -1017,7 +1017,7 @@ fct_ts__chk_cnt(fct_ts_t const *ts)
 
 /*
 --------------------------------------------------------
-FCT COMMAND LINE OPTION INITIALIZATION (fct_clo_init)
+FCT COMMAND LINE OPTION INITIALIZATION (fctcl_init)
 --------------------------------------------------------
 
 Structure used for command line initialization. To keep it clear that we do
@@ -1027,34 +1027,34 @@ not delete the char*'s present on this structure.
 
 typedef enum
 {
-    FCT_CLO_STORE_UNDEFINED,
-    FCT_CLO_STORE_TRUE,
-    FCT_CLO_STORE_VALUE
-} fct_clo_store_t;
+    FCTCL_STORE_UNDEFINED,
+    FCTCL_STORE_TRUE,
+    FCTCL_STORE_VALUE
+} fctcl_store_t;
 
 
-typedef struct _fct_clo_init_t
+typedef struct _fctcl_init_t
 {
     /* What to parse for this option. --long versus -s. */
     char const *long_opt;     /* i.e. --help */
     char const *short_opt;    /* i.e. -h */
 
     /* What action to take when the option is activated. */
-    fct_clo_store_t action;
+    fctcl_store_t action;
 
     /* The help string for the action. */
     char const *help;
-} fct_clo_init_t;
+} fctcl_init_t;
 
 
 /* Use when defining the option list. */
-#define FCT_CLO_INIT_NULL  \
-    {NULL, NULL, FCT_CLO_STORE_UNDEFINED, NULL}
+#define FCTCL_INIT_NULL  \
+    {NULL, NULL, FCTCL_STORE_UNDEFINED, NULL}
 
 
 /*
 --------------------------------------------------------
-FCT COMMAND LINE OPTION (fct_clo)
+FCT COMMAND LINE OPTION (fctcl)
 --------------------------------------------------------
 
 Specifies the command line configuration options. Use this
@@ -1065,31 +1065,31 @@ to help initialize the fct_clp (command line parser).
 /* Handy strings for storing "true" and "false". We can reference
 these strings throughout the parse operation and not have to
 worry about dealing with memory. */
-#define FCT_CLO_TRUE_STR "1"
+#define FCTCL_TRUE_STR "1"
 
 
-typedef struct _fct_clo_t
+typedef struct _fctcl_t
 {
     /* What to parse for this option. --long versus -s. */
     char *long_opt;     /* i.e. --help */
     char *short_opt;    /* i.e. -h */
 
     /* What action to take when the option is activated. */
-    fct_clo_store_t action;
+    fctcl_store_t action;
 
     /* The help string for the action. */
     char *help;
 
     /* The result. */
     char *value;
-} fct_clo_t;
+} fctcl_t;
 
 
-#define fct_clo_new()  ((fct_clo_t*)calloc(1, sizeof(fct_clo_t)))
+#define fctcl_new()  ((fctcl_t*)calloc(1, sizeof(fctcl_t)))
 
 
 static void
-fct_clo__del(fct_clo_t *clo)
+fctcl__del(fctcl_t *clo)
 {
     if ( clo == NULL )
     {
@@ -1115,12 +1115,12 @@ fct_clo__del(fct_clo_t *clo)
 }
 
 
-static fct_clo_t*
-fct_clo_new2(fct_clo_init_t const *clo_init)
+static fctcl_t*
+fctcl_new2(fctcl_init_t const *clo_init)
 {
-    fct_clo_t *clone = NULL;
+    fctcl_t *clone = NULL;
     int ok =0;
-    clone = fct_clo_new();
+    clone = fctcl_new();
     if ( clone == NULL )
     {
         return NULL;
@@ -1169,7 +1169,7 @@ fct_clo_new2(fct_clo_init_t const *clo_init)
 finally:
     if ( !ok )
     {
-        fct_clo__del(clone);
+        fctcl__del(clone);
         clone = NULL;
     }
     return clone;
@@ -1177,7 +1177,7 @@ finally:
 
 
 static int
-fct_clo__is_option(fct_clo_t const *clo, char const *option)
+fctcl__is_option(fctcl_t const *clo, char const *option)
 {
     assert( option != NULL);
     assert( clo != NULL );
@@ -1190,7 +1190,7 @@ fct_clo__is_option(fct_clo_t const *clo, char const *option)
 }
 
 
-#define fct_clo__set_value(_CLO_, _VAL_) \
+#define fctcl__set_value(_CLO_, _VAL_) \
     (_CLO_)->value = fctstr_clone((_VAL_));
 
 /*
@@ -1217,20 +1217,20 @@ typedef struct _fct_clp_t
 static void
 fct_clp__final(fct_clp_t *clp)
 {
-    fct_nlist__final(&(clp->clo_list), (fct_nlist_on_del_t)fct_clo__del);
+    fct_nlist__final(&(clp->clo_list), (fct_nlist_on_del_t)fctcl__del);
     fct_nlist__final(&(clp->param_list), (fct_nlist_on_del_t)free);
 }
 
 
 /* Add an configuration options. */
 static int
-fct_clp__add_options(fct_clp_t *clp, fct_clo_init_t const *options)
+fct_clp__add_options(fct_clp_t *clp, fctcl_init_t const *options)
 {
-    fct_clo_init_t const *pclo =NULL;
+    fctcl_init_t const *pclo =NULL;
     int ok;
-    for ( pclo = options; pclo->action != FCT_CLO_STORE_UNDEFINED; ++pclo )
+    for ( pclo = options; pclo->action != FCTCL_STORE_UNDEFINED; ++pclo )
     {
-        fct_clo_t *cpy = fct_clo_new2(pclo);
+        fctcl_t *cpy = fctcl_new2(pclo);
         if ( cpy == NULL )
         {
             ok = 0;
@@ -1245,7 +1245,7 @@ finally:
 
 /* Returns false if we ran out of memory. */
 static int
-fct_clp__init(fct_clp_t *clp, fct_clo_init_t const *options)
+fct_clp__init(fct_clp_t *clp, fctcl_init_t const *options)
 {
     int ok =0;
     assert( clp != NULL );
@@ -1305,19 +1305,19 @@ fct_clp__parse(fct_clp_t *clp, int argc, char const *argv[])
         token = strtok(arg, "=");
         next_token = strtok(NULL, "=");
 #endif
-        FCT_NLIST_FOREACH_BGN(fct_clo_t*, pclo, &(clp->clo_list))
+        FCT_NLIST_FOREACH_BGN(fctcl_t*, pclo, &(clp->clo_list))
         {
             /* Need to reset for each search. strtok below is destructive. */
-            if ( fct_clo__is_option(pclo, token) )
+            if ( fctcl__is_option(pclo, token) )
             {
                 is_option =1;
-                if ( pclo->action == FCT_CLO_STORE_VALUE )
+                if ( pclo->action == FCTCL_STORE_VALUE )
                 {
                     /* If this is --xxxx=value then the next strtok should succeed.
                     Otherwise, we need to chew up the next argument. */
                     if ( next_token != NULL && strlen(next_token) > 0 )
                     {
-                        fct_clo__set_value(pclo, next_token);
+                        fctcl__set_value(pclo, next_token);
                     }
                     else
                     {
@@ -1334,12 +1334,12 @@ fct_clp__parse(fct_clp_t *clp, int argc, char const *argv[])
                             clp->is_error =1;
                             break;
                         }
-                        fct_clo__set_value(pclo, argv[argi]);
+                        fctcl__set_value(pclo, argv[argi]);
                     }
                 }
-                else if (pclo->action == FCT_CLO_STORE_TRUE)
+                else if (pclo->action == FCTCL_STORE_TRUE)
                 {
-                    fct_clo__set_value(pclo, FCT_CLO_TRUE_STR);
+                    fctcl__set_value(pclo, FCTCL_TRUE_STR);
                 }
                 else
                 {
@@ -1372,14 +1372,14 @@ fct_clp__parse(fct_clp_t *clp, int argc, char const *argv[])
 }
 
 
-static fct_clo_t const*
+static fctcl_t const*
 fct_clp__get_clo(fct_clp_t const *clp, char const *option)
 {
-    fct_clo_t const *found =NULL;
+    fctcl_t const *found =NULL;
 
-    FCT_NLIST_FOREACH_BGN(fct_clo_t const*, pclo, &(clp->clo_list))
+    FCT_NLIST_FOREACH_BGN(fctcl_t const*, pclo, &(clp->clo_list))
     {
-        if ( fct_clo__is_option(pclo, option) )
+        if ( fctcl__is_option(pclo, option) )
         {
             found = pclo;
             break;
@@ -1399,7 +1399,7 @@ If the value wasn't parsed, the DEFAULT_VAL is returned instead. */
 static char const*
 fct_clp__optval2(fct_clp_t *clp, char const *option, char const *default_val)
 {
-    fct_clo_t const *clo =NULL;
+    fctcl_t const *clo =NULL;
     assert( clp != NULL );
     assert( option != NULL );
     clo = fct_clp__get_clo(clp, option);
@@ -1416,7 +1416,7 @@ static void
 fct_clp__write_help(fct_clp_t *clp, FILE *out)
 {
     fprintf(out, "test.exe [options] prefix_filter ...\n\n");
-    FCT_NLIST_FOREACH_BGN(fct_clo_t*, clo, &(clp->clo_list))
+    FCT_NLIST_FOREACH_BGN(fctcl_t*, clo, &(clp->clo_list))
     {
         if ( clo->short_opt != NULL )
         {
@@ -1523,7 +1523,7 @@ struct _fctkern_t
     char const **cl_argv;
 
     /* Track user options. */
-    fct_clo_init_t const *cl_user_opts;
+    fctcl_init_t const *cl_user_opts;
 
     /* Tracks the delay parsing. */
     int cl_is_parsed;
@@ -1552,24 +1552,24 @@ struct _fctkern_t
 #define FCT_OPT_HELP_SHORT    "-h"
 #define FCT_OPT_LOGGER        "--logger"
 #define FCT_OPT_LOGGER_SHORT  "-l"
-static fct_clo_init_t FCT_CLP_OPTIONS[] =
+static fctcl_init_t FCT_CLP_OPTIONS[] =
 {
     /* Totally unsafe, since we are assuming we can clean out this data,
     what I need to do is have an "initialization" object, full of
     const objects. But for now, this should work. */
     {FCT_OPT_VERSION,
         FCT_OPT_VERSION_SHORT,
-        FCT_CLO_STORE_TRUE,
+        FCTCL_STORE_TRUE,
         "Displays the FCTX version number and exits."},
     {FCT_OPT_HELP,
      FCT_OPT_HELP_SHORT,
-     FCT_CLO_STORE_TRUE,
+     FCTCL_STORE_TRUE,
      "Shows this help."},
     {FCT_OPT_LOGGER,
      FCT_OPT_LOGGER_SHORT,
-     FCT_CLO_STORE_VALUE,
+     FCTCL_STORE_VALUE,
      "RESERVED. Will handle different logger types in the future."},
-    FCT_CLO_INIT_NULL /* Sentinel */
+    FCTCL_INIT_NULL /* Sentinel */
 };
 
 
@@ -2587,7 +2587,7 @@ functions. */
 
 /* Re-parses the command line options with the addition of user defined
 options. */
-#define FCT_CL_INSTALL(_CLO_INIT_) \
+#define fctcl_install(_CLO_INIT_) \
     {\
         fctkern_ptr__->cl_user_opts = (_CLO_INIT_);\
         _fct_cmt("Delay parse in order to allow for user customization.");\
@@ -2606,11 +2606,11 @@ options. */
     }
 
 
-#define FCT_CL_IS(_OPT_STR_) (fctkern__cl_is(fctkern_ptr__, (_OPT_STR_)))
+#define fctcl_is(_OPT_STR_) (fctkern__cl_is(fctkern_ptr__, (_OPT_STR_)))
 
-#define FCT_CL_VAL(_OPT_STR_) (FCT_CL_VAL2((_OPT_STR_), NULL))
+#define fctcl_val(_OPT_STR_) (fctcl_val2((_OPT_STR_), NULL))
 
-#define FCT_CL_VAL2(_OPT_STR_, _DEF_STR_) \
+#define fctcl_val2(_OPT_STR_, _DEF_STR_) \
    (fctkern__cl_val2(fctkern_ptr__, (_OPT_STR_), (_DEF_STR_)))
 
 

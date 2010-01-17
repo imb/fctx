@@ -20,21 +20,21 @@ FCT_BGN()
 
     /* Test Data */
     fct_clp_t clp;
-    fct_clo_init_t options[] =
+    fctcl_init_t options[] =
     {
         /* The "casting to char*" is bad mojo here. But until I
-            grow a "fct_clo_init_t" object with constants, it will
+            grow a "fctcl_init_t" object with constants, it will
             do to quiet down C++. It turns out that you never delete
             this data, so it is OK to cast it to a char*. */
         {"--help",
             "-h",
-            FCT_CLO_STORE_TRUE,
+            FCTCL_STORE_TRUE,
             "Shows this message"},
         {"--output",
          NULL,
-         FCT_CLO_STORE_VALUE,
+         FCTCL_STORE_VALUE,
          "Name of file to store output."},
-        FCT_CLO_INIT_NULL /* Sentinel. */
+        FCTCL_INIT_NULL /* Sentinel. */
     };
 
     FCT_FIXTURE_SUITE_BGN(clp__parse_scenarios)
