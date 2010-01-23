@@ -2,14 +2,17 @@
 #
 
 # You can set these variables from the command line.
-SPHINXOPTS    =
+VERSION       = 0.0
+RELEASE       = 0.0.0
+SPHINXOPTS    = 
 SPHINXBUILD   = sphinx-build
 PAPER         =
 
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
-ALLSPHINXOPTS   = -d build/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) source
+ALLSPHINXOPTS   = -D version=$(VERSION) -D release=$(RELEASE) \
+		  -d build/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) source
 
 .PHONY: help clean html dirhtml pickle json htmlhelp qthelp latex changes linkcheck doctest
 
@@ -30,9 +33,15 @@ clean:
 	-rm -rf build/*
 
 html:
-	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) build/html
+	$(SPHINXBUILD) -b html -D rst_epilog="" $(ALLSPHINXOPTS) build/html
 	@echo
 	@echo "Build finished. The HTML pages are in build/html."
+
+html_web:
+	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) build/html_web
+	@echo
+	@echo "Build finished. The HTML pages are in build/html."
+
 
 dirhtml:
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) build/dirhtml

@@ -13,9 +13,10 @@
 # ====================================================================
 
 BRANCH=lp:/fctest/1.1
-VERSION=1.1.0
-SRCPACK=fctest-src-${VERSION}.tar.gz
-DOCPACK=fctest-doc-${VERSION}
+VERSION_SHORT=1.1
+VERSION=$(VERSION_SHORT).0
+SRCPACK=fctx-src-${VERSION}.tar.gz
+DOCPACK=fctx-doc-${VERSION}
 DIST_DIR=dist
 
 # Set the passphrase once with a command like:
@@ -80,7 +81,9 @@ ${DIST_DIR}/NEWS.asc: ${DIST_DIR}/NEWS
 	${SIGN} $? 
 
 ${DIST_DIR}/${DOCPACK}.tar.gz: ${DIST_DIR} 
-	make -C ../doc/usr html linkcheck
+	make -C ../doc/usr html linkcheck \
+	    VERSION=$(VERSION_SHORT) \
+	    RELEASE=$(VERSION)
 	[ -d ../doc/usr/build/${DOCPACK} ] && \
              rm -rf ../doc/usr/build/${DOCPACK} || \
              echo "pass"
@@ -101,3 +104,5 @@ cleandoc:
 
 clean:
 	rm -rf ${DIST_DIR}
+
+.phony: clean cleandoc doc
