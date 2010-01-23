@@ -12,9 +12,9 @@
 # you should have received as part of this distribution.  
 # ====================================================================
 
-BRANCH=lp:/fctest/1.1
-VERSION_SHORT=1.1
+VERSION_SHORT=1.2
 VERSION=$(VERSION_SHORT).0
+BRANCH=lp:/fctest/1.1
 SRCPACK=fctx-src-${VERSION}.tar.gz
 DOCPACK=fctx-doc-${VERSION}
 DIST_DIR=dist
@@ -28,6 +28,7 @@ all: \
      ${DIST_DIR}/ChangeLog.asc \
      ${DIST_DIR}/${DOCPACK}.tar.gz \
      ${DIST_DIR}/${DOCPACK}.tar.gz.asc \
+     ${DIST_DIR}/${DOCPACK}-WEB.tar.gz \
      ${DIST_DIR}/fct.h \
      ${DIST_DIR}/fct.h.asc \
      ${DIST_DIR}/NEWS \
@@ -91,18 +92,35 @@ ${DIST_DIR}/${DOCPACK}.tar.gz: ${DIST_DIR}
 	tar -C ../doc/usr/build -cvvf ${DIST_DIR}/${DOCPACK}.tar ${DOCPACK}
 	gzip ${DIST_DIR}/${DOCPACK}.tar
 
+${DIST_DIR}/${DOCPACK}-WEB.tar.gz: ${DIST_DIR} 
+	make -C ../doc/usr html_web linkcheck \
+	    VERSION=$(VERSION_SHORT) \
+	    RELEASE=$(VERSION)
+	[ -d ../doc/usr/build/${DOCPACK}-WEB ] && \
+             rm -rf ../doc/usr/build/${DOCPACK}-WEB || \
+             echo "pass"
+	cp -r ../doc/usr/build/html ../doc/usr/build/${DOCPACK}-WEB
+	tar -C ../doc/usr/build -cvvf ${DIST_DIR}/${DOCPACK}-WEB.tar ${DOCPACK}-WEB
+	gzip ${DIST_DIR}/${DOCPACK}-WEB.tar
+
+
 ${DIST_DIR}/${DOCPACK}.tar.gz.asc: ${DIST_DIR}/${DOCPACK}.tar.gz
 	${SIGN} $?
 
 # For easier documentation generation.
-doc: ${DIST_DIR}/${DOCPACK}.tar.gz
+doc: ${DIST_DIR}/${DOCPACK}.tar.gz \
+     ${DIST_DIR}/${DOCPACK}-WEB.tar.gz
 
 cleandoc: 
 	[ -f ${DIST_DIR}/${DOCPACK}.tar.gz ] && \
-              rm ${DIST_DIR}/${DOCPACK}.tar.gz || \
+              rm -f ${DIST_DIR}/${DOCPACK}.tar.gz || \
               echo "${DIST_DIR}/${DOCPACK}.tar.gz does not exist"
+	[ -f ${DIST_DIR}/${DOCPACK}-WEB.tar.gz ] && \
+              rm -f ${DIST_DIR}/${DOCPACK}-WEB.tar.gz || \
+              echo "${DIST_DIR}/${DOCPACK}-WEB.tar.gz does not exist"
 
-clean:
+
+clean: cleandoc
 	rm -rf ${DIST_DIR}
 
 .phony: clean cleandoc doc
