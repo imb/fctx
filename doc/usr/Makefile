@@ -40,7 +40,7 @@ html:
 html_web:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) build/html_web
 	@echo
-	@echo "Build finished. The HTML pages are in build/html."
+	@echo "Build finished. The HTML pages are in build/html_web."
 
 
 dirhtml:
