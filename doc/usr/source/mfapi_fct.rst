@@ -1,6 +1,6 @@
-======================
-FCT_MF: Multi-file API
-======================
+=====================
+FCTMF: Multi-file API
+=====================
 
 .. module:: FCTMF
    :platform: Unix, Windows
@@ -24,7 +24,7 @@ files. The process of registration is a one step "call" into the other files.
 Multi-File Setup
 ----------------
 
-Lets pretend we have two files: :file:`test_main.c` and :file:`test_a.c`. In
+Imagine we have two files: :file:`test_main.c` and :file:`test_a.c`. In
 :file:`test_main.c` we will setup and register our test that is defined in
 :file:`test_a.c`.
 
