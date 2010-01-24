@@ -31,6 +31,8 @@ Imagine we have two files: :file:`test_main.c` and :file:`test_a.c`. In
 Lets look at :file:`test_main.c`,
 
 .. code-block:: c
+   
+   /* file: test_main.c */
 
    #include "fct.h"
    
@@ -38,10 +40,14 @@ Lets look at :file:`test_main.c`,
        FCTMF_SUITE_CALL(test_a_feature);
    } FCT_END();
 
+.. /* fixes vim highlighting. 
+
 there now we have set it up to call into the test suite called "test_a_feature"
 defined in :file:`test_a.c`.  Lets look at the contents of :file:`test_a.c`.
 
 .. code-block:: c
+
+   /* file: test_a.c */
 
    #include "fct.h"
 
@@ -53,6 +59,9 @@ defined in :file:`test_a.c`.  Lets look at the contents of :file:`test_a.c`.
 
    } FCTMF_SUITE_END();
 
+.. /* fixes vim highlighting. 
+
+
 this will register a test suite called "test_a_feature" and execute a test
 called "sanity_check". 
 
@@ -60,6 +69,8 @@ If you wanted to use a test suite with fixtures (setup/teardown), you would do
 the following,
 
 .. code-block:: c
+
+   /* file: test_a.c */
  
    #include "fct.h"
 
@@ -93,7 +104,7 @@ teardown macros follow the existing :mod:`FCT` module.
 Note for MVC Compilers
 ----------------------
 
-Using the FCTMF API with warning level 4 will produce the following warning::
+Using the FCTMF API with warning level 4 will produce the following::
 
     warning C4210: nonstandard extension used : function given file scope
 
@@ -121,9 +132,9 @@ becomes,
 where we make a "variable" and "run it", and let the linker sort it out all in
 the end.
 
-The goal here was to prevent you from having to type repeatedly to "setup" your
-test suite. To stay at warning level 4, but quite down the compiler in this
-area, you can do the following,
+The goal here was to prevent you from having to repeatedly "register" your test
+suite in order for you get up and running. To stay at warning level 4, but
+quite the compiler, you can do the following,
 
 .. code-block:: c
 

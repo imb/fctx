@@ -18,7 +18,7 @@ testing. This module will grow over time.
 String Functions
 ----------------
 
-.. cfunction:: fcstr_clone(s)
+.. cfunction:: fctstr_clone(s)
 
         Allocates new memory, and copies the contents of *s* into the result.
         Callee should use the standard C Runtime Library's *free* function to

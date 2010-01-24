@@ -122,9 +122,9 @@ Test Suites
 Conditional Test Suites
 -----------------------
 
-The following macros provide you with the ability to run a test suite based on
-some condition. If the condition is TRUE (non-zero) then the test suite and its
-tests will be executed.
+*New in FCTX 1.2*. The following macros provide you with the ability to run a
+test suite based on some condition. If the condition is TRUE (non-zero) then
+the test suite and its tests will be executed.
 
 .. cfunction:: FCT_FIXTURE_SUITE_BGN_IF(condition, name)
 
@@ -195,12 +195,13 @@ of the ground quickly and start writing tests.
 
 .. cfunction:: FCT_QTEST_BGN_IF(condition, name)
 
-   Opens the quick test block with the given *name*. The contents of the test
-   block are only executed if the *condition* is a non-zero (TRUE) value.
+   *New in FCTX 1.2*. Opens the quick test block with the given *name*. The
+   contents of the test block are only executed if the *condition* is a
+   non-zero (TRUE) value.
 
 .. cfunction:: FCT_QTEST_END_IF()
 
-   Ends the conditional quick test block.
+   *New in FCTX 1.2*. Ends the conditional quick test block.
 
 
 Tests
@@ -220,7 +221,8 @@ These define a beginning and end of a test block. See also
 Conditional Tests
 -----------------
 
-Use these variants to run a test based on a conditional value.
+*New in FCTX 1.2*.  Use these variants to run a test based on a conditional
+value.
 
 .. cfunction:: FCT_TEST_BGN_IF(condition, name)
 
@@ -257,55 +259,58 @@ These are used to verify that a condition is true. They are executed within
 
 .. cfunction:: fct_chk_eq_dbl(a, b) 
 
-    Causes a test failure if *a* != *b*. Testing for equality is done based on
-    an absolute floating point difference less than the *DBL_EPISLON* defined
-    in the standard <float.h> file.
+    *New in FCTX 1.1*. Causes a test failure if *a* != *b*. Testing for
+    equality is done based on an absolute floating point difference less than
+    the *DBL_EPISLON* defined in the standard <float.h> file.
 
 .. cfunction:: fct_chk_eq_int(a, b)
 
-    Causes a test failure if *a* != *b*. Testing for equality is done based on
-    the "==" operator. An error message is generated showing the values of *a*
-    and *b*.
+    *New in FCTX 1.1*. Causes a test failure if *a* != *b*. Testing for
+    equality is done based on the "==" operator. An error message is generated
+    showing the values of *a* and *b*.
 
 .. cfunction:: fct_chk_eq_istr(a, b)
 
-    Causes a test failure if *a* != *b* (case-insensitive). Testing for
-    equality is done based on first checking for NULL values, then making a
-    case-insensitive compare.
+    *New in FCTX 1.1*. Causes a test failure if *a* != *b* (case-insensitive).
+    Testing for equality is done based on first checking for NULL values, then
+    making a case-insensitive compare.
 
 .. cfunction:: fct_chk_eq_str(a, b)
 
-    Causes a test failure if *a* != *b*. Testing for equality is done based on
-    first checking for NULL values, then making a case-sensitive compare.
+    *New in FCTX 1.1*. Causes a test failure if *a* != *b*. Testing for
+    equality is done based on first checking for NULL values, then making a
+    case-sensitive compare.
 
 .. cfunction:: fct_chk_neq_dbl(a, b) 
 
-    Causes a test failure if *a* == *b*. Testing for inequality is done based
-    on an absolute floating point difference that is NOT less than the
-    *DBL_EPISLON* defined in the standard <float.h> file. 
+    *New in FCTX 1.1*. Causes a test failure if *a* == *b*. Testing for
+    inequality is done based on an absolute floating point difference that is
+    NOT less than the *DBL_EPISLON* defined in the standard <float.h> file. 
 
 .. cfunction:: fct_chk_neq_int(a, b)
 
-    Causes a test failure if *a* == *b*. Testing for equality is done based on
-    the "!=" operator. An error message is generated showing the values of *a*
-    and *b*.
+    *New in FCTX 1.1*. Causes a test failure if *a* == *b*. Testing for
+    equality is done based on the "!=" operator. An error message is generated
+    showing the values of *a* and *b*.
 
 .. cfunction:: fct_chk_neq_istr(a, b)
 
-    Causes a test failure if *a* == *b* (case-insensitive). Testing for
-    inequality is done based on first checking for NULL, then making a
-    case-insensitive compare.
+    *New in FCTX 1.1*. Causes a test failure if *a* == *b* (case-insensitive).
+    Testing for inequality is done based on first checking for NULL, then
+    making a case-insensitive compare.
 
 .. cfunction:: fct_chk_neq_str(a, b)
 
-    Causes a test failure if *a* == *b*. Testing for inequality is done based
-    on first checking for NULL, then making a case-sensitive compare.
+    *New in FCTX 1.1*. Causes a test failure if *a* == *b*. Testing for
+    inequality is done based on first checking for NULL, then making a
+    case-sensitive compare.
 
 .. cfunction:: fct_xchk(condition, format_str, ...)
 
-    Evaluates the *condition*, and if it is false will cause the tests to fail.
-    Further lines in the test block continue to execute. The message reported
-    is a function of a printf-style *format_str*, with multiple arguments.
+    *New in FCTX 1.1*. Evaluates the *condition*, and if it is false will cause
+    the tests to fail.  Further lines in the test block continue to execute.
+    The message reported is a function of a printf-style *format_str*, with
+    multiple arguments.
 
     :cfunc:`fct_xchk` can be extended to generate your own check functions. For
     example, say you had a structure such as,
@@ -352,6 +357,6 @@ These are used to verify that a condition is true. They are executed within
 
 .. cfunction:: fct_req(condition)
 
-    Evaluates the *condition*, and if it is false it will cause a test to fail.
-    This differs from :cfunc:`fct_chk` in so far as a false state causes the
-    test block to abort.
+    *New in FCTX 1.1*. Evaluates the *condition*, and if it is false it will
+    cause a test to fail.  This differs from :cfunc:`fct_chk` in so far as a
+    false state causes the test block to abort.
