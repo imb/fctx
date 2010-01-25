@@ -25,7 +25,7 @@ FCT_BGN()
     {
     }
     FCT_SUITE_END();
-    _FCT_GUTCHK(fctkern__tst_cnt(&fctkern__) == 0);
+    _FCT_GUTCHK(fctkern__tst_cnt(fctkern_ptr__) == 0);
 
     /* Now run a suite again, but place one test in it. Then confirm with
     our gut check. */
@@ -37,8 +37,8 @@ FCT_BGN()
         FCT_TEST_END();
     }
     FCT_SUITE_END();
-    _FCT_GUTCHK(fctkern__tst_cnt(&fctkern__) == 1);
-    _FCT_GUTCHK(fctkern__chk_cnt(&fctkern__) == 0);
+    _FCT_GUTCHK(fctkern__tst_cnt(fctkern_ptr__) == 1);
+    _FCT_GUTCHK(fctkern__chk_cnt(fctkern_ptr__) == 0);
 
     /* Now again, but with two checks. The gut check should return 3 for the
     number of tests. */
@@ -52,8 +52,8 @@ FCT_BGN()
         FCT_TEST_END();
     }
     FCT_SUITE_END();
-    _FCT_GUTCHK(fctkern__tst_cnt(&fctkern__) == 2);
-    _FCT_GUTCHK(fctkern__chk_cnt(&fctkern__) == 2);
+    _FCT_GUTCHK(fctkern__tst_cnt(fctkern_ptr__) == 2);
+    _FCT_GUTCHK(fctkern__chk_cnt(fctkern_ptr__) == 2);
 
 
 }

@@ -2558,6 +2558,8 @@ they are needed, but at runtime, only the cheap, first call is made. */
 that lives throughout the lifetime of our program. The
 fctkern_ptr__ makes it easier to abstract out macros.  */
 #define FCT_BGN() \
+static int \
+fctx_main(fctkern_t *fctkern_ptr__);\
 int \
 main(int argc, const char* argv[])\
 {\
@@ -2567,7 +2569,10 @@ main(int argc, const char* argv[])\
    if ( !fctkern__init(fctkern_ptr__, argc, argv) ) {\
         (void)printf("FATAL ERROR: Unable to intialize FCT Kernal.");\
         exit(EXIT_FAILURE);\
-   }
+   }\
+   return fctx_main(fctkern_ptr__);\
+}\
+int fctx_main(fctkern_t* fctkern_ptr__) {\
 
 
 /* Ends the test suite but returning the number failed. THe "chk_cnt" call is
