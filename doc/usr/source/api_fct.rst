@@ -20,6 +20,13 @@ Initialize/Finalize
 	Finalizes your test framwork. Every test program neesd to end with this
 	declaration.
 
+.. cfunction:: FCT_EXPECTED_FAILURES(num_failed)
+
+        *New in 1.2*. Mainly used internally by FCTX to test that failures are
+        occurring properly. If the actual number of failed tests matches the
+        expected *num_failed*, this macro will cause the program to return 0
+        instead of a non-zero value.
+
 Test Suites
 -----------
 
@@ -360,3 +367,4 @@ These are used to verify that a condition is true. They are executed within
     *New in FCTX 1.1*. Evaluates the *condition*, and if it is false it will
     cause a test to fail.  This differs from :cfunc:`fct_chk` in so far as a
     false state causes the test block to abort.
+

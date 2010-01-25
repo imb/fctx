@@ -192,6 +192,7 @@ FCT_BGN()
         }
         FCT_TEST_END();
 
+		printf("here");
 
         FCT_TEST_BGN(parse_store_value__with_params_only)
         {
@@ -219,7 +220,7 @@ FCT_BGN()
         FCT_TEST_END();
 
 
-        FCT_TEST_BGN(parse_store_value__with_params_only)
+        FCT_TEST_BGN(parse_store_value__with_params_and_a_flag)
         {
             char const *test_argv[] = {"program.exe",
                                        "--output=foo",
@@ -237,6 +238,7 @@ FCT_BGN()
             fct_chk_eq_int( fct_clp__param_cnt(&clp), 3);
 
             fct_clp__is_param(&clp, "parama", &is_param);
+
             fct_chk( is_param);
             fct_clp__is_param(&clp, "funk", &is_param);
             fct_chk( !is_param);

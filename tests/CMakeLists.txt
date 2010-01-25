@@ -48,6 +48,7 @@ SET(SIMPLE_TESTS test_1suite
 		 test_two_names
                  test_clp
                  test_conditionals
+                 test_chk
 	)	
 FOREACH( PROGRAM ${SIMPLE_TESTS}) 
 	ADD_EXECUTABLE(${PROGRAM} ${PROGRAM}.c)
@@ -62,16 +63,6 @@ ADD_EXECUTABLE(
 
 # This one will always fail.
 ADD_EXECUTABLE(test_fail test_fail.c)
-
-# This utilty can be used to run tests that are supposed to return non-zero
-# values. Some tests are supposed to report failures like: 2 errors.
-ADD_EXECUTABLE(runner runner.c)
-
-# This one *ALWAYS* fails, but I want to make sure it fails with a specific 
-# number of bad tests.
-ADD_EXECUTABLE(test_chk test_chk.c)
-
-ADD_DEPENDENCIES(test_chk runner)
 
 # TEST_BIG. This requires generating test_big.c before we can
 # build test_big.exe. To generate test_big.c you need to compile
@@ -127,20 +118,6 @@ ADD_TEST(run_test_fail
 )
 SET_TESTS_PROPERTIES(run_test_fail PROPERTIES WILL_FAIL 1) 
 
-# We can only be happy with 2 failures, this program will run a test and report
-# false if the test program has a return value other than the one supplied.
-# Not ideal, but it is something. ;-)
-IF (WIN32)
-   SET(TEST_CHK test_chk)
-   SET(RUNNER runner)
-ELSE()
-   SET(TEST_CHK ./test_chk)
-   SET(RUNNER ./runner)
-ENDIF()
-
-ADD_TEST(run_test_chk_with_runner 
-    "${CMAKE_COMMAND}" -E chdir "${EXECUTABLE_OUTPUT_PATH}" ${RUNNER} ${TEST_CHK} 2  
-)
 
 # Test money uses 'strcpy', and its just an example, so lets add a definition
 # for that one program.

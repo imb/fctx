@@ -163,6 +163,9 @@ Multi-File Test Suites
         having other tests within the :cfunc:`FCT_BGN()` and :cfunc:`FCT_END()`
         scope.
 
+        For Visual Studio 6 compilers, you will need to use the
+        :cfunc:`FCTMF_SUITE_DEF` function.
+
 .. cfunction:: FCTMF_FIXTURE_SUITE_BGN(name)
 	
 	Following the xtest convention, every test suite needs to start with a 
@@ -192,3 +195,10 @@ Multi-File Test Suites
 
         Closes the :cfunc:`FCTMF_SUITE_BGN` function.
 
+.. cfunction:: FCTMF_SUITE_DEF(name)
+
+        Defines a test suite with the given *name*. This is only required for
+        the Visual Studio 6 compilers (or if you choose to avoid the comments
+        in `Note for MVC Compilers`_). This call must be made *before* the
+        :cfunc:`FCT_BGN` function. The *name* must be the same as the name in
+        :cfunc:`FCTMF_SUITE_CALL` and :cfunc:`FCTMF_SUITE_BGN`.

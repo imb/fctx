@@ -73,6 +73,12 @@ File: fct.h
 
 #define FCTMIN(x, y) ( x < y) ? (x) : (y)
 
+#if defined(__cplusplus)
+#define FCT_EXTERN_C extern "C"
+#else
+#define FCT_EXTERN_C
+#endif
+
 /* Forward declarations. The following forward declarations are required
 because there is a inter-relationship between certain objects that
 just can not be untwined. */
@@ -1515,6 +1521,10 @@ system.
 
 struct _fctkern_t
 {
+    /* Holds variables used throughout MACRO MAGIC. In order to reduce
+    the "noise" in the watch window during a debug trace. */
+    fct_namespace_t ns;
+    
     /* Command line parsing. */
     fct_clp_t cl_parser;
 
@@ -1540,9 +1550,8 @@ struct _fctkern_t
     testing process. */
     fct_nlist_t ts_list;
 
-    /* Holds variables used throughout MACRO MAGIC. In order to reduce
-    the "noise" in the watch window during a debug trace. */
-    fct_namespace_t ns;
+    /* Records what we expect to fail. */
+    size_t num_expected_failures;
 };
 
 
@@ -2547,12 +2556,19 @@ they are needed, but at runtime, only the cheap, first call is made. */
     {\
         int check = 0 && fctstr_ieq(NULL, NULL);\
         if ( check ) { \
+            fctstr_ieq(NULL,NULL);\
             fctkern__cl_is(NULL, "");\
             fctkern__cl_val2(NULL, NULL, NULL);\
             fctkern__log_suite_skip(NULL, NULL, NULL);\
         }\
     }
 
+
+/* Typically used internally only, this mentions to FCTX that you EXPECT 
+to _NUM_FAILS_. If you the expected matches the actual, a 0 value is returned
+from the program. */
+#define FCT_EXPECTED_FAILURES(_NUM_FAILS_) \
+    ((fctkern_ptr__->num_expected_failures = (_NUM_FAILS_)))
 
 /* This defines our start. The fctkern__ is a kernal object
 that lives throughout the lifetime of our program. The
@@ -2586,6 +2602,9 @@ functions. */
       fctkern__end(fctkern_ptr__);\
       fctkern__final(fctkern_ptr__);\
       assert( !((int)num_failed__ < 0) && "or we got truncated!");\
+      if ( num_failed__ == fctkern_ptr__->num_expected_failures) {\
+          return 0;\
+      }\
       return (int)num_failed__;\
    }\
 }
@@ -2996,8 +3015,12 @@ to be referenced. Ohh Me Oh My what a waste! */
    }
 
 
-/* Deprecated, no longer required. */
-#define FCTMF_SUITE_DEF(NAME)
+/* Deprecated, no longer required except for VC6. */
+#if _MSC_VER > 1200 
+#   define FCTMF_SUITE_DEF(NAME)
+#else 
+#   define FCTMF_SUITE_DEF(NAME) FCT_EXTERN_C void NAME (fctkern_t *)
+#endif
 
 /* Visual Studio 6, C++ compiler really has a trouble with
 this trick done in FCTMF_SUITE_CALL. The following tries

@@ -25,6 +25,10 @@ allowing you run a full suite of tests during your continous builds.
  - FIX: (501472) CMAKE now configures MSC to compile with /W4. 
  - FIX: (501474) GCC now compiles with higher warning levels
  - FIX: (501476) Removed redundant count found in FCT_END.
+ - FIX: (512202) Fixed test_chk failures in CTEST due to trying to configure
+   CMAKE to handle multiple platforms and compilers. Adds a new
+   FCT_EXPECTED_FAILURES macro that has the program return 0 if the expected
+   number of failures matches the actual.
 
 More details at: https://launchpad.net/fctest/+milestone/1.2
 
