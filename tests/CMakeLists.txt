@@ -131,15 +131,16 @@ SET_TESTS_PROPERTIES(run_test_fail PROPERTIES WILL_FAIL 1)
 # false if the test program has a return value other than the one supplied.
 # Not ideal, but it is something. ;-)
 IF (WIN32)
-   SET(TEST_PROGRAM test_chk)
+   SET(TEST_CHK test_chk)
+   SET(RUNNER runner)
 ELSE()
-   SET(TEST_PROGRAM ./test_chk)
+   SET(TEST_CHK ./test_chk)
+   SET(RUNNER ./runner)
 ENDIF()
 
 ADD_TEST(run_test_chk_with_runner 
-    ${EXECUTABLE_OUTPUT_PATH}/runner 
-    ${TEST_PROGRAM}
-    2)
+    "${CMAKE_COMMAND}" -E chdir "${EXECUTABLE_OUTPUT_PATH}" ${RUNNER} ${TEST_CHK} 2  
+)
 
 # Test money uses 'strcpy', and its just an example, so lets add a definition
 # for that one program.
