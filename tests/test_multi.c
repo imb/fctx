@@ -17,14 +17,14 @@ method.
 
 #include "fct.h"
 
-/* These no longer do anything, except for the older Visual Studio 6 
-compiler. */ 
+/* These no longer do anything, except for the older Visual Studio 6
+compiler. */
 FCTMF_SUITE_DEF(test_suite1);
 FCTMF_SUITE_DEF(test_fixture_suite2);
 
 FCT_BGN()
 {
-    /* This suite is called *OUTSIDE* of this compilation unit. The 
+    /* This suite is called *OUTSIDE* of this compilation unit. The
     pragma's are to tackle a /W4 problem on MVC compilers. */
 #if defined(_MSC_VER)
 #   pragma warning(push, 3)

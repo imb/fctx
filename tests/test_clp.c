@@ -14,29 +14,29 @@ Runs through tests for the command line parser.
 
 #include "fct.h"
 
+
+/* Test Data */
+fct_clp_t clp;
+fctcl_init_t options[] =
+{
+    /* The "casting to char*" is bad mojo here. But until I
+        grow a "fctcl_init_t" object with constants, it will
+        do to quiet down C++. It turns out that you never delete
+        this data, so it is OK to cast it to a char*. */
+    {"--help",
+        "-h",
+        FCTCL_STORE_TRUE,
+        "Shows this message"},
+    {"--output",
+     NULL,
+     FCTCL_STORE_VALUE,
+     "Name of file to store output."},
+    FCTCL_INIT_NULL /* Sentinel. */
+};
+
+
 FCT_BGN()
 {
-    /* Run through a basic configuration and parse operations. */
-
-    /* Test Data */
-    fct_clp_t clp;
-    fctcl_init_t options[] =
-    {
-        /* The "casting to char*" is bad mojo here. But until I
-            grow a "fctcl_init_t" object with constants, it will
-            do to quiet down C++. It turns out that you never delete
-            this data, so it is OK to cast it to a char*. */
-        {"--help",
-            "-h",
-            FCTCL_STORE_TRUE,
-            "Shows this message"},
-        {"--output",
-         NULL,
-         FCTCL_STORE_VALUE,
-         "Name of file to store output."},
-        FCTCL_INIT_NULL /* Sentinel. */
-    };
-
     FCT_FIXTURE_SUITE_BGN(clp__parse_scenarios)
     {
         FCT_SETUP_BGN()
@@ -192,8 +192,6 @@ FCT_BGN()
         }
         FCT_TEST_END();
 
-		printf("here");
-
         FCT_TEST_BGN(parse_store_value__with_params_only)
         {
             char const *test_argv[] = {"program.exe",
@@ -202,20 +200,19 @@ FCT_BGN()
                                        "paramc"
                                       };
             int test_argc =4;
-            int is_param =0;
+            int is_error =0;
+            int param_cnt =0;
 
             fct_clp__parse(&clp, test_argc, test_argv);
-            fct_chk( !fct_clp__is_error(&clp) );
-            fct_chk_eq_int( fct_clp__param_cnt(&clp), 3);
+            is_error = fct_clp__is_error(&clp);
+            fct_chk( !is_error );
+            param_cnt = fct_clp__param_cnt(&clp);
+            fct_chk_eq_int( param_cnt, 3);
 
-            fct_clp__is_param(&clp, "parama", &is_param);
-            fct_chk( is_param);
-            fct_clp__is_param(&clp, "funk", &is_param);
-            fct_chk( !is_param);
-            fct_clp__is_param(&clp, "paramb", &is_param);
-            fct_chk( is_param);
-            fct_clp__is_param(&clp, "paramc", &is_param);
-            fct_chk( is_param);
+            fct_chk( fct_clp__is_param(&clp, "parama") );
+            fct_chk( !fct_clp__is_param(&clp, "funk") );
+            fct_chk( fct_clp__is_param(&clp, "paramb") );
+            fct_chk( fct_clp__is_param(&clp, "paramc") );
         }
         FCT_TEST_END();
 
@@ -229,7 +226,6 @@ FCT_BGN()
                                        "paramc"
                                       };
             int test_argc =5;
-            int is_param;
             char const *optval;
             char const *paramat;
 
@@ -237,15 +233,10 @@ FCT_BGN()
             fct_chk( !fct_clp__is_error(&clp) );
             fct_chk_eq_int( fct_clp__param_cnt(&clp), 3);
 
-            fct_clp__is_param(&clp, "parama", &is_param);
-
-            fct_chk( is_param);
-            fct_clp__is_param(&clp, "funk", &is_param);
-            fct_chk( !is_param);
-            fct_clp__is_param(&clp, "paramb", &is_param);
-            fct_chk( is_param);
-            fct_clp__is_param(&clp, "paramc", &is_param);
-            fct_chk( is_param);
+            fct_chk( fct_clp__is_param(&clp, "parama") );
+            fct_chk( !fct_clp__is_param(&clp, "funk") );
+            fct_chk( fct_clp__is_param(&clp, "paramb") );
+            fct_chk( fct_clp__is_param(&clp, "paramc") );
 
             /* Parameters should be in same sequence. Not neccessarily
             going to enforce this, just using the assumption for testing. */

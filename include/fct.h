@@ -1185,8 +1185,11 @@ finally:
 static int
 fctcl__is_option(fctcl_t const *clo, char const *option)
 {
-    assert( option != NULL);
     assert( clo != NULL );
+    if ( option == NULL )
+    {
+        return 0;
+    }
     return ((clo->long_opt != NULL
              && fctstr_eq(clo->long_opt, option))
             ||
@@ -1305,12 +1308,14 @@ fct_clp__parse(fct_clp_t *clp, int argc, char const *argv[])
         token =NULL;
         next_token = NULL;
         arg = fctstr_clone(argv[argi]);
+
 #if _MSC_VER > 1300
         token = strtok_s(arg, "=", &next_token);
 #else
         token = strtok(arg, "=");
         next_token = strtok(NULL, "=");
 #endif
+
         FCT_NLIST_FOREACH_BGN(fctcl_t*, pclo, &(clp->clo_list))
         {
             /* Need to reset for each search. strtok below is destructive. */
@@ -1441,18 +1446,25 @@ fct_clp__write_help(fct_clp_t *clp, FILE *out)
 
 
 /* Mainly used for unit tests. */
-#define fct_clp__is_param(_CLP_, _PARAM_, _IS_PARAM_OUT_)\
-    *(_IS_PARAM_OUT_) = 0;\
-    FCT_NLIST_FOREACH_BGN(char *, aparam, &((_CLP_)->param_list))\
-    {\
-        if ( fctstr_eq(aparam, (_PARAM_)) )\
-        {\
-            *(_IS_PARAM_OUT_) = 1;\
-            break;\
-        }\
-    }\
-    FCT_NLIST_FOREACH_END();\
- 
+static int
+fct_clp__is_param(fct_clp_t *clp, char const *param)
+{
+    if ( clp == NULL || param == NULL )
+    {
+        return 0;
+    }
+    FCT_NLIST_FOREACH_BGN(char *, aparam, &(clp->param_list))
+    {
+        if ( fctstr_eq(aparam, param) )
+        {
+            return 1;
+        }
+    }
+    FCT_NLIST_FOREACH_END();
+    return 0;
+}
+
+
 #define fct_clp__is_error(_CLP_) ((_CLP_)->is_error)
 #define fct_clp__get_error(_CLP_) ((_CLP_)->error_msg);
 
@@ -1524,7 +1536,7 @@ struct _fctkern_t
     /* Holds variables used throughout MACRO MAGIC. In order to reduce
     the "noise" in the watch window during a debug trace. */
     fct_namespace_t ns;
-    
+
     /* Command line parsing. */
     fct_clp_t cl_parser;
 
@@ -2556,15 +2568,16 @@ they are needed, but at runtime, only the cheap, first call is made. */
     {\
         int check = 0 && fctstr_ieq(NULL, NULL);\
         if ( check ) { \
-            fctstr_ieq(NULL,NULL);\
-            fctkern__cl_is(NULL, "");\
-            fctkern__cl_val2(NULL, NULL, NULL);\
+            (void)fctstr_ieq(NULL,NULL);\
+            (void)fctkern__cl_is(NULL, "");\
+            (void)fctkern__cl_val2(NULL, NULL, NULL);\
             fctkern__log_suite_skip(NULL, NULL, NULL);\
+            (void)fct_clp__is_param(NULL,NULL);\
         }\
     }
 
 
-/* Typically used internally only, this mentions to FCTX that you EXPECT 
+/* Typically used internally only, this mentions to FCTX that you EXPECT
 to _NUM_FAILS_. If you the expected matches the actual, a 0 value is returned
 from the program. */
 #define FCT_EXPECTED_FAILURES(_NUM_FAILS_) \
@@ -2589,7 +2602,7 @@ main(int argc, const char* argv[])\
    return fctx_main(fctkern_ptr__);\
 }\
 int fctx_main(fctkern_t* fctkern_ptr__) {\
-
+ 
 
 /* Ends the test suite but returning the number failed. THe "chk_cnt" call is
 made in order allow strict compilers to pass when it encounters unreferenced
@@ -3016,9 +3029,9 @@ to be referenced. Ohh Me Oh My what a waste! */
 
 
 /* Deprecated, no longer required except for VC6. */
-#if _MSC_VER > 1200 
+#if _MSC_VER > 1200
 #   define FCTMF_SUITE_DEF(NAME)
-#else 
+#else
 #   define FCTMF_SUITE_DEF(NAME) FCT_EXTERN_C void NAME (fctkern_t *)
 #endif
 
