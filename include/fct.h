@@ -3004,12 +3004,21 @@ See test_multi.c for an example.
 /* The following macros are used in your separate object
 file to define your test suite.  */
 
+
+/* The MINGW32 compiler links a little differently than the GNU and MSC
+compilers, this little check helps you get by. */
+#if defined(__MINGW32__)
+#   define FCTMF_EXTERN_C
+#else
+#   define FCTMF_EXTERN_C FCT_EXTERN_C
+#endif
+
+
 /* The BGN function has a whole bunch of useless calls
 at the head in order to force 'unreferenced' functions
 to be referenced. Ohh Me Oh My what a waste! */
-
 #define FCTMF_FIXTURE_SUITE_BGN(NAME) \
-	FCT_EXTERN_C void NAME (fctkern_t *fctkern_ptr__) {\
+	FCTMF_EXTERN_C void NAME (fctkern_t *fctkern_ptr__) {\
         FCT_REFERENCE_FUNCS();\
         (void)fctkern__init(NULL, 0, NULL);\
         FCT_FIXTURE_SUITE_BGN( NAME ) {
@@ -3019,7 +3028,7 @@ to be referenced. Ohh Me Oh My what a waste! */
 	}
 
 #define FCTMF_SUITE_BGN(NAME) \
-	FCT_EXTERN_C void NAME (fctkern_t *fctkern_ptr__) {\
+	FCTMF_EXTERN_C void NAME (fctkern_t *fctkern_ptr__) {\
         FCT_REFERENCE_FUNCS();\
         (void)fctkern__init(NULL, 0, NULL);\
         FCT_SUITE_BGN( NAME ) {
