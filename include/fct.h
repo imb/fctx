@@ -3009,7 +3009,7 @@ at the head in order to force 'unreferenced' functions
 to be referenced. Ohh Me Oh My what a waste! */
 
 #define FCTMF_FIXTURE_SUITE_BGN(NAME) \
-	void NAME (fctkern_t *fctkern_ptr__) {\
+	FCT_EXTERN_C void NAME (fctkern_t *fctkern_ptr__) {\
         FCT_REFERENCE_FUNCS();\
         (void)fctkern__init(NULL, 0, NULL);\
         FCT_FIXTURE_SUITE_BGN( NAME ) {
@@ -3019,7 +3019,7 @@ to be referenced. Ohh Me Oh My what a waste! */
 	}
 
 #define FCTMF_SUITE_BGN(NAME) \
-	void NAME (fctkern_t *fctkern_ptr__) {\
+	FCT_EXTERN_C void NAME (fctkern_t *fctkern_ptr__) {\
         FCT_REFERENCE_FUNCS();\
         (void)fctkern__init(NULL, 0, NULL);\
         FCT_SUITE_BGN( NAME ) {
@@ -3029,7 +3029,7 @@ to be referenced. Ohh Me Oh My what a waste! */
 
 
 /* Deprecated, no longer required except for VC6. */
-#if _MSC_VER > 1200
+#if defined(__GNUC__) &&  _MSC_VER > 1200
 #   define FCTMF_SUITE_DEF(NAME)
 #else
 #   define FCTMF_SUITE_DEF(NAME) FCT_EXTERN_C void NAME (fctkern_t *)
@@ -3042,7 +3042,7 @@ to handle it so the old compiler can keep on going. */
 #if _MSC_VER > 1200
 #    define FCT_EXTERN_FCTMF extern
 #else
-#    define FCT_EXTERN_FCTMF
+#    define FCT_EXTERN_FCTMF 
 #endif /* _MSC_VER > 1200 */
 #else
 #    define FCT_EXTERN_FCTMF extern
