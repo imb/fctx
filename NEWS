@@ -6,11 +6,11 @@ Whats new in FCT 1.2
 --------------------
 
 Highlights for this release include access to a command line parser for each
-EXE built with FCTX. You are able to fully customize your command line to add
-flags that you may require for your unit testing framework. To help you utilize
-any custom flags conditional tests and tests suites where also added. This was
+EXE built with FCTX. You are now able to customize your command line to add
+flags that you may require for unit testing. To help you utilize any custom
+flags, conditional tests and tests suites where also added.  These changes were
 designed to help you run a "quick set" of tests while in development mode, but
-allowing you run a full suite of tests during your continous builds.
+allowing you run a full suite of tests during your continuous builds.
 
  - ENH: (sys-command-line-parser) ability to parse and read command line
    options.
@@ -18,7 +18,7 @@ allowing you run a full suite of tests during your continous builds.
    conditional. See FCT_FIXTURE_SUITE_BGN_IF and FCT_SUITE_BGN_IF macros.
  - ENH: (sys-conditional-test-runs): ability to run tests based on a 
    conditional. See new FCT_TEST_IF and FCT_QTEST_IF macros.
- - ENH: (sys-clean-up-variables): moved lots of extra variables into a single
+ - ENH: (sys-clean-up-variables): moved extra variables into a single
    structure used throughout the FCTX test run, this helps to reduce the noise
    in a debugger watch windows.
  - FIX: (486457) #pragma down to warning level 3 for MSC during FCTMF calls.
@@ -28,9 +28,11 @@ allowing you run a full suite of tests during your continous builds.
  - FIX: (512202) Fixed test_chk failures in CTEST due to trying to configure
    CMAKE to handle multiple platforms and compilers. Adds a new
    FCT_EXPECTED_FAILURES macro that has the program return 0 if the expected
-   number of failures matches the actual.
+   number of failures matches the actual. 
 
 More details at: https://launchpad.net/fctest/+milestone/1.2
+See also: http://fctx.wildbearsoftware.com
+
 
 
 Whats new in FCTX 1.1.4
