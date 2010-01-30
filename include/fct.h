@@ -2569,6 +2569,7 @@ they are needed, but at runtime, only the cheap, first call is made. */
         int check = 0 && fctstr_ieq(NULL, NULL);\
         if ( check ) { \
             (void)fctstr_ieq(NULL,NULL);\
+            (void)fctkern__init(NULL, 0, NULL);\
             (void)fctkern__cl_is(NULL, "");\
             (void)fctkern__cl_val2(NULL, NULL, NULL);\
             fctkern__log_suite_skip(NULL, NULL, NULL);\
@@ -2587,10 +2588,7 @@ from the program. */
 that lives throughout the lifetime of our program. The
 fctkern_ptr__ makes it easier to abstract out macros.  */
 #define FCT_BGN() \
-static int \
-fctx_main(fctkern_t *fctkern_ptr__);\
-int \
-main(int argc, const char* argv[])\
+int main(int argc, const char* argv[])\
 {\
    fctkern_t  fctkern__;\
    fctkern_t* fctkern_ptr__ = &fctkern__;\
@@ -2598,10 +2596,7 @@ main(int argc, const char* argv[])\
    if ( !fctkern__init(fctkern_ptr__, argc, argv) ) {\
         (void)printf("FATAL ERROR: Unable to intialize FCT Kernal.");\
         exit(EXIT_FAILURE);\
-   }\
-   return fctx_main(fctkern_ptr__);\
-}\
-int fctx_main(fctkern_t* fctkern_ptr__) {\
+   }
  
 
 /* Ends the test suite but returning the number failed. THe "chk_cnt" call is
@@ -3005,22 +3000,9 @@ See test_multi.c for an example.
 file to define your test suite.  */
 
 
-/* The MINGW32 compiler links a little differently than the GNU and MSC
-compilers, this little check helps you get by. */
-#if defined(__MINGW32__)
-#   define FCTMF_EXTERN_C
-#else
-#   define FCTMF_EXTERN_C FCT_EXTERN_C
-#endif
-
-
-/* The BGN function has a whole bunch of useless calls
-at the head in order to force 'unreferenced' functions
-to be referenced. Ohh Me Oh My what a waste! */
 #define FCTMF_FIXTURE_SUITE_BGN(NAME) \
-	FCTMF_EXTERN_C void NAME (fctkern_t *fctkern_ptr__) {\
+	void NAME (fctkern_t *fctkern_ptr__) {\
         FCT_REFERENCE_FUNCS();\
-        (void)fctkern__init(NULL, 0, NULL);\
         FCT_FIXTURE_SUITE_BGN( NAME ) {
 
 #define FCTMF_FIXTURE_SUITE_END() \
@@ -3028,39 +3010,22 @@ to be referenced. Ohh Me Oh My what a waste! */
 	}
 
 #define FCTMF_SUITE_BGN(NAME) \
-	FCTMF_EXTERN_C void NAME (fctkern_t *fctkern_ptr__) {\
+	void NAME (fctkern_t *fctkern_ptr__) {\
         FCT_REFERENCE_FUNCS();\
-        (void)fctkern__init(NULL, 0, NULL);\
         FCT_SUITE_BGN( NAME ) {
 #define FCTMF_SUITE_END() \
        } FCT_SUITE_END(); \
    }
 
 
-/* Deprecated, no longer required except for VC6. */
-#if defined(__GNUC__) &&  _MSC_VER > 1200
-#   define FCTMF_SUITE_DEF(NAME)
-#else
-#   define FCTMF_SUITE_DEF(NAME) FCT_EXTERN_C void NAME (fctkern_t *)
-#endif
+/* Deprecated, no longer required. */
+#define FCTMF_SUITE_DEF(NAME)
 
-/* Visual Studio 6, C++ compiler really has a trouble with
-this trick done in FCTMF_SUITE_CALL. The following tries
-to handle it so the old compiler can keep on going. */
-#if defined(__cplusplus)
-#if _MSC_VER > 1200
-#    define FCT_EXTERN_FCTMF extern
-#else
-#    define FCT_EXTERN_FCTMF 
-#endif /* _MSC_VER > 1200 */
-#else
-#    define FCT_EXTERN_FCTMF extern
-#endif /* __cplusplus */
 
 /* Executes a test suite defined by FCTMF_SUITE* */
 #define FCTMF_SUITE_CALL(NAME)  {\
-    FCT_EXTERN_FCTMF void NAME (fctkern_t *);\
-    (void) NAME (fctkern_ptr__);\
+    void NAME (fctkern_t *);\
+    NAME (fctkern_ptr__);\
     }
 
 
