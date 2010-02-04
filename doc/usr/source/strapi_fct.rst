@@ -28,7 +28,7 @@ String Functions
 
         Returns a non-zero (TRUE) if *s1* and *s2* are equal. Unlike the
         standard strcmp function, this function can handle NULL values. This
-        function will also quite the moment one of the strings is unequal. If
+        function will also quit the moment one of the strings is unequal. If
         *s1* and *s2* are NULL, this function will return non-zero (TRUE)
         value. See :cfunc:`fctstr_ieq` for a case-insenstive string compare.
 

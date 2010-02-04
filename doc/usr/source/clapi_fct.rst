@@ -148,6 +148,39 @@ After you have installed the options you can now check if a flag is set using
 the :cfunc:`fctcl_is` macro. If the user had entered ``--use-slow`` at the
 command prompt, then the value of :cfunc:`fctcl_is` would return TRUE (1).
 
+Your last option is to use the :cfunc:`FCT_QTEST_BGN_IF` macro.
+
+.. code-block:: c
+
+   #include "fct.h"
+
+   /* Add our command line options. */
+   static fctcl_init_t my_cl_options[] = {
+       {"--use-slow", 
+        NULL, 
+        FCTCL_STORE_TRUE, 
+        "Runs slow running unit tests"},
+       FCTCL_INIT_NULL /* Sentinel */
+   };
+
+   FCT_BGN() {
+       int use_slow =0; 
+        
+       /* Install the command line options defined above. */
+       fctcl_install(my_cl_options);
+
+       /* Check if --use-slow was on the command line. */
+       use_slow = fctcl_is("--use-slow");
+
+       FCT_QTEST_BGN_IF(use_slow, slow_test) {
+          fct_chk( run_slow_running_process() );
+       } FCT_QTEST_END_IF();
+   } FCT_END();
+
+.. /* (Fixes VIM highlighter)
+
+This will run the "slow_test" if the *use_slow* variable is TRUE (non-zero).
+
 Types
 -----
 
