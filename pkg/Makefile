@@ -99,9 +99,10 @@ ${DIST_DIR}/${DOCPACK}-WEB.tar.gz: ${DIST_DIR}
 	[ -d ../doc/usr/build/${DOCPACK}-WEB ] && \
              rm -rf ../doc/usr/build/${DOCPACK}-WEB || \
              echo "pass"
-	cp -r ../doc/usr/build/html ../doc/usr/build/${DOCPACK}-WEB
+	cp -r ../doc/usr/build/html_web ../doc/usr/build/${DOCPACK}-WEB
 	tar -C ../doc/usr/build -cvvf ${DIST_DIR}/${DOCPACK}-WEB.tar ${DOCPACK}-WEB
 	gzip ${DIST_DIR}/${DOCPACK}-WEB.tar
+	cp -R ../doc/usr/build/html_web dist/html_web 
 
 
 ${DIST_DIR}/${DOCPACK}.tar.gz.asc: ${DIST_DIR}/${DOCPACK}.tar.gz
