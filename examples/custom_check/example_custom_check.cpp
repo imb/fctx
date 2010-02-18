@@ -82,21 +82,14 @@ FCT_BGN()
     FCT_QTEST_BGN(test_money__no_helpful_info) {
         money_t m1(10, "USD");
         money_t m2(m1);
-        m1.add(1);
         fct_chk( m1 == m2 );
     } FCT_QTEST_END();
 
     FCT_QTEST_BGN(test_money__with_custom_check) {
         money_t m1(10, "USD");
         money_t m2(m1);
-        m1.add(1);
         chk_money_eq(m1, m2);
     } FCT_QTEST_END();
-
-    /* This little helper lets us have a return value of 0 from this unit
-    test. With that we can continue to test that the code compiles and
-    behaves loosely as expected. */
-    FCT_EXPECTED_FAILURES(2);
 }
 FCT_END();
 
