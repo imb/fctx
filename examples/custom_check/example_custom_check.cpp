@@ -25,24 +25,27 @@ OUR TEST CLASS
 */
 
 /* A very simple and naive money class implementation. */
-class money_t {
+class money_t
+{
     friend bool operator==(const money_t &a, const money_t &b);
 public:
     money_t() : amount_(0), currency_(0) {};
     money_t(int amount, const std::string &currency)
-        : amount_(amount), currency_(currency)
+            : amount_(amount), currency_(currency)
     {};
     virtual ~money_t() {};
-    std::string  to_string() const {
+    std::string  to_string() const
+    {
         std::stringstream buf;
         buf << "<money_t amount: "
-            << this->amount_
-            << "; currency: "
-            << this->currency_
-            << ">";
+        << this->amount_
+        << "; currency: "
+        << this->currency_
+        << ">";
         return buf.str();
     };
-    void add(int amount) {
+    void add(int amount)
+    {
         this->amount_ += amount;
     };
 private:
@@ -51,7 +54,8 @@ private:
 };
 
 
-bool operator==(const money_t &a, const money_t &b) {
+bool operator==(const money_t &a, const money_t &b)
+{
     return ((a.amount_ == b.amount_)
             && (b.currency_ == b.currency_));
 }
@@ -79,17 +83,21 @@ UNIT TESTS
 
 FCT_BGN()
 {
-    FCT_QTEST_BGN(test_money__no_helpful_info) {
+    FCT_QTEST_BGN(test_money__no_helpful_info)
+    {
         money_t m1(10, "USD");
         money_t m2(m1);
         fct_chk( m1 == m2 );
-    } FCT_QTEST_END();
+    }
+    FCT_QTEST_END();
 
-    FCT_QTEST_BGN(test_money__with_custom_check) {
+    FCT_QTEST_BGN(test_money__with_custom_check)
+    {
         money_t m1(10, "USD");
         money_t m2(m1);
         chk_money_eq(m1, m2);
-    } FCT_QTEST_END();
+    }
+    FCT_QTEST_END();
 }
 FCT_END();
 
