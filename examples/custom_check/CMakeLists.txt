@@ -5,10 +5,11 @@
 # you should have received as part of this distribution.  
 # ====================================================================
 
-INCLUDE_DIRECTORIES(..\..\include)
+INCLUDE_DIRECTORIES(../../include)
 
 ADD_EXECUTABLE(example_custom_check
 	example_custom_check.cpp
 )
 ADD_TEST(example_custom_check 
-	 ${EXECUTABLE_OUTPUT_PATH}/example_custom_check)
+	 ${EXECUTABLE_OUTPUT_PATH}/example_custom_check
+)
