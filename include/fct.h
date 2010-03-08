@@ -354,6 +354,28 @@ fct_dotted_line_end(char const *endswith)
 }
 
 
+/* Returns a new string with all %var% replaced with the results of a
+call to getenv. Callee must free the string with a call to free().
+Assumes IN is a valid, null terminated character string. */
+static char*
+fctstr_envrepl(char const *in)
+{
+    size_t in_sz = 0;
+    char *out;
+
+    if ( in == NULL )
+    {
+        return NULL;
+    }
+
+    in_sz = strlen(in);
+
+    /* For now just clone, we can always reallocate more space later
+    if we need it for expansion. */
+    out = fctstr_clone(in);
+    return out;
+}
+
 /*
 --------------------------------------------------------
 TIMER
@@ -2574,6 +2596,7 @@ they are needed, but at runtime, only the cheap, first call is made. */
             (void)fctkern__cl_val2(NULL, NULL, NULL);\
             fctkern__log_suite_skip(NULL, NULL, NULL);\
             (void)fct_clp__is_param(NULL,NULL);\
+            (void)fctstr_envrepl(NULL);\
         }\
     }
 
