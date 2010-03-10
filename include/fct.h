@@ -414,7 +414,7 @@ GENERIC LIST
 
 /* Starting size for the list, to keep it simple we will start
 at a reasonable size. */
-#define FCT_LIST_START_SIZE      8
+#define FCT_LIST_DEFAULT_START_SZ      8
 
 /* Helper macros for quickly iterating through a list. You should be able
 to do something like,
@@ -485,24 +485,36 @@ fct_nlist__final(fct_nlist_t *list, fct_nlist_on_del_t on_del)
 }
 
 
-/* Initializes a list. Useful for populating existing structures.
-Returns 0 if there was an error allocating memory. Returns 1 otherwise. */
 static int
-fct_nlist__init(fct_nlist_t *list)
+fct_nlist__init2(fct_nlist_t *list, size_t start_sz)
 {
     assert( list != NULL );
-
-    list->itm_list = (void**)malloc(sizeof(void*)*FCT_LIST_START_SIZE);
-    if ( list->itm_list == NULL )
+    if ( start_sz == 0 )
     {
-        return 0;
+        list->itm_list = NULL;
     }
-
-    list->avail_itm_num =FCT_LIST_START_SIZE;
+    else
+    {
+        list->itm_list = (void**)malloc(sizeof(void*)*start_sz);
+        if ( list->itm_list == NULL )
+        {
+            return 0;
+        }
+    }
+    /* If these are both 0, then they are equal and that means
+    that the first append operation will allocate memory. The beauty
+    here is that if the list remains empty, then we save a malloc.
+    Empty lists are relatively common in FCT (consider an error list). */
+    list->avail_itm_num = start_sz;
     list->used_itm_num =0;
-
     return 1;
 }
+
+
+/* Initializes a list. Useful for populating existing structures.
+Returns 0 if there was an error allocating memory. Returns 1 otherwise. */
+#define fct_nlist__init(_LIST_PTR_) \
+   (fct_nlist__init2((_LIST_PTR_), FCT_LIST_DEFAULT_START_SZ))
 
 
 /* Returns the number of elements within the list. */
@@ -528,14 +540,15 @@ static void
 fct_nlist__append(fct_nlist_t *list, void *itm)
 {
     assert( list != NULL );
-    assert( list->itm_list != NULL );
-    assert( list->avail_itm_num != 0 );
-
     /* If we ran out of room, then the last increment should be equal to the
-    available space, in this case we need to grow a little more. */
+    available space, in this case we need to grow a little more. If this
+    list started as size 0, then we should encounter the same effect as
+    "running out of room." */
     if ( list->used_itm_num == list->avail_itm_num )
     {
-        list->avail_itm_num = list->avail_itm_num*FCT_LIST_GROWTH_FACTOR;
+        /* Use multiple and add, since the avail_itm_num could be 0. */
+        list->avail_itm_num = list->avail_itm_num*FCT_LIST_GROWTH_FACTOR+\
+                              FCT_LIST_GROWTH_FACTOR;
         list->itm_list = (void**)realloc(
                              list->itm_list, sizeof(void*)*list->avail_itm_num
                          );
@@ -689,8 +702,10 @@ fct_test_new(char const *name)
 
     fctstr_safe_cpy(test->name, name, FCT_MAX_NAME);
 
-    if ( !fct_nlist__init(&(test->failed_chks))
-            || !fct_nlist__init(&(test->passed_chks)) )
+    /* Failures are an exception, so lets not allocate up
+    the list until we need to. */
+    fct_nlist__init2(&(test->failed_chks), 0);
+    if (!fct_nlist__init(&(test->passed_chks)))
     {
         ok =FCT_FALSE;
         goto finally;
@@ -1733,8 +1748,8 @@ fctkern__init(fctkern_t *nk, int argc, const char *argv[])
     memset(nk, 0, sizeof(fctkern_t));
     fct_clp__init(&(nk->cl_parser), NULL);
     fct_nlist__init(&(nk->logger_list));
-    fct_nlist__init(&(nk->prefix_list));
-    fct_nlist__init(&(nk->ts_list));
+    fct_nlist__init2(&(nk->prefix_list), 0);
+    fct_nlist__init2(&(nk->ts_list), 0);
     nk->cl_is_parsed =0;
     /* Save a copy of the arguments. We do a delay parse of the command
     line arguments in order to allow the client code to optionally configure
@@ -2546,7 +2561,7 @@ fct_standard_logger__new(void)
     fct_logger__init((fct_logger_i*)logger);
     logger->vtable = &fct_standard_logger_vtable;
 
-    fct_nlist__init(&(logger->failed_cndtns_list));
+    fct_nlist__init2(&(logger->failed_cndtns_list), 0);
     fct_timer__init(&(logger->timer));
 
     return logger;
