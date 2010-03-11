@@ -61,7 +61,7 @@ To get you started quickly you only need to have the "fct.h" header file
 somewhere handy on your system. In the distribution package, it can be
 found in the "include" directory. 
 
-What follows an overly simple example of testing. 
+What follows an overly simple example of testing::
 
   /* First include the fct framework. */
   #include "fct.h"
@@ -100,14 +100,14 @@ What follows an overly simple example of testing.
 
 Now you can compile the above file and generate a new EXE. If your new
 EXE was called "test.exe", you can run it with a "filtering prefix" to
-limit the tests executed, for example,
+limit the tests executed, for example::
 
    test strcmp_eq
 
 would only execute the "strcmp_eq" test.
 
 To define a SETUP/TEARDOWN structure you would do something similar to
-the above tests.
+the above tests::
 
   FCT_BGN()
   {
@@ -173,7 +173,7 @@ Build the FCT Tests
 -------------------
 
 To build the tests themselves: use CMAKE (http://www.cmake.org/). On Linux
-or similar system do something like this (from the root source directory),
+or similar system do something like this (from the root source directory)::
 
    mkdir build
    cd build
@@ -183,19 +183,19 @@ At this point you should have a Makefile in your "build" directory.
 Type "make help" for a list of targets.
 
 On a Win32 Machine it depends what you want to ultimately work with. 
-The following example illustrates creating a Visual Studio 9 solution.
+The following example illustrates creating a Visual Studio 9 solution::
 
    mkdir msw
    cd msw
    cmake -G"Visual Studio 9 2008" ..\
 
 At this point you should have a FCT.sln file within your MSW directory.
-If you wanted to generate a different project, type:
+If you wanted to generate a different project, type::
 
    cmake --help
 
 To get list of generators. For example, if you wanted to use MinGW, 
-you could do something like,
+you could do something like::
 
    mkdir mingw
    cmake -G"MinGW Makefiles" ..\
