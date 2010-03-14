@@ -319,6 +319,32 @@ fctstr_ieq(char const *s1, char const *s2)
 }
 
 
+/* Returns 1 if the STR contains the CHECK_INCL substring. NULL's
+are handled, and NULL always INCLUDES NULL. This check is case
+sensitive. If two strings point to the same place they are
+included. */
+static int
+fctstr_incl(char const *str, char const *check_incl)
+{
+    static char *blank_s = "";
+    char const *found = NULL;
+    if ( str == NULL )
+    {
+        str = blank_s;
+    }
+    if ( check_incl == NULL )
+    {
+        check_incl = blank_s;
+    }
+    if ( str == check_incl )
+    {
+        return 1;
+    }
+    found = strstr(str, check_incl);
+    return found != NULL;
+}
+
+
 
 /* Use this with the _end variant to get the
 
@@ -2584,6 +2610,7 @@ they are needed, but at runtime, only the cheap, first call is made. */
         int check = 0 && fctstr_ieq(NULL, NULL);\
         if ( check ) { \
             (void)fctstr_ieq(NULL,NULL);\
+            (void)fctstr_incl(NULL, NULL);\
             (void)fctkern__init(NULL, 0, NULL);\
             (void)fctkern__cl_is(NULL, "");\
             (void)fctkern__cl_val2(NULL, NULL, NULL);\
@@ -2955,6 +2982,14 @@ if it fails. */
           (V1),\
           (V2)\
           )
+
+
+#define fct_chk_incl_str(STR, CHECK_INCLUDE) \
+	fct_xchk(fctstr_incl((STR), (CHECK_INCLUDE)),\
+		"fct_chk_incl_str: '%s' does not include '%s'",\
+		(STR),\
+        (CHECK_INCLUDE)\
+		)
 
 
 #define fct_chk_eq_int(V1, V2) \

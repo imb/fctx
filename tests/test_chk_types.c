@@ -98,6 +98,23 @@ FCT_BGN()
     }
     FCT_QTEST_END();
 
+
+    /* ---------------------------------------------------------- */
+    FCT_QTEST_BGN(chk_incl_str)
+    {
+        fct_chk_incl_str("mr roboto is super", "roboto");
+        fct_chk_incl_str("mr ROBOTO is super", "ROBOTO");
+        fct_chk_incl_str(NULL, NULL); /* NULL includes NULL */
+        fct_chk_incl_str("mr roboto", NULL);
+        fct_chk_incl_str("a", "a");
+        fct_chk_incl_str("b", NULL);
+        fct_chk_incl_str("mr roboto", "");
+        fct_chk_incl_str("", "");
+        fct_chk_incl_str("", NULL);
+    }
+    FCT_QTEST_END();
+
+
     FCT_QTEST_BGN(chk_eq_int)
     {
         fct_chk_eq_int(1, 1);

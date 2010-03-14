@@ -9,6 +9,9 @@ Whats new in FCT 1.3
    as a rule exceptional, there was no need to allocate memory for a
    list to hold error results until such time as an error occurs. This
    lead to a relatively minor speed up.
+ - ENH: New fct_chk_incl_str, will check at a string includes a
+   substring and report a useful error message if it does not include
+   the substring.
 
 
 Whats new in FCT 1.2

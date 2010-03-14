@@ -36,3 +36,10 @@ String Functions
          
         Performs a case insensitve string compare, see :cfunc:`fctstr_eq` for
         more details.
+
+.. cfunction:: fctstr_incl(s1, check)
+
+        *New in FCTX 1.3* Returns true if the sub-string, *check*, can
+        be found in the string *s1*.  This function will change NULL input
+        values for a blank string before proceeding to call the standard
+        C *strstr* function.
