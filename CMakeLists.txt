@@ -56,3 +56,20 @@ SET(EXECUTABLE_OUTPUT_PATH  ${CMAKE_BINARY_DIR}/bin)
 ADD_SUBDIRECTORY(include)
 ADD_SUBDIRECTORY(tests)
 ADD_SUBDIRECTORY(examples)
+
+# ------ 
+# ASTYLE
+# ------
+# Target for standardizing the style in FCTX, if astyle.exe is
+# available.
+
+find_program(ASTYLE astyle)
+if(ASTYLE)
+    add_custom_target(run_astyle
+        "${CMAKE_COMMAND}" 
+                -E chdir "${CMAKE_CURRENT_SOURCE_DIR}"
+                ${ASTYLE}
+                --options=${CMAKE_CURRENT_SOURCE_DIR}/astyle.conf 
+                include/*.h tests/*.c
+    )
+endif()
