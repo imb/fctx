@@ -218,6 +218,25 @@ fctstr_clone(char const *s)
 }
 
 
+/* Clones and returns a lower case version of the original string. */
+static char*
+fctstr_clone_lower(char const *s)
+{
+    char *k =NULL;
+    size_t klen =0;
+    size_t i;
+    if ( s == NULL )
+    {
+        return NULL;
+    }
+    k = (char*)malloc(sizeof(char)*klen+1);
+    for ( i=0; i != klen; ++i )
+    {
+        k[i] = (char)tolower(s[i]);
+    }
+    return k;
+}
+
 
 /* A very, very simple "filter". This just compares the supplied prefix
 against the test_str, to see if they both have the same starting
@@ -2611,6 +2630,7 @@ they are needed, but at runtime, only the cheap, first call is made. */
         if ( check ) { \
             (void)fctstr_ieq(NULL,NULL);\
             (void)fctstr_incl(NULL, NULL);\
+            (void)fctstr_clone_lower(NULL);\
             (void)fctkern__init(NULL, 0, NULL);\
             (void)fctkern__cl_is(NULL, "");\
             (void)fctkern__cl_val2(NULL, NULL, NULL);\

@@ -24,6 +24,11 @@ String Functions
         Callee should use the standard C Runtime Library's *free* function to
         clean up the memory.
 
+.. cfunction:: fctstr_clone_lower(s)
+
+        *New in FCTX 1.3.* Same as :cfunc:`fctstr_clone`, but returns the
+        string, *s*, as a lower case string. 
+
 .. cfunction:: fctstr_eq(s1,s2)
 
         Returns a non-zero (TRUE) if *s1* and *s2* are equal. Unlike the
@@ -39,7 +44,7 @@ String Functions
 
 .. cfunction:: fctstr_incl(s1, check)
 
-        *New in FCTX 1.3* Returns true if the sub-string, *check*, can
+        *New in FCTX 1.3.* Returns true if the sub-string, *check*, can
         be found in the string *s1*.  This function will change NULL input
         values for a blank string before proceeding to call the standard
         C *strstr* function.
