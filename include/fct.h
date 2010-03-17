@@ -366,7 +366,8 @@ fctstr_incl(char const *str, char const *check_incl)
 
 /* Does a case insensitive include check. */
 static int
-fctstr_iincl(char const *str, char const *check_incl) {
+fctstr_iincl(char const *str, char const *check_incl)
+{
     /* Going to do this with a memory allocation to save coding
     time. In the future this can be rewritten. Both clone_lower
     and _incl are NULL tolerant. */
@@ -3024,15 +3025,16 @@ if it fails. */
 	fct_xchk(fctstr_incl((STR), (CHECK_INCLUDE)),\
 		"fct_chk_incl_str: '%s' does not include '%s'",\
 		(STR),\
-        (CHECK_INCLUDE)\
+                (CHECK_INCLUDE)\
 		)
 
 
 #define fct_chk_incl_istr(ISTR, ICHECK_INCLUDE) \
 	fct_xchk(fctstr_iincl((ISTR), (ICHECK_INCLUDE)),\
-		"fct_chk_incl_istr (case insensitive): '%s' does not include '%s'",\
+		"fct_chk_incl_istr (case insensitive): '%s' does "\
+                "not include '%s'",\
 		(ISTR),\
-        (ICHECK_INCLUDE)\
+                (ICHECK_INCLUDE)\
 		)
 
 
