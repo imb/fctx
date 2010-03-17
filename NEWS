@@ -12,6 +12,8 @@ Whats new in FCT 1.3
  - ENH: New fct_chk_incl_str, will check at a string includes a
    substring and report a useful error message if it does not include
    the substring.
+ - ENH: New fct_chk_incl_istr, case insensitive variant of
+   fct_chk_incl_str.
 
 
 Whats new in FCT 1.2

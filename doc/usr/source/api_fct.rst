@@ -290,11 +290,16 @@ These are used to verify that a condition is true. They are executed within
 
 .. cfunction:: fct_chk_incl_str(s, check) 
 
-    *New in FCTX 1.3* Causes a test failure when it can not find *check*
+    *New in FCTX 1.3*. Causes a test failure when it can not find *check*
     within the given string, *s*. NULL is treated as a blank string in
     this case, thus if *check* is NULL, all *str* will pass. Down in the
     guts of this function, there is a call to the Standard C *strstr*
     function.
+
+.. cfunction:: fct_chk_incl_istr(s, check) 
+
+    *New in FCTX 1.3*. This is a case insensitive variant of
+    :cfunc:`fct_chk_incl_str`.
 
 .. cfunction:: fct_chk_neq_dbl(a, b) 
 

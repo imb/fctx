@@ -364,6 +364,21 @@ fctstr_incl(char const *str, char const *check_incl)
 }
 
 
+/* Does a case insensitive include check. */
+static int
+fctstr_iincl(char const *str, char const *check_incl) {
+    /* Going to do this with a memory allocation to save coding
+    time. In the future this can be rewritten. Both clone_lower
+    and _incl are NULL tolerant. */
+    char *lstr = fctstr_clone_lower(str);
+    char *lcheck_incl = fctstr_clone_lower(check_incl);
+    int found = fctstr_incl(lstr, lcheck_incl);
+    free(lstr);
+    free(lcheck_incl);
+    return found;
+}
+
+
 
 /* Use this with the _end variant to get the
 
@@ -2630,6 +2645,7 @@ they are needed, but at runtime, only the cheap, first call is made. */
         if ( check ) { \
             (void)fctstr_ieq(NULL,NULL);\
             (void)fctstr_incl(NULL, NULL);\
+            (void)fctstr_iincl(NULL, NULL);\
             (void)fctstr_clone_lower(NULL);\
             (void)fctkern__init(NULL, 0, NULL);\
             (void)fctkern__cl_is(NULL, "");\
@@ -3009,6 +3025,14 @@ if it fails. */
 		"fct_chk_incl_str: '%s' does not include '%s'",\
 		(STR),\
         (CHECK_INCLUDE)\
+		)
+
+
+#define fct_chk_incl_istr(ISTR, ICHECK_INCLUDE) \
+	fct_xchk(fctstr_iincl((ISTR), (ICHECK_INCLUDE)),\
+		"fct_chk_incl_istr (case insensitive): '%s' does not include '%s'",\
+		(ISTR),\
+        (ICHECK_INCLUDE)\
 		)
 
 

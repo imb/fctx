@@ -115,6 +115,25 @@ FCT_BGN()
     FCT_QTEST_END();
 
 
+    /* ---------------------------------------------------------- */
+    FCT_QTEST_BGN(chk_incl_istr)
+    {
+        /* All the case sensitive tests should pass. */
+        fct_chk_incl_istr("mr roboto is super", "roboto");
+        fct_chk_incl_istr("mr ROBOTO is super", "ROBOTO");
+        fct_chk_incl_istr(NULL, NULL); /* NULL includes NULL */
+        fct_chk_incl_istr("mr roboto", NULL);
+        fct_chk_incl_istr("a", "a");
+        fct_chk_incl_istr("b", NULL);
+        fct_chk_incl_istr("mr roboto", "");
+        fct_chk_incl_istr("", "");
+        fct_chk_incl_istr("", NULL);
+        fct_chk_incl_istr("MR RoboTO", "RoBOtO");
+    }
+    FCT_QTEST_END();
+
+
+
     FCT_QTEST_BGN(chk_eq_int)
     {
         fct_chk_eq_int(1, 1);
