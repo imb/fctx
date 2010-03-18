@@ -229,6 +229,7 @@ fctstr_clone_lower(char const *s)
     {
         return NULL;
     }
+    klen = strlen(s)+1;
     k = (char*)malloc(sizeof(char)*klen+1);
     for ( i=0; i != klen; ++i )
     {
