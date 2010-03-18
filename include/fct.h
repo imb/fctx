@@ -3036,20 +3036,20 @@ if it fails. */
           )
 
 #define fct_chk_incl_str(STR, CHECK_INCLUDE) \
-	fct_xchk(fctstr_incl((STR), (CHECK_INCLUDE)),\
-		"fct_chk_incl_str: '%s' does not include '%s'",\
-		(STR),\
-                (CHECK_INCLUDE)\
-		)
+    fct_xchk(fctstr_incl((STR), (CHECK_INCLUDE)),\
+          "fct_chk_incl_str: '%s' does not include '%s'",\
+	  (STR),\
+          (CHECK_INCLUDE)\
+	  )
 
 
 #define fct_chk_incl_istr(ISTR, ICHECK_INCLUDE) \
-	fct_xchk(fctstr_iincl((ISTR), (ICHECK_INCLUDE)),\
-		"fct_chk_incl_istr (case insensitive): '%s' does "\
-                "not include '%s'",\
-		(ISTR),\
-                (ICHECK_INCLUDE)\
-		)
+    fct_xchk(fctstr_iincl((ISTR), (ICHECK_INCLUDE)),\
+          "fct_chk_incl_istr (case insensitive): '%s' does "\
+          "not include '%s'",\
+	  (ISTR),\
+          (ICHECK_INCLUDE)\
+	  )
 
 
 #define fct_chk_eq_int(V1, V2) \
