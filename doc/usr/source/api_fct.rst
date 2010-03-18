@@ -312,6 +312,12 @@ These are used to verify that a condition is true. They are executed within
     *New in FCTX 1.3*. This is a case insensitive variant of
     :cfunc:`fct_chk_incl_str`.
 
+.. cfunction:: fct_chk_startswith_str(s, check)
+
+    *New in FCTX 1.3*. Will return true if the string, *s*, starts with
+    the given *check* string. Will output a useful error message
+    otherwise.
+
 .. cfunction:: fct_chk_neq_dbl(a, b) 
 
     *New in FCTX 1.1*. Causes a test failure if *a* == *b*. Testing for

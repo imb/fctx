@@ -381,6 +381,25 @@ fctstr_iincl(char const *str, char const *check_incl)
 }
 
 
+/* Returns true if STR starts with CHECK. NULL and NULL is consider
+true. */
+static int
+fctstr_startswith(char const *str, char const *check)
+{
+    char const *sp;
+    if ( str == NULL && check == NULL )
+    {
+        return 1;
+    }
+    else if ( ((str == NULL) && (check != NULL))
+              || ((str != NULL) && (check == NULL)) )
+    {
+        return 0;
+    }
+    sp = strstr(str, check);
+    return sp == str;
+}
+
 
 /* Use this with the _end variant to get the
 
@@ -2649,6 +2668,7 @@ they are needed, but at runtime, only the cheap, first call is made. */
             (void)fctstr_incl(NULL, NULL);\
             (void)fctstr_iincl(NULL, NULL);\
             (void)fctstr_clone_lower(NULL);\
+            (void)fctstr_startswith(NULL,NULL);\
             (void)fctkern__init(NULL, 0, NULL);\
             (void)fctkern__cl_is(NULL, "");\
             (void)fctkern__cl_val2(NULL, NULL, NULL);\
@@ -3039,7 +3059,7 @@ if it fails. */
 #define fct_chk_incl_str(STR, CHECK_INCLUDE) \
     fct_xchk(fctstr_incl((STR), (CHECK_INCLUDE)),\
           "fct_chk_incl_str: '%s' does not include '%s'",\
-	  (STR),\
+	      (STR),\
           (CHECK_INCLUDE)\
 	  )
 
@@ -3048,9 +3068,17 @@ if it fails. */
     fct_xchk(fctstr_iincl((ISTR), (ICHECK_INCLUDE)),\
           "fct_chk_incl_istr (case insensitive): '%s' does "\
           "not include '%s'",\
-	  (ISTR),\
+	      (ISTR),\
           (ICHECK_INCLUDE)\
 	  )
+
+
+#define fct_chk_startswith_str(STR, CHECK)\
+    fct_xchk(fctstr_startswith((STR), (CHECK)),\
+          "'%s' does not start with '%s'",\
+          (STR),\
+          (CHECK)\
+    )
 
 
 #define fct_chk_eq_int(V1, V2) \

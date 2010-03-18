@@ -18,6 +18,9 @@ Whats new in FCT 1.3
    a substring and report an useful error message if it is found.
  - ENH: New fct_chk_excl_istr, case insensitive variant of
    fct_chk_excl_str.
+ - ENH: New fct_chk_startswith_str, will check if a string starts with a
+   given substring, and report an helpful error otherwise. Also
+   introduces a fctstr_startswith backend function.
 
 
 Whats new in FCT 1.2
