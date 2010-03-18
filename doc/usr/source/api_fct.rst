@@ -288,6 +288,17 @@ These are used to verify that a condition is true. They are executed within
     equality is done based on first checking for NULL values, then making a
     case-sensitive compare.
 
+.. cfunction:: fct_chk_excl_str(s, check)
+
+    *New in FCTX 1.3*. Will cause a test failure when it does find the
+    *check* within the given string, *s*. NULL is treated as a blank
+    string in this case.
+
+.. cfunction:: fct_chk_excl_istr(s, check)
+
+    *New in FCTX 1.3*. Case insensitive variant of
+    :cfunc:`fct_chk_excl_str`.
+
 .. cfunction:: fct_chk_incl_str(s, check) 
 
     *New in FCTX 1.3*. Causes a test failure when it can not find *check*

@@ -3020,6 +3020,20 @@ if it fails. */
           (V2)\
           )
 
+#define fct_chk_excl_str(STR, CHECK_EXCLUDE) \
+    fct_xchk(!fctstr_incl((STR), (CHECK_EXCLUDE)),\
+	  "fct_chk_excl_str: '%s' is included in '%s'",\
+	  (STR),\
+          (CHECK_EXCLUDE)\
+	  )
+
+#define fct_chk_excl_istr(ISTR, ICHECK_EXCLUDE) \
+    fct_xchk(!fctstr_iincl((ISTR), (ICHECK_EXCLUDE)),\
+	  "fct_chk_excl_istr (case insensitive): '%s' is "\
+          "included in'%s'",\
+          (ISTR),\
+          (ICHECK_EXCLUDE)\
+          )
 
 #define fct_chk_incl_str(STR, CHECK_INCLUDE) \
 	fct_xchk(fctstr_incl((STR), (CHECK_INCLUDE)),\

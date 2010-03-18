@@ -133,6 +133,24 @@ FCT_BGN()
     FCT_QTEST_END();
 
 
+    /* ---------------------------------------------------------- */
+    FCT_QTEST_BGN(chk_excl_str)
+    {
+        fct_chk_excl_str("mr roboto", "ta");
+        fct_chk_excl_str("a", "b");
+    }
+    FCT_QTEST_END();
+
+
+    /* ---------------------------------------------------------- */
+    FCT_QTEST_BGN(chk_excl_istr)
+    {
+        fct_chk_excl_istr("mr ROboto", "ta");
+        fct_chk_excl_istr("a", "b");
+    }
+    FCT_QTEST_END();
+
+
 
     FCT_QTEST_BGN(chk_eq_int)
     {
