@@ -68,5 +68,22 @@ FCT_BGN()
         fct_chk_neq_str(g_value, CL_PASSED_IN_VALUE);
 #endif /* CL_USE_VALUE */
     } FCT_QTEST_END();
+
+    /* -------------------------------------------------------------------- */
+    FCT_QTEST_BGN(test_value_def_string) {
+#define DEFAULT_STRING "default_string"
+        char const *val = fctcl_val2("--value", DEFAULT_STRING);
+#if defined(CL_USE_VALUE)
+        fct_chk_eq_str(val, CL_PASSED_IN_VALUE);
+        fct_chk_eq_str(g_value, CL_PASSED_IN_VALUE);
+#else
+        fct_chk_eq_str(val, DEFAULT_STRING);
+        /* Here we need to test that value is NULL, since we acquire the
+        global value via the fctcl_val function, not the v2 variant that
+        accepts a default value. */
+        fct_chk( g_value == NULL );
+#endif /* CL_USE_VALUE */
+    } FCT_QTEST_END();
+    
 }
 FCT_END();

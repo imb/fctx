@@ -1414,7 +1414,7 @@ fct_clp__optval2(fct_clp_t *clp, char const *option, char const *default_val)
     assert( clp != NULL );
     assert( option != NULL );
     clo = fct_clp__get_clo(clp, option);
-    if ( clo == NULL )
+    if ( clo == NULL || clo->value == NULL)
     {
         return default_val;
     }
