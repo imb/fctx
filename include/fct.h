@@ -1680,6 +1680,7 @@ fctkern__cl_parse(fctkern_t *nk)
     int status =0;
     int num_params =0;
     int param_i =0;
+    fct_logger_i *logger =NULL;
     if ( nk == NULL )
     {
         return 0;
@@ -1726,6 +1727,17 @@ fctkern__cl_parse(fctkern_t *nk)
         status = -1;
         goto finally;
     }
+    /* TODO: This is where we can "configure" what logger to pull out. Be nice
+    if we can provide some means for the client code to 'override' this
+    as well as from the command prompt. (Actually should move into cl_parse). */
+    logger = (fct_logger_i*) fct_standard_logger__new();
+    if ( logger == NULL )
+    {
+        status = -1;
+        goto finally;
+    }
+    fctkern__add_logger(nk, logger);
+    logger = NULL;   /* Owned by the nk list. */
     status =1;
     nk->cl_is_parsed =1;
 finally:
@@ -1739,8 +1751,6 @@ should be directly from the program's main. */
 static int
 fctkern__init(fctkern_t *nk, int argc, const char *argv[])
 {
-    fct_logger_i *standard_logger = NULL;
-    nbool_t ok = FCT_FALSE;
     if ( argc == 0 && argv == NULL )
     {
         return 0;
@@ -1756,25 +1766,8 @@ fctkern__init(fctkern_t *nk, int argc, const char *argv[])
     the command line parser.*/
     nk->cl_argc = argc;
     nk->cl_argv = argv;
-    /* TODO: This is where we can "configure" what logger to pull out. Be nice
-    if we can provide some means for the client code to 'override' this
-    as well as from the command prompt. (Actually should move into cl_parse). */
-    standard_logger = (fct_logger_i*) fct_standard_logger__new();
-    if ( standard_logger == NULL )
-    {
-        ok = FCT_FALSE;
-        goto finally;
-    }
-    fctkern__add_logger(nk, standard_logger);
-    standard_logger = NULL;   /* Owned by the nk list. */
     fct_namespace_init(&(nk->ns));
-    ok =1;
-finally:
-    if ( !ok )
-    {
-        fctkern__final(nk);
-    }
-    return ok;
+    return 1;
 }
 
 
