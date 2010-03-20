@@ -13,7 +13,7 @@
 # ====================================================================
 
 VERSION_SHORT=1.2
-VERSION=$(VERSION_SHORT).0
+VERSION=$(VERSION_SHORT).1
 BRANCH=lp:/fctest/1.2
 SRCPACK=fctx-src-${VERSION}.tar.gz
 DOCPACK=fctx-doc-${VERSION}
