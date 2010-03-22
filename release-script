@@ -20,7 +20,7 @@ echo "git shortlog --no-merges v$new v$last > ShortLog"
 echo "git diff --stat --summary -M v$last v$new > diffstat-$new"
 
 echo "cd doc/usr"
-echo "make clean html html_web"
+echo "make clean html html_web VERSION=$new"
 echo "tar --create --verbose --transform='s,build/html,fct-doc-$new,' build/html | gzip > ../../fctx-doc-$new.tar.gz"
 echo "cd ../.."
 
