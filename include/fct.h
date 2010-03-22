@@ -401,6 +401,21 @@ fctstr_startswith(char const *str, char const *check)
 }
 
 
+/* Case insenstive variant of fctstr_startswith. */
+static int
+fctstr_istartswith(char const *str, char const *check)
+{
+    /* Taking the lazy approach for now. */
+    char *istr = fctstr_clone_lower(str);
+    char *icheck = fctstr_clone_lower(check);
+    /* TODO: check for memory. */
+    int startswith = fctstr_startswith(istr, icheck);
+    free(istr);
+    free(icheck);
+    return startswith;
+}
+
+
 /* Use this with the _end variant to get the
 
 STARTSWITH ........................................ END
@@ -3080,6 +3095,13 @@ if it fails. */
           (CHECK)\
     )
 
+
+#define fct_chk_startswith_istr(STR, CHECK)\
+    fct_xchk(fctstr_istartswith((STR), (CHECK)),\
+          "case insensitive check: '%s' does not start with '%s'",\
+          (STR),\
+          (CHECK)\
+    )
 
 #define fct_chk_eq_int(V1, V2) \
     fct_xchk(\

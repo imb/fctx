@@ -59,3 +59,8 @@ String Functions
         *New in FCTX 1.3*. Returns true (1) if the string, *s1*, starts
         with the given string, *check*. This will treat two NULL values
         as equal, and return true (1). 
+
+.. cfunction:: fctstr_istartswith(s1, check)
+
+        *New in FCTX 1.3*. Case insensitive variant of
+        :cfunc:`fctstr_startswith`. 

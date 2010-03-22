@@ -161,6 +161,17 @@ FCT_BGN()
     FCT_QTEST_END();
 
 
+    /* ---------------------------------------------------------- */
+    FCT_QTEST_BGN(chk_startswith_istr)
+    {
+        fct_chk_startswith_istr("Mr ROboto", "mr");
+        fct_chk_startswith_istr(NULL, NULL);
+        fct_chk_startswith_istr("", "");
+    }
+    FCT_QTEST_END();
+
+
+    /* ---------------------------------------------------------- */
     FCT_QTEST_BGN(chk_eq_int)
     {
         fct_chk_eq_int(1, 1);
