@@ -46,7 +46,7 @@ File: fct.h
 
 #define FCT_VERSION_MAJOR 1
 #define FCT_VERSION_MINOR 2
-#define FCT_VERSION_MICRO 0
+#define FCT_VERSION_MICRO 1
 
 #define _FCT_QUOTEME(x) #x
 #define FCT_QUOTEME(x) _FCT_QUOTEME(x)
@@ -1429,7 +1429,7 @@ fct_clp__optval2(fct_clp_t *clp, char const *option, char const *default_val)
     assert( clp != NULL );
     assert( option != NULL );
     clo = fct_clp__get_clo(clp, option);
-    if ( clo == NULL )
+    if ( clo == NULL || clo->value == NULL)
     {
         return default_val;
     }
