@@ -2,8 +2,8 @@
 #
 
 # You can set these variables from the command line.
-VERSION       = 0.0
-RELEASE       = 0.0.0
+VERSION       = 0.0.0
+RELEASE       = $(VERSION)
 SPHINXOPTS    = 
 SPHINXBUILD   = sphinx-build
 PAPER         =
