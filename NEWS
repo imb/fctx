@@ -2,15 +2,20 @@
 FCTX Changes
 ++++++++++++
 
-Whats new in FCT 1.2.1
-----------------------
+Whats new in FCTX 1.2.1
+-----------------------
 
+This release is the first release using Git hosted at GitHub 
+(http://github.com/imb/fctx). As such a lot of the changes in this release
+had to do with converting from BAZZAR to GIT. Namely normalizing the
+line endings so the are standard across the Git repository.
+ 
  - FIX (#11): Fixed fctcl_val2 so it will return a default value if the
    option was not specified on the command line.
 
 
-Whats new in FCT 1.2
---------------------
+Whats new in FCTX 1.2
+---------------------
 
 Highlights for this release include access to a command line parser for each
 EXE built with FCTX. You are now able to customize your command line to add
