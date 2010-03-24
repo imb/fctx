@@ -288,6 +288,11 @@ These are used to verify that a condition is true. They are executed within
     equality is done based on first checking for NULL values, then making a
     case-sensitive compare.
 
+.. cfunction:: fct_chk_endswith_str(s, check)
+
+    *New in FCTX 1.3* Checks that the given string, *s*, ends with the
+    given *check*. NULL's are treated as blank strings.
+
 .. cfunction:: fct_chk_excl_str(s, check)
 
     *New in FCTX 1.3*. Will cause a test failure when it does find the

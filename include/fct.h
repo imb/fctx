@@ -416,6 +416,40 @@ fctstr_istartswith(char const *str, char const *check)
 }
 
 
+/* Returns true if the given string ends with the given
+check. Treats NULL as a blank string, and as such, will
+pass the ends with (a blank string endswith a blank string). */
+static int
+fctstr_endswith(char const *str, char const *check)
+{
+    size_t check_i;
+    size_t str_i;
+    if ( str == NULL && check == NULL )
+    {
+        return 1;
+    }
+    else if ( ((str == NULL) && (check != NULL))
+              || ((str != NULL) && (check == NULL)) )
+    {
+        return 0;
+    }
+    check_i = strlen(check);
+    str_i = strlen(str);
+    if ( str_i < check_i )
+    {
+        return 0;   /* Can't do it string is too small. */
+    }
+    for ( ; check_i != 0; --check_i, --str_i)
+    {
+        if ( str[str_i] != check[check_i] )
+        {
+            return 0; /* Found a case where they are not equal. */
+        }
+    }
+    /* Exahausted check against string, can only be true. */
+    return 1;
+}
+
 /* Use this with the _end variant to get the
 
 STARTSWITH ........................................ END
@@ -3055,6 +3089,15 @@ if it fails. */
           (V1),\
           (V2)\
           )
+
+
+#define fct_chk_endswith_str(STR, CHECK)\
+    fct_xchk(fctstr_endswith((STR),(CHECK)),\
+            "fct_chk_endswith_str: '%s' doesn't end with '%s'",\
+            (STR),\
+            (CHECK)\
+            )
+
 
 #define fct_chk_excl_str(STR, CHECK_EXCLUDE) \
     fct_xchk(!fctstr_incl((STR), (CHECK_EXCLUDE)),\

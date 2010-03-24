@@ -37,6 +37,11 @@ String Functions
         *s1* and *s2* are NULL, this function will return non-zero (TRUE)
         value. See :cfunc:`fctstr_ieq` for a case-insenstive string compare.
 
+.. cfunction:: fctstr_endswith(s, check)
+
+        Returns true if the string, *s*, ends with the given *check*
+        string. NULL's are treated as blank strings.
+
 .. cfunction:: fctstr_ieq(s1,s2) 
          
         Performs a case insensitve string compare, see :cfunc:`fctstr_eq` for
