@@ -317,16 +317,21 @@ These are used to verify that a condition is true. They are executed within
     *New in FCTX 1.3*. This is a case insensitive variant of
     :cfunc:`fct_chk_incl_str`.
 
+.. cfunction:: fct_chk_iendswith(s, check)
+
+    *New in FCTX 1.3*. This is a cse insensitive variant of
+    :cfunc:`fct_chk_endswith`.
+
+.. cfunction:: fct_chk_istartswith_istr(s, check)
+
+   *New in FCTX 1.3*. Case insensitive variant of
+   :cfunc:`fct_chk_startswith_str`.
+
 .. cfunction:: fct_chk_startswith_str(s, check)
 
     *New in FCTX 1.3*. Will return true if the string, *s*, starts with
     the given *check* string. Will output a useful error message
     otherwise.
-
-.. cfunction:: fct_chk_startswith_istr(s, check)
-
-   *New in FCTX 1.3*. Case insensitive variant of
-   :cfunc:`fct_chk_startswith_str`.
 
 .. cfunction:: fct_chk_neq_dbl(a, b) 
 

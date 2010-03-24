@@ -35,17 +35,22 @@ String Functions
         standard strcmp function, this function can handle NULL values. This
         function will also quit the moment one of the strings is unequal. If
         *s1* and *s2* are NULL, this function will return non-zero (TRUE)
-        value. See :cfunc:`fctstr_ieq` for a case-insenstive string compare.
+        value. See :cfunc:`fctstr_ieq` for a case-insensitive string compare.
 
 .. cfunction:: fctstr_endswith(s, check)
 
-        Returns true if the string, *s*, ends with the given *check*
-        string. NULL's are treated as blank strings.
+        *New in FCTX 1.3*. Returns true if the string, *s*, ends with
+        the given *check* string.
 
 .. cfunction:: fctstr_ieq(s1,s2) 
          
         Performs a case insensitve string compare, see :cfunc:`fctstr_eq` for
         more details.
+
+.. cfunction:: fctstr_iendswith(s, check)
+
+        *New in FCTX 1.3.* Case insensitive variant of
+        :cfunc:`fctstr_endswith`.
 
 .. cfunction:: fctstr_incl(s1, check)
 
@@ -59,13 +64,15 @@ String Functions
         *New in FCTX 1.3.* Case insensitive version of
         :cfunc:`fctstr_incl`.
 
+.. cfunction:: fctstr_istartswith(s1, check)
+
+        *New in FCTX 1.3*. Case insensitive variant of
+        :cfunc:`fctstr_startswith`. 
+
+
 .. cfunction:: fctstr_startswith(s1, check)
 
         *New in FCTX 1.3*. Returns true (1) if the string, *s1*, starts
         with the given string, *check*. This will treat two NULL values
         as equal, and return true (1). 
 
-.. cfunction:: fctstr_istartswith(s1, check)
-
-        *New in FCTX 1.3*. Case insensitive variant of
-        :cfunc:`fctstr_startswith`. 

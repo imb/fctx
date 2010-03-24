@@ -450,6 +450,39 @@ fctstr_endswith(char const *str, char const *check)
     return 1;
 }
 
+
+static int
+fctstr_iendswith(char const *str, char const *check)
+{
+    size_t check_i;
+    size_t str_i;
+    if ( str == NULL && check == NULL )
+    {
+        return 1;
+    }
+    else if ( ((str == NULL) && (check != NULL))
+              || ((str != NULL) && (check == NULL)) )
+    {
+        return 0;
+    }
+    check_i = strlen(check);
+    str_i = strlen(str);
+    if ( str_i < check_i )
+    {
+        return 0;   /* Can't do it string is too small. */
+    }
+    for ( ; check_i != 0; --check_i, --str_i)
+    {
+        if ( tolower(str[str_i]) != tolower(check[check_i]) )
+        {
+            return 0; /* Found a case where they are not equal. */
+        }
+    }
+    /* Exahausted check against string, can only be true. */
+    return 1;
+}
+
+
 /* Use this with the _end variant to get the
 
 STARTSWITH ........................................ END
@@ -2712,11 +2745,13 @@ they are needed, but at runtime, only the cheap, first call is made. */
 #define FCT_REFERENCE_FUNCS() \
     {\
         int check = 0 && fctstr_ieq(NULL, NULL);\
-        if ( check ) { \
+        if ( check ) {\
             (void)fctstr_endswith(NULL,NULL);\
+            (void)fctstr_iendswith(NULL,NULL);\
             (void)fctstr_ieq(NULL,NULL);\
             (void)fctstr_incl(NULL, NULL);\
             (void)fctstr_iincl(NULL, NULL);\
+            (void)fctstr_iendswith(NULL,NULL);\
             (void)fctstr_istartswith(NULL,NULL);\
             (void)fctstr_clone_lower(NULL);\
             (void)fctstr_startswith(NULL,NULL);\
@@ -3100,6 +3135,13 @@ if it fails. */
             (CHECK)\
             )
 
+
+#define fct_chk_iendswith_str(STR, CHECK)\
+    fct_xchk(fctstr_iendswith((STR), (CHECK)),\
+             "fch_chk_iendswith_str: '%s' doesn't end with '%s'.",\
+             (STR),\
+             (CHECK)\
+             )
 
 #define fct_chk_excl_str(STR, CHECK_EXCLUDE) \
     fct_xchk(!fctstr_incl((STR), (CHECK_EXCLUDE)),\

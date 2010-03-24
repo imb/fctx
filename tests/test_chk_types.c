@@ -182,6 +182,16 @@ FCT_BGN()
 
 
     /* ---------------------------------------------------------- */
+    FCT_QTEST_BGN(chk_iendswith_str)
+    {
+        fct_chk_iendswith_str("Mr ROboto", "roboto");
+        fct_chk_iendswith_str(NULL, NULL);
+        fct_chk_iendswith_str("", "");
+    }
+    FCT_QTEST_END();
+
+
+    /* ---------------------------------------------------------- */
     FCT_QTEST_BGN(chk_eq_int)
     {
         fct_chk_eq_int(1, 1);
