@@ -2713,9 +2713,11 @@ they are needed, but at runtime, only the cheap, first call is made. */
     {\
         int check = 0 && fctstr_ieq(NULL, NULL);\
         if ( check ) { \
+            (void)fctstr_endswith(NULL,NULL);\
             (void)fctstr_ieq(NULL,NULL);\
             (void)fctstr_incl(NULL, NULL);\
             (void)fctstr_iincl(NULL, NULL);\
+            (void)fctstr_istartswith(NULL,NULL);\
             (void)fctstr_clone_lower(NULL);\
             (void)fctstr_startswith(NULL,NULL);\
             (void)fctkern__init(NULL, 0, NULL);\
