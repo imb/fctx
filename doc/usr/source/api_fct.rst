@@ -264,6 +264,11 @@ These are used to verify that a condition is true. They are executed within
     in both those cases if an error was generated (the second case always will
     fail), you will get a message in the final error log.
 
+.. cfunction:: fct_chk_empty_str(s)
+
+    *New in FCTX 1.3*. Causes a test failure if the string, *s*, is not
+    empty. NULL is considered an empty string.
+
 .. cfunction:: fct_chk_eq_dbl(a, b) 
 
     *New in FCTX 1.1*. Causes a test failure if *a* != *b*. Testing for
@@ -303,6 +308,11 @@ These are used to verify that a condition is true. They are executed within
 
     *New in FCTX 1.3*. Case insensitive variant of
     :cfunc:`fct_chk_excl_str`.
+
+.. cfunction:: fct_chk_full_str(s)
+
+    *New in FCTX 1.3*. Fails if the string, *s*, is full. A string with
+    whitespace is still considered full.
 
 .. cfunction:: fct_chk_incl_str(s, check) 
 

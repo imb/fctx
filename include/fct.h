@@ -3111,6 +3111,18 @@ if it fails. */
           (V2)\
           )
 
+#define fct_chk_empty_str(V) \
+    fct_xchk((!(V) || strlen((V)) == 0),\
+             "string not empty: '%s'",\
+             (V)\
+             )
+
+#define fct_chk_full_str(V) \
+    fct_xchk(((V) && strlen((V)) > 0),\
+             "string is full: '%s'",\
+             (V)\
+             )
+         
 
 #define fct_chk_eq_istr(V1, V2) \
     fct_xchk(fctstr_ieq((V1), (V2)),\

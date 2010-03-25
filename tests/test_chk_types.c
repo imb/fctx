@@ -200,6 +200,26 @@ FCT_BGN()
     }
     FCT_QTEST_END();
 
+    
+    /* ---------------------------------------------------------- */
+    FCT_QTEST_BGN(chk_str_empty) 
+    {
+        fct_chk_empty_str("");
+        fct_chk_empty_str(NULL);
+    }
+    FCT_QTEST_END();
+
+
+    /* ---------------------------------------------------------- */
+    FCT_QTEST_BGN(chk_str_full) 
+    {
+        fct_chk_full_str(" ");
+        fct_chk_full_str("mr roboto");
+    }
+    FCT_QTEST_END();
+
+
+    /* ---------------------------------------------------------- */
     FCT_QTEST_BGN(chk_neq_int)
     {
         fct_chk_neq_int(1, 2);
