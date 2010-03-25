@@ -9,6 +9,18 @@ Whats new in FCT 1.3
    as a rule exceptional, there was no need to allocate memory for a
    list to hold error results until such time as an error occurs. This
    lead to a relatively minor speed up.
+ - ENH: New fct_chk_incl_str, will check that a string includes a
+   substring and report an useful error message if it does not include
+   the substring.
+ - ENH: New fct_chk_incl_istr, case insensitive variant of
+   fct_chk_incl_str.
+ - ENH: New fct_chk_excl_str, will check that a string does not include
+   a substring and report an useful error message if it is found.
+ - ENH: New fct_chk_excl_istr, case insensitive variant of
+   fct_chk_excl_str.
+ - ENH: New fct_chk_startswith_str, will check if a string starts with a
+   given substring, and report an helpful error otherwise. Also
+   introduces a fctstr_startswith backend function.
 
 
 Whats new in FCTX 1.2.1
