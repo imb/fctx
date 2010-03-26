@@ -2,95 +2,25 @@
 TODO
 ====
 
-Milestone 1.1 (Cleanup)
-=======================
-
-- (P1) Write a HACKING file.
-  - Include "Basic Idea"
-  - Write up a little documentation on the "design" of the framework. A
-    HACKING guide.
-- (P2) Start up a more involved documentation project.
-- (P2) Start a "boilerplate" file.
 
 MileStone 1.3 (Command Line Args)
 =================================
 
-- (P2) Better command line parsing. 
-  - Need to implement the --help and --version options.
+- (P2) Start a "boilerplate" file.
 
 - (P1) Run only a specific test suite by name,
 
       fct.exe --run-suite some_suite
 
-- Add a command line "parser" object, 
-  - Parse and keep track of all the command line.
-  - Available via the kernel?
-  - Track "prefixes" in this same object!
-
-  - Use a table to specify and store results. 
-
-    {[FLAG|STORE], "long-opt", "short-opt", def_buf, def_flag, buffer, flag}
-
-    Either we have flags (on/off) or we are storing arguments. The type
-    is defined by the first parameter, the "option" defines the second
-    field.  The buffer|flag is a union, which could be either one,
-    depending on the type of "option" defined in the table...
-
-    Store default buffer, or flag results in there. 
-    
-    FLAG_TRUE or FLAG_FALSE or FLAG_STORE.
-
-  - Walk through the argc, argv "chunking" them up based on the table
-    specifications above.
-
-  - fft_prsr__is_flag("option")
-    fft_prsr__get("option", value, FFT_PRSR_MAX_OPT_LEN);
-
-- Set the logger? Via the command line. 
-  --logger-minimal      (-lm)
-  --logger-standard     (-ls)
-  --logger-verbose      (-lv)    
-
-- Better loggers:
-  - minimal ( "." and "!" )
-      - on_cndtn_pass
-      - on_cndtn_fail
-      - on_test_start
-      - on_test_end
-      - on_test_suite_start
-      - on_test_suite_end
-      - on_fct_start
-      - on_fct_end
-  - verbose 
-      - on_cndtn_pass
-      - on_cndtn_fail
-      - on_test_start
-      - on_test_end
-      - on_test_suite_start
-      - on_test_suite_end
-      - on_fct_start
-      - on_fct_end  
-
 - Write up some rules for creating your own custom logger.
-
 
 Milestone 1.4 (Major Enhancements)
 ==================================
 
-- (P3) Make the NList GROWTH rate proportional to its size. The bigger
-  the list, the less it has to grow (i.e. the less likely more stuff
-  will be added). 
-
-- (P1) Handle assertions -- keep on "trucking".
-
-- (P1) Handle assertions -- optionally check for them.
-
-- (P1) Handle "crashes" -- keep on "trucking".
-
-- (P1) Handle "crashes" -- optionally confirm a crash?? Might be a
-  completely useless option.
 
 - (P2) Handle different languages for the built-in loggers.
+
+- Unicode Support
 
 - Figure out a way to have a test case without a FCT_BGN/END?
 
@@ -100,11 +30,11 @@ Milestone 1.4 (Major Enhancements)
     {
        FCT_CHECK( ok );    // This should fail, with a hint!
     }
-    FCT_SUITE_END()
+    FCT_VERY_QUICK_END()
     FCT_VERY_QUICK(test2)
     {
        FCT_CHECK( ok );    // This should fail, with a hint!
     }
-    FCT_SUITE_END()
+    FCT_VERY_QUICK_END()
 
     /* Actually may be impossible. */

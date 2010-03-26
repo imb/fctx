@@ -218,6 +218,26 @@ fctstr_clone(char const *s)
 }
 
 
+/* Clones and returns a lower case version of the original string. */
+static char*
+fctstr_clone_lower(char const *s)
+{
+    char *k =NULL;
+    size_t klen =0;
+    size_t i;
+    if ( s == NULL )
+    {
+        return NULL;
+    }
+    klen = strlen(s)+1;
+    k = (char*)malloc(sizeof(char)*klen+1);
+    for ( i=0; i != klen; ++i )
+    {
+        k[i] = (char)tolower(s[i]);
+    }
+    return k;
+}
+
 
 /* A very, very simple "filter". This just compares the supplied prefix
 against the test_str, to see if they both have the same starting
@@ -318,6 +338,149 @@ fctstr_ieq(char const *s1, char const *s2)
     return 0;
 }
 
+
+/* Returns 1 if the STR contains the CHECK_INCL substring. NULL's
+are handled, and NULL always INCLUDES NULL. This check is case
+sensitive. If two strings point to the same place they are
+included. */
+static int
+fctstr_incl(char const *str, char const *check_incl)
+{
+    static char *blank_s = "";
+    char const *found = NULL;
+    if ( str == NULL )
+    {
+        str = blank_s;
+    }
+    if ( check_incl == NULL )
+    {
+        check_incl = blank_s;
+    }
+    if ( str == check_incl )
+    {
+        return 1;
+    }
+    found = strstr(str, check_incl);
+    return found != NULL;
+}
+
+
+/* Does a case insensitive include check. */
+static int
+fctstr_iincl(char const *str, char const *check_incl)
+{
+    /* Going to do this with a memory allocation to save coding
+    time. In the future this can be rewritten. Both clone_lower
+    and _incl are NULL tolerant. */
+    char *lstr = fctstr_clone_lower(str);
+    char *lcheck_incl = fctstr_clone_lower(check_incl);
+    int found = fctstr_incl(lstr, lcheck_incl);
+    free(lstr);
+    free(lcheck_incl);
+    return found;
+}
+
+
+/* Returns true if STR starts with CHECK. NULL and NULL is consider
+true. */
+static int
+fctstr_startswith(char const *str, char const *check)
+{
+    char const *sp;
+    if ( str == NULL && check == NULL )
+    {
+        return 1;
+    }
+    else if ( ((str == NULL) && (check != NULL))
+              || ((str != NULL) && (check == NULL)) )
+    {
+        return 0;
+    }
+    sp = strstr(str, check);
+    return sp == str;
+}
+
+
+/* Case insenstive variant of fctstr_startswith. */
+static int
+fctstr_istartswith(char const *str, char const *check)
+{
+    /* Taking the lazy approach for now. */
+    char *istr = fctstr_clone_lower(str);
+    char *icheck = fctstr_clone_lower(check);
+    /* TODO: check for memory. */
+    int startswith = fctstr_startswith(istr, icheck);
+    free(istr);
+    free(icheck);
+    return startswith;
+}
+
+
+/* Returns true if the given string ends with the given
+check. Treats NULL as a blank string, and as such, will
+pass the ends with (a blank string endswith a blank string). */
+static int
+fctstr_endswith(char const *str, char const *check)
+{
+    size_t check_i;
+    size_t str_i;
+    if ( str == NULL && check == NULL )
+    {
+        return 1;
+    }
+    else if ( ((str == NULL) && (check != NULL))
+              || ((str != NULL) && (check == NULL)) )
+    {
+        return 0;
+    }
+    check_i = strlen(check);
+    str_i = strlen(str);
+    if ( str_i < check_i )
+    {
+        return 0;   /* Can't do it string is too small. */
+    }
+    for ( ; check_i != 0; --check_i, --str_i)
+    {
+        if ( str[str_i] != check[check_i] )
+        {
+            return 0; /* Found a case where they are not equal. */
+        }
+    }
+    /* Exahausted check against string, can only be true. */
+    return 1;
+}
+
+
+static int
+fctstr_iendswith(char const *str, char const *check)
+{
+    size_t check_i;
+    size_t str_i;
+    if ( str == NULL && check == NULL )
+    {
+        return 1;
+    }
+    else if ( ((str == NULL) && (check != NULL))
+              || ((str != NULL) && (check == NULL)) )
+    {
+        return 0;
+    }
+    check_i = strlen(check);
+    str_i = strlen(str);
+    if ( str_i < check_i )
+    {
+        return 0;   /* Can't do it string is too small. */
+    }
+    for ( ; check_i != 0; --check_i, --str_i)
+    {
+        if ( tolower(str[str_i]) != tolower(check[check_i]) )
+        {
+            return 0; /* Found a case where they are not equal. */
+        }
+    }
+    /* Exahausted check against string, can only be true. */
+    return 1;
+}
 
 
 /* Use this with the _end variant to get the
@@ -2575,8 +2738,16 @@ they are needed, but at runtime, only the cheap, first call is made. */
 #define FCT_REFERENCE_FUNCS() \
     {\
         int check = 0 && fctstr_ieq(NULL, NULL);\
-        if ( check ) { \
+        if ( check ) {\
+            (void)fctstr_endswith(NULL,NULL);\
+            (void)fctstr_iendswith(NULL,NULL);\
             (void)fctstr_ieq(NULL,NULL);\
+            (void)fctstr_incl(NULL, NULL);\
+            (void)fctstr_iincl(NULL, NULL);\
+            (void)fctstr_iendswith(NULL,NULL);\
+            (void)fctstr_istartswith(NULL,NULL);\
+            (void)fctstr_clone_lower(NULL);\
+            (void)fctstr_startswith(NULL,NULL);\
             (void)fctkern__init(NULL, 0, NULL);\
             (void)fctkern__cl_is(NULL, "");\
             (void)fctkern__cl_val2(NULL, NULL, NULL);\
@@ -2933,6 +3104,18 @@ if it fails. */
           (V2)\
           )
 
+#define fct_chk_empty_str(V) \
+    fct_xchk((!(V) || strlen((V)) == 0),\
+             "string not empty: '%s'",\
+             (V)\
+             )
+
+#define fct_chk_full_str(V) \
+    fct_xchk(((V) && strlen((V)) > 0),\
+             "string is full: '%s'",\
+             (V)\
+             )
+         
 
 #define fct_chk_eq_istr(V1, V2) \
     fct_xchk(fctstr_ieq((V1), (V2)),\
@@ -2949,6 +3132,68 @@ if it fails. */
           (V2)\
           )
 
+
+#define fct_chk_endswith_str(STR, CHECK)\
+    fct_xchk(fctstr_endswith((STR),(CHECK)),\
+            "fct_chk_endswith_str: '%s' doesn't end with '%s'",\
+            (STR),\
+            (CHECK)\
+            )
+
+
+#define fct_chk_iendswith_str(STR, CHECK)\
+    fct_xchk(fctstr_iendswith((STR), (CHECK)),\
+             "fch_chk_iendswith_str: '%s' doesn't end with '%s'.",\
+             (STR),\
+             (CHECK)\
+             )
+
+#define fct_chk_excl_str(STR, CHECK_EXCLUDE) \
+    fct_xchk(!fctstr_incl((STR), (CHECK_EXCLUDE)),\
+	  "fct_chk_excl_str: '%s' is included in '%s'",\
+	  (STR),\
+          (CHECK_EXCLUDE)\
+	  )
+
+#define fct_chk_excl_istr(ISTR, ICHECK_EXCLUDE) \
+    fct_xchk(!fctstr_iincl((ISTR), (ICHECK_EXCLUDE)),\
+	  "fct_chk_excl_istr (case insensitive): '%s' is "\
+          "included in'%s'",\
+          (ISTR),\
+          (ICHECK_EXCLUDE)\
+          )
+
+#define fct_chk_incl_str(STR, CHECK_INCLUDE) \
+    fct_xchk(fctstr_incl((STR), (CHECK_INCLUDE)),\
+          "fct_chk_incl_str: '%s' does not include '%s'",\
+	      (STR),\
+          (CHECK_INCLUDE)\
+	  )
+
+
+#define fct_chk_incl_istr(ISTR, ICHECK_INCLUDE) \
+    fct_xchk(fctstr_iincl((ISTR), (ICHECK_INCLUDE)),\
+          "fct_chk_incl_istr (case insensitive): '%s' does "\
+          "not include '%s'",\
+	      (ISTR),\
+          (ICHECK_INCLUDE)\
+	  )
+
+
+#define fct_chk_startswith_str(STR, CHECK)\
+    fct_xchk(fctstr_startswith((STR), (CHECK)),\
+          "'%s' does not start with '%s'",\
+          (STR),\
+          (CHECK)\
+    )
+
+
+#define fct_chk_startswith_istr(STR, CHECK)\
+    fct_xchk(fctstr_istartswith((STR), (CHECK)),\
+          "case insensitive check: '%s' does not start with '%s'",\
+          (STR),\
+          (CHECK)\
+    )
 
 #define fct_chk_eq_int(V1, V2) \
     fct_xchk(\
