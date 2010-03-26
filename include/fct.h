@@ -1891,7 +1891,7 @@ fctkern__cl_parse(fctkern_t *nk)
     }
     /* TODO: This is where we can "configure" what logger to pull out. Be nice
     if we can provide some means for the client code to 'override' this
-    as well as from the command prompt. (Actually should move into cl_parse). */
+    as well as from the command prompt. */
     logger = (fct_logger_i*) fct_standard_logger__new();
     if ( logger == NULL )
     {
