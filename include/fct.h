@@ -1728,8 +1728,7 @@ struct _fctkern_t
     /* Tracks the delay parsing. */
     int cl_is_parsed;
 
-    /* This is an list of loggers that can be used in the fct system.
-    You/ can attach _MAX_LOGGERS to any framework. */
+    /* This is an list of loggers that can be used in the fct system. */
     fct_nlist_t logger_list;
 
     /* This is a list of prefix's that can be used to determine if a
