@@ -44,6 +44,19 @@ File: fct.h
 #if !defined(FCT_INCLUDED__IMB)
 #define FCT_INCLUDED__IMB
 
+/* Configuration Values. You can over-ride these values in your own
+header, then include this header. For example, in your file, myfct.h,
+
+    #define FCT_DEFAULT_LOGGER "standard"
+    #include "fct.h"
+
+then if your unit tests included, myfct.h, you would default to work
+with a standard logger. */
+
+#if !defined(FCT_DEFAULT_LOGGER)
+#   define FCT_DEFAULT_LOGGER  "standard"
+#endif /* !FCT_DEFAULT_LOGGER */
+
 #define FCT_VERSION_MAJOR 1
 #define FCT_VERSION_MINOR 2
 #define FCT_VERSION_MICRO 1
@@ -1766,8 +1779,23 @@ static fctcl_init_t FCT_CLP_OPTIONS[] =
     {FCT_OPT_LOGGER,
      FCT_OPT_LOGGER_SHORT,
      FCTCL_STORE_VALUE,
-     "RESERVED. Will handle different logger types in the future."},
+     /* Editting this, also edit FCT_LOGGER_TYPES */
+     "Sets the logger. The types of loggers currently available are,\n"
+     "   standard - the basic fctx logger.\n" },
     FCTCL_INIT_NULL /* Sentinel */
+};
+
+typedef fct_logger_i* (*fct_logger_new_fn)(void);
+typedef struct _fct_logger_types_t
+{
+    char const *name;
+    fct_logger_new_fn logger_new_fn;
+} fct_logger_types_t;
+
+static fct_logger_types_t FCT_LOGGER_TYPES[] =
+{
+    {"standard", (fct_logger_new_fn)fct_standard_logger__new},
+    {NULL, (fct_logger_new_fn)NULL} /* Sentinel */
 };
 
 
@@ -1833,6 +1861,51 @@ fctkern__cl_is(fctkern_t *nk, char const *opt_str)
 }
 
 
+/* Returns the command line value given by OPT_STR. If OPT_STR was not defined
+at the command line, DEF_STR is returned (you can use NULL for the DEF_STR).
+The result returned should not be mofidied, and MAY even be the same pointer
+to DEF_STR. */
+static char const *
+fctkern__cl_val2(fctkern_t *nk, char const *opt_str, char const *def_str)
+{
+    assert( opt_str != NULL );
+    if ( nk == NULL )
+    {
+        return NULL;
+    }
+    return fct_clp__optval2(&(nk->cl_parser), opt_str, def_str);
+}
+
+
+static int
+fctkern__cl_parse_config_logger(fctkern_t *nk)
+{
+    fct_logger_types_t *iter;
+    fct_logger_i *logger =NULL;
+    char const *sel_logger =NULL;
+    char const *def_logger =FCT_DEFAULT_LOGGER;
+    sel_logger = fctkern__cl_val2(nk, FCT_OPT_LOGGER, def_logger);
+    assert(sel_logger != NULL && "should never be NULL");
+    for (iter = FCT_LOGGER_TYPES; iter->name != NULL; ++iter)
+    {
+        if ( fctstr_ieq(iter->name, sel_logger) )
+        {
+            logger = iter->logger_new_fn();
+            if ( logger == NULL )
+            {
+                return 0;
+            }
+            fctkern__add_logger(nk, logger);
+            logger =NULL;   /* Owned by fctkern. */
+            return 1;   /* Done, logger configured. */
+        }
+    }
+    /* No logger configured, you must have supplied an invalid selection. */
+    fprintf(stderr, "error: unknown logger selected - '%s'", sel_logger);
+    return 0;
+}
+
+
 /* Call this if you want to (re)parse the command line options with a new
 set of options. Returns -1 if you are to abort with EXIT_SUCCESS, returns
 0 if you are to abort with EXIT_FAILURE and returns 1 if you are to continue. */
@@ -1842,7 +1915,6 @@ fctkern__cl_parse(fctkern_t *nk)
     int status =0;
     int num_params =0;
     int param_i =0;
-    fct_logger_i *logger =NULL;
     if ( nk == NULL )
     {
         return 0;
@@ -1889,17 +1961,11 @@ fctkern__cl_parse(fctkern_t *nk)
         status = -1;
         goto finally;
     }
-    /* TODO: This is where we can "configure" what logger to pull out. Be nice
-    if we can provide some means for the client code to 'override' this
-    as well as from the command prompt. */
-    logger = (fct_logger_i*) fct_standard_logger__new();
-    if ( logger == NULL )
+    if ( !fctkern__cl_parse_config_logger(nk) )
     {
         status = -1;
         goto finally;
     }
-    fctkern__add_logger(nk, logger);
-    logger = NULL;   /* Owned by the nk list. */
     status =1;
     nk->cl_is_parsed =1;
 finally:
@@ -2170,20 +2236,6 @@ fctkern__log_test_end(fctkern_t *nk, fct_test_t const *test)
     }
 
 
-/* Returns the command line value given by OPT_STR. If OPT_STR was not defined
-at the command line, DEF_STR is returned (you can use NULL for the DEF_STR).
-The result returned should not be mofidied, and MAY even be the same pointer
-to DEF_STR. */
-static char const *
-fctkern__cl_val2(fctkern_t *nk, char const *opt_str, char const *def_str)
-{
-    assert( opt_str != NULL );
-    if ( nk == NULL )
-    {
-        return NULL;
-    }
-    return fct_clp__optval2(&(nk->cl_parser), opt_str, def_str);
-}
 
 
 /*
