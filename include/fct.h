@@ -2207,9 +2207,6 @@ of the implementation.
 -----------------------------------------------------------
 */
 
-typedef void (*fct_logger_on_cndtn_fn)(fct_logger_i *self,
-                                       fctchk_t const *chk);
-
 typedef struct _fct_logger_i_vtable_t
 {
     /* 1 */
@@ -3122,7 +3119,7 @@ if it fails. */
              "string is full: '%s'",\
              (V)\
              )
-         
+
 
 #define fct_chk_eq_istr(V1, V2) \
     fct_xchk(fctstr_ieq((V1), (V2)),\
