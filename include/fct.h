@@ -2743,6 +2743,8 @@ they are needed, but at runtime, only the cheap, first call is made. */
     {\
         int check = 0 && fctstr_ieq(NULL, NULL);\
         if ( check ) {\
+            (void)_fct_chk_empty_str(NULL);\
+            (void)_fct_chk_full_str(NULL);\
             (void)fctstr_endswith(NULL,NULL);\
             (void)fctstr_iendswith(NULL,NULL);\
             (void)fctstr_ieq(NULL,NULL);\
@@ -3108,14 +3110,37 @@ if it fails. */
           (V2)\
           )
 
+/* To quiet warnings with GCC, who think we are being silly and passing
+in NULL to strlen, we will filter the predicate through these little
+functions */
+static int
+_fct_chk_empty_str(char const *s)
+{
+    if ( s == NULL )
+    {
+        return 1;
+    }
+    return strlen(s) ==0;
+}
+static int
+_fct_chk_full_str(char const *s)
+{
+    if ( s == NULL )
+    {
+        return 0;
+    }
+    return strlen(s) >0;
+}
+
+
 #define fct_chk_empty_str(V) \
-    fct_xchk((!(V) || strlen((V)) == 0),\
+    fct_xchk(_fct_chk_empty_str((V)),\
              "string not empty: '%s'",\
              (V)\
              )
 
 #define fct_chk_full_str(V) \
-    fct_xchk(((V) && strlen((V)) > 0),\
+    fct_xchk(_fct_chk_full_str((V)),\
              "string is full: '%s'",\
              (V)\
              )
