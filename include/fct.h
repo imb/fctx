@@ -104,8 +104,11 @@ typedef struct _fct_ts_t fct_ts_t;
 typedef struct _fctkern_t fctkern_t;
 
 /* Forward declare some functions used throughout. */
-static fct_standard_logger_t *
-fct_standard_logger__new(void);
+static fct_logger_i*
+fct_standard_logger_new(void);
+
+static fct_logger_i*
+fct_minimal_logger_new(void);
 
 static void
 fct_logger__del(fct_logger_i *logger);
@@ -1781,7 +1784,10 @@ static fctcl_init_t FCT_CLP_OPTIONS[] =
      FCTCL_STORE_VALUE,
      /* Editting this, also edit FCT_LOGGER_TYPES */
      "Sets the logger. The types of loggers currently available are,\n"
-     "   standard - the basic fctx logger.\n" },
+     "    =standard : the basic fctx logger.\n"
+     "    =minimal  : displays least amount of logging information.\n"
+     "  default is '" FCT_DEFAULT_LOGGER "'."
+    },
     FCTCL_INIT_NULL /* Sentinel */
 };
 
@@ -1794,7 +1800,8 @@ typedef struct _fct_logger_types_t
 
 static fct_logger_types_t FCT_LOGGER_TYPES[] =
 {
-    {"standard", (fct_logger_new_fn)fct_standard_logger__new},
+    {"standard", (fct_logger_new_fn)fct_standard_logger_new},
+    {"minimal", (fct_logger_new_fn)fct_minimal_logger_new},
     {NULL, (fct_logger_new_fn)NULL} /* Sentinel */
 };
 
@@ -2477,6 +2484,49 @@ fct_logger__on_warn(fct_logger_i *logger, char const *warn)
 }
 
 
+/* Commmon routine to record strings representing failures. The
+chk should be a failure before we call this, and the list is a list
+of char*'s that will eventually be free'd by the logger. */
+static void
+fct_logger_record_failure(fctchk_t const* chk, fct_nlist_t* fail_list)
+{
+    /* For now we will truncate the string to some set amount, later
+    we can work out a dynamic string object. */
+    char *str = (char*)malloc(sizeof(char)*FCT_MAX_LOG_LINE);
+    assert( str != NULL );
+    fct_snprintf(
+        str,
+        FCT_MAX_LOG_LINE,
+        "%s(%d):\n    %s",
+        fctchk__file(chk),
+        fctchk__lineno(chk),
+        fctchk__msg(chk)
+    );
+    /* Append it to the listing ... */
+    fct_nlist__append(fail_list, (void*)str);
+}
+
+
+/* Another common routine, to print the failures at the end of a run. */
+static void
+fct_logger_print_failures(fct_nlist_t const *fail_list)
+{
+    puts(
+        "\n----------------------------------------------------------------------------\n"
+    );
+    puts("FAILED TESTS\n\n");
+    FCT_NLIST_FOREACH_BGN(char *, cndtn_str, fail_list)
+    {
+        printf("%s\n", cndtn_str);
+    }
+    FCT_NLIST_FOREACH_END();
+
+    puts("\n");
+}
+
+
+
+
 /*
 -----------------------------------------------------------
 MINIMAL LOGGER
@@ -2488,46 +2538,73 @@ disabled is that we don't currently have the ability to specify
 loggers.
 */
 
-#if defined(FCT_MINIMAL_LOGGER_DISABLED)
 
 /* Minimal logger, reports the minimum amount of information needed
 to determine "something is happening". */
 struct _fct_minimal_logger_t
 {
     _fct_logger_head;
+    /* A list of char*'s that needs to be cleaned up. */
+    fct_nlist_t failed_cndtns_list;
 };
 
 
 static void
-fct_minimal_logger__on_cndtn(fct_logger_i *self, fctchk_t const *chk)
+fct_minimal_logger__on_cndtn(fct_logger_i *self_, fctchk_t const *chk)
 {
-    fct_unused(self);
-    printf(fctchk__is_pass(chk) ? "." : "!");
+    fct_minimal_logger_t *self = (fct_minimal_logger_t*)self_;
+    if ( fctchk__is_pass(chk) )
+    {
+        fputs(".", stdout);
+    }
+    else
+    {
+        fputs("x", stdout);
+        fct_logger_record_failure(chk, &(self->failed_cndtns_list));
+
+    }
+}
+
+static void
+fct_minimal_logger__on_fct_end(fct_logger_i *self_, fctkern_t const *kern)
+{
+    fct_minimal_logger_t *self = (fct_minimal_logger_t*)self_;
+    fct_unused(kern);
+    if ( fct_nlist__size(&(self->failed_cndtns_list)) >0 )
+    {
+        fct_logger_print_failures(&(self->failed_cndtns_list));
+    }
 }
 
 
+
 static void
-fct_minimal_logger__del(fct_logger_i *self)
+fct_minimal_logger__del(fct_logger_i *self_)
 {
+    fct_minimal_logger_t *self = (fct_minimal_logger_t*)self_;
+    fct_nlist__final(&(self->failed_cndtns_list), free);
     free(self);
 }
 
 
 static fct_logger_i_vtable_t fct_logger_minimal_vtable =
 {
-    fct_minimal_logger__on_cndtn,   /* on_cndtn */
-    NULL,   /* on_test_start */
-    NULL,   /* on_test_end */
-    NULL,   /* on_test_suite_start */
-    NULL,   /* on_test_suite_end */
-    NULL,   /* on_fct_start */
-    NULL,   /* on_fct_end */
-    fct_minimal_logger__del,   /* on_delete */
-    NULL    /* on_warn */
+    fct_minimal_logger__on_cndtn,   /* 1.  on_cndtn */
+    NULL,   /* 2.  on_test_start */
+    NULL,   /* 3.  on_test_end */
+    NULL,   /* 4.  on_test_suite_start */
+    NULL,   /* 5.  on_test_suite_end */
+    NULL,   /* 6.  on_fct_start */
+    fct_minimal_logger__on_fct_end,   /* 7.  on_fct_end */
+    fct_minimal_logger__del,   /* 8.  on_delete */
+    NULL,   /* 9.  on_warn */
+    NULL,   /* 10. on_test_suite_skip */
+    NULL,   /* 11. on_test_skip */
 };
 
-static fct_minimal_logger_t *
-fct_minimal_logger__new(void)
+
+fct_logger_i*
+fct_minimal_logger_new(void)
 {
     fct_minimal_logger_t *self = (fct_minimal_logger_t*)\
                                  calloc(1,sizeof(fct_minimal_logger_t));
@@ -2535,12 +2612,12 @@ fct_minimal_logger__new(void)
     {
         return NULL;
     }
-
     fct_logger__init((fct_logger_i*)self);
     self->vtable = &fct_logger_minimal_vtable;
-    return self;
+    fct_nlist__init2(&(self->failed_cndtns_list), 0);
+    return (fct_logger_i*)self;
 }
-#endif /* FCT_MINIMAL_LOGGER_DISABLED */
+
 
 /*
 -----------------------------------------------------------
@@ -2569,29 +2646,12 @@ static void
 fct_standard_logger__on_cndtn(fct_logger_i *logger_, fctchk_t const *chk)
 {
     fct_standard_logger_t *logger = (fct_standard_logger_t*)logger_;
-
     assert( logger != NULL );
     assert( chk != NULL );
-
     /* Only record failures. */
     if ( !fctchk__is_pass(chk) )
     {
-        /* For now we will truncate the string to some set amount, later
-        we can work out a dynamic string object. */
-        char *str = (char*)malloc(sizeof(char)*FCT_MAX_LOG_LINE);
-        assert( str != NULL );
-
-        fct_snprintf(
-            str,
-            FCT_MAX_LOG_LINE,
-            "%s(%d):\n    %s",
-            fctchk__file(chk),
-            fctchk__lineno(chk),
-            fctchk__msg(chk)
-        );
-
-        /* Append it to the listing ... */
-        fct_nlist__append(&(logger->failed_cndtns_list), (void*)str);
+        fct_logger_record_failure(chk, &(logger->failed_cndtns_list));
     }
 }
 
@@ -2677,34 +2737,19 @@ fct_standard_logger__on_fct_end(fct_logger_i *logger_, fctkern_t const *nk)
 
     if (  !is_success )
     {
-        puts(
-            "\n----------------------------------------------------------------------------\n"
-        );
-        puts("FAILED TESTS\n\n");
-
-        FCT_NLIST_FOREACH_BGN(char *, cndtn_str, &(logger->failed_cndtns_list))
-        {
-            printf("%s\n", cndtn_str);
-        }
-        FCT_NLIST_FOREACH_END();
-
-        puts("\n");
+        fct_logger_print_failures(&(logger->failed_cndtns_list));
     }
-
     puts(
         "\n----------------------------------------------------------------------------\n"
     );
-
     num_tests = fctkern__tst_cnt(nk);
     num_passed = fctkern__tst_cnt_passed(nk);
-
     printf(
         "%s (%d/%d tests",
         (is_success) ? "PASSED" : "FAILED",
         num_passed,
         num_tests
     );
-
     elasped_time = fct_timer__duration(&(logger->timer));
     if ( elasped_time > 0.0000001 )
     {
@@ -2752,8 +2797,8 @@ static fct_logger_i_vtable_t fct_standard_logger_vtable =
 };
 
 
-fct_standard_logger_t *
-fct_standard_logger__new(void)
+fct_logger_i*
+fct_standard_logger_new(void)
 {
     fct_standard_logger_t *logger = (fct_standard_logger_t *)calloc(
                                         1, sizeof(fct_standard_logger_t)
@@ -2764,11 +2809,9 @@ fct_standard_logger__new(void)
     }
     fct_logger__init((fct_logger_i*)logger);
     logger->vtable = &fct_standard_logger_vtable;
-
     fct_nlist__init2(&(logger->failed_cndtns_list), 0);
     fct_timer__init(&(logger->timer));
-
-    return logger;
+    return (fct_logger_i*)logger;
 }
 
 

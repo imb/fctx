@@ -39,7 +39,17 @@ command line options.
 
 .. cmdoption:: -l, --logger
 
- Defines a logger. Currently not defined, but in the future we would like
+ Defines the logger to use for the testing session. Options are,
+
+     ===============  ===============
+     Type             Summary
+     ===============  ===============
+     standard         The standard logger that comes with fctx.
+     minimal          Displays a series of '.' for each test and a "x" if there was a failure.
+     ===============  ===============
+ 
+
+
  to be able to define the type of logger used.
 
 All all future pre-built command line options in FCTX will all be prefixed with
