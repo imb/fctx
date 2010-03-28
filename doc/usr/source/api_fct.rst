@@ -264,6 +264,11 @@ These are used to verify that a condition is true. They are executed within
     in both those cases if an error was generated (the second case always will
     fail), you will get a message in the final error log.
 
+.. cfunction:: fct_chk_empty_str(s)
+
+    *New in FCTX 1.3*. Causes a test failure if the string, *s*, is not
+    empty. NULL is considered an empty string.
+
 .. cfunction:: fct_chk_eq_dbl(a, b) 
 
     *New in FCTX 1.1*. Causes a test failure if *a* != *b*. Testing for
@@ -287,6 +292,56 @@ These are used to verify that a condition is true. They are executed within
     *New in FCTX 1.1*. Causes a test failure if *a* != *b*. Testing for
     equality is done based on first checking for NULL values, then making a
     case-sensitive compare.
+
+.. cfunction:: fct_chk_endswith_str(s, check)
+
+    *New in FCTX 1.3* Checks that the given string, *s*, ends with the
+    given *check*. NULL's are treated as blank strings.
+
+.. cfunction:: fct_chk_excl_str(s, check)
+
+    *New in FCTX 1.3*. Will cause a test failure when it does find the
+    *check* within the given string, *s*. NULL is treated as a blank
+    string in this case.
+
+.. cfunction:: fct_chk_excl_istr(s, check)
+
+    *New in FCTX 1.3*. Case insensitive variant of
+    :cfunc:`fct_chk_excl_str`.
+
+.. cfunction:: fct_chk_full_str(s)
+
+    *New in FCTX 1.3*. Fails if the string, *s*, is full. A string with
+    whitespace is still considered full.
+
+.. cfunction:: fct_chk_incl_str(s, check) 
+
+    *New in FCTX 1.3*. Causes a test failure when it can not find *check*
+    within the given string, *s*. NULL is treated as a blank string in
+    this case, thus if *check* is NULL, all *str* will pass. Down in the
+    guts of this function, there is a call to the Standard C *strstr*
+    function.
+
+.. cfunction:: fct_chk_incl_istr(s, check) 
+
+    *New in FCTX 1.3*. This is a case insensitive variant of
+    :cfunc:`fct_chk_incl_str`.
+
+.. cfunction:: fct_chk_iendswith(s, check)
+
+    *New in FCTX 1.3*. This is a cse insensitive variant of
+    :cfunc:`fct_chk_endswith`.
+
+.. cfunction:: fct_chk_istartswith_istr(s, check)
+
+   *New in FCTX 1.3*. Case insensitive variant of
+   :cfunc:`fct_chk_startswith_str`.
+
+.. cfunction:: fct_chk_startswith_str(s, check)
+
+    *New in FCTX 1.3*. Will return true if the string, *s*, starts with
+    the given *check* string. Will output a useful error message
+    otherwise.
 
 .. cfunction:: fct_chk_neq_dbl(a, b) 
 

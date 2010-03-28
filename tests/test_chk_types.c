@@ -98,6 +98,100 @@ FCT_BGN()
     }
     FCT_QTEST_END();
 
+
+    /* ---------------------------------------------------------- */
+    FCT_QTEST_BGN(chk_incl_str)
+    {
+        fct_chk_incl_str("mr roboto is super", "roboto");
+        fct_chk_incl_str("mr ROBOTO is super", "ROBOTO");
+        fct_chk_incl_str(NULL, NULL); /* NULL includes NULL */
+        fct_chk_incl_str("mr roboto", NULL);
+        fct_chk_incl_str("a", "a");
+        fct_chk_incl_str("b", NULL);
+        fct_chk_incl_str("mr roboto", "");
+        fct_chk_incl_str("", "");
+        fct_chk_incl_str("", NULL);
+    }
+    FCT_QTEST_END();
+
+
+    /* ---------------------------------------------------------- */
+    FCT_QTEST_BGN(chk_incl_istr)
+    {
+        /* All the case sensitive tests should pass. */
+        fct_chk_incl_istr("mr roboto is super", "roboto");
+        fct_chk_incl_istr("mr ROBOTO is super", "ROBOTO");
+        fct_chk_incl_istr(NULL, NULL); /* NULL includes NULL */
+        fct_chk_incl_istr("mr roboto", NULL);
+        fct_chk_incl_istr("a", "a");
+        fct_chk_incl_istr("b", NULL);
+        fct_chk_incl_istr("mr roboto", "");
+        fct_chk_incl_istr("", "");
+        fct_chk_incl_istr("", NULL);
+        fct_chk_incl_istr("MR RoboTO", "RoBOtO");
+    }
+    FCT_QTEST_END();
+
+
+    /* ---------------------------------------------------------- */
+    FCT_QTEST_BGN(chk_excl_str)
+    {
+        fct_chk_excl_str("mr roboto", "ta");
+        fct_chk_excl_str("a", "b");
+    }
+    FCT_QTEST_END();
+
+
+    /* ---------------------------------------------------------- */
+    FCT_QTEST_BGN(chk_excl_istr)
+    {
+        fct_chk_excl_istr("mr ROboto", "ta");
+        fct_chk_excl_istr("a", "b");
+    }
+    FCT_QTEST_END();
+
+
+    /* ---------------------------------------------------------- */
+    FCT_QTEST_BGN(chk_startswith_str)
+    {
+        fct_chk_startswith_str("mr ROboto", "mr");
+        fct_chk_startswith_str(NULL, NULL);
+        fct_chk_startswith_str("", "");
+    }
+    FCT_QTEST_END();
+
+
+    /* ---------------------------------------------------------- */
+    FCT_QTEST_BGN(chk_startswith_istr)
+    {
+        fct_chk_startswith_istr("Mr ROboto", "mr");
+        fct_chk_startswith_istr(NULL, NULL);
+        fct_chk_startswith_istr("", "");
+    }
+    FCT_QTEST_END();
+
+
+    /* ---------------------------------------------------------- */
+    FCT_QTEST_BGN(chk_endswith_str)
+    {
+        fct_chk_endswith_str("Mr ROboto", "ROboto");
+        fct_chk_endswith_str(NULL, NULL);
+        fct_chk_endswith_str("", "");
+    }
+    FCT_QTEST_END();
+
+
+    /* ---------------------------------------------------------- */
+    FCT_QTEST_BGN(chk_iendswith_str)
+    {
+        fct_chk_iendswith_str("Mr ROboto", "roboto");
+        fct_chk_iendswith_str(NULL, NULL);
+        fct_chk_iendswith_str("", "");
+    }
+    FCT_QTEST_END();
+
+
+    /* ---------------------------------------------------------- */
     FCT_QTEST_BGN(chk_eq_int)
     {
         fct_chk_eq_int(1, 1);
@@ -106,6 +200,26 @@ FCT_BGN()
     }
     FCT_QTEST_END();
 
+
+    /* ---------------------------------------------------------- */
+    FCT_QTEST_BGN(chk_str_empty)
+    {
+        fct_chk_empty_str("");
+        fct_chk_empty_str(NULL);
+    }
+    FCT_QTEST_END();
+
+
+    /* ---------------------------------------------------------- */
+    FCT_QTEST_BGN(chk_str_full)
+    {
+        fct_chk_full_str(" ");
+        fct_chk_full_str("mr roboto");
+    }
+    FCT_QTEST_END();
+
+
+    /* ---------------------------------------------------------- */
     FCT_QTEST_BGN(chk_neq_int)
     {
         fct_chk_neq_int(1, 2);

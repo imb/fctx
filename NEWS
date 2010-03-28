@@ -9,10 +9,38 @@ Whats new in FCT 1.3
    as a rule exceptional, there was no need to allocate memory for a
    list to hold error results until such time as an error occurs. This
    lead to a relatively minor speed up.
+ - ENH (#3): Add helpful string checks. These functions will produce
+   error messages that are relevant.
+     - New fct_chk_incl_str, will check that a string includes a
+       substring and report an useful error message if it does not
+       include the substring.
+     - New fct_chk_incl_istr, case insensitive variant of
+       fct_chk_incl_str.
+     - New fct_chk_excl_str, will check that a string does not include a
+       substring and report an useful error message if it is found.
+     - New fct_chk_excl_istr, case insensitive variant of
+       fct_chk_excl_str.
+     - New fct_chk_startswith_str, will check if a string starts with a
+       given substring, and report an helpful error otherwise. Also
+       introduces a fctstr_startswith backend function.
+     - New fct_chk_empty_str, will check if a string is empty.
+     - New fct_chk_full_str, will check if string is full.
 
 
-Whats new in FCT 1.2
---------------------
+Whats new in FCTX 1.2.1
+-----------------------
+
+This release is the first release using Git hosted at GitHub 
+(http://github.com/imb/fctx). As such a lot of the changes in this release
+had to do with converting from BAZZAR to GIT. Namely normalizing the
+line endings so the are standard across the Git repository.
+ 
+ - FIX (#11): Fixed fctcl_val2 so it will return a default value if the
+   option was not specified on the command line.
+
+
+Whats new in FCTX 1.2
+---------------------
 
 Highlights for this release include access to a command line parser for each
 EXE built with FCTX. You are now able to customize your command line to add
