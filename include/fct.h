@@ -2387,7 +2387,7 @@ typedef struct _fct_logger_i_vtable_t
 } fct_logger_i_vtable_t;
 
 #define _fct_logger_head \
-    fct_logger_i_vtable_t *vtable
+    fct_logger_i_vtable_t vtable
 
 struct _fct_logger_i
 {
@@ -2417,7 +2417,11 @@ static void
 fct_logger__init(fct_logger_i *logger)
 {
     assert( logger != NULL );
-    logger->vtable = &fct_logger_default_vtable;
+    memcpy(
+        &(logger->vtable),
+        &fct_logger_default_vtable,
+        sizeof(fct_logger_i_vtable_t)
+    );
 }
 
 
@@ -2428,9 +2432,9 @@ fct_logger__del(fct_logger_i *logger)
     {
         return;
     }
-    if ( logger->vtable->on_delete)
+    if ( logger->vtable.on_delete)
     {
-        logger->vtable->on_delete(logger);
+        logger->vtable.on_delete(logger);
     }
 }
 
@@ -2441,9 +2445,9 @@ fct_logger__on_test_start(fct_logger_i *logger, fct_test_t const *test)
     assert( logger != NULL && "invalid arg");
     assert( test != NULL && "invalid arg");
 
-    if ( logger->vtable->on_test_start != NULL )
+    if ( logger->vtable.on_test_start != NULL )
     {
-        logger->vtable->on_test_start(logger, test);
+        logger->vtable.on_test_start(logger, test);
     }
 }
 
@@ -2454,9 +2458,9 @@ fct_logger__on_test_end(fct_logger_i *logger, fct_test_t *test)
     assert( logger != NULL && "invalid arg");
     assert( test != NULL && "invalid arg");
 
-    if ( logger->vtable->on_test_end != NULL )
+    if ( logger->vtable.on_test_end != NULL )
     {
-        logger->vtable->on_test_end(logger, test);
+        logger->vtable.on_test_end(logger, test);
     }
 }
 
@@ -2467,9 +2471,9 @@ fct_logger__on_test_suite_start(fct_logger_i *logger, fct_ts_t const *ts)
     assert( logger != NULL && "invalid arg");
     assert( ts != NULL && "invalid arg");
 
-    if ( logger->vtable->on_test_suite_start != NULL )
+    if ( logger->vtable.on_test_suite_start != NULL )
     {
-        logger->vtable->on_test_suite_start(logger, ts);
+        logger->vtable.on_test_suite_start(logger, ts);
     }
 }
 
@@ -2480,9 +2484,9 @@ fct_logger__on_test_suite_end(fct_logger_i *logger, fct_ts_t const *ts)
     assert( logger != NULL && "invalid arg");
     assert( ts != NULL && "invalid arg");
 
-    if ( logger->vtable->on_test_suite_end != NULL )
+    if ( logger->vtable.on_test_suite_end != NULL )
     {
-        logger->vtable->on_test_suite_end(logger, ts);
+        logger->vtable.on_test_suite_end(logger, ts);
     }
 }
 
@@ -2494,9 +2498,9 @@ fct_logger__on_test_suite_skip(
     char const *name
 )
 {
-    if ( logger->vtable->on_test_suite_skip != NULL )
+    if ( logger->vtable.on_test_suite_skip != NULL )
     {
-        logger->vtable->on_test_suite_skip(logger, condition, name);
+        logger->vtable.on_test_suite_skip(logger, condition, name);
     }
 }
 
@@ -2508,9 +2512,9 @@ fct_logger__on_test_skip(
     char const *name
 )
 {
-    if ( logger->vtable->on_test_skip != NULL )
+    if ( logger->vtable.on_test_skip != NULL )
     {
-        logger->vtable->on_test_skip(logger, name, condition);
+        logger->vtable.on_test_skip(logger, name, condition);
     }
 
 }
@@ -2521,18 +2525,18 @@ fct_logger__on_cndtn(fct_logger_i *logger, fctchk_t const *chk)
     assert( logger != NULL && "invalid arg");
     assert( chk != NULL && "invalid arg");
 
-    if ( logger->vtable->on_cndtn )
+    if ( logger->vtable.on_cndtn )
     {
-        logger->vtable->on_cndtn(logger, chk);
+        logger->vtable.on_cndtn(logger, chk);
     }
 }
 
 /* When we start all our tests. */
 #define fct_logger__on_fct_start(LOGGER, KERN) \
     {\
-       if ( LOGGER->vtable->on_fct_start != NULL ) \
+       if ( LOGGER->vtable.on_fct_start != NULL ) \
        {\
-          LOGGER->vtable->on_fct_start(LOGGER, KERN);\
+          LOGGER->vtable.on_fct_start(LOGGER, KERN);\
        }\
     }
 
@@ -2540,9 +2544,9 @@ fct_logger__on_cndtn(fct_logger_i *logger, fctchk_t const *chk)
 /* When we have reached the end of ALL of our testing. */
 #define fct_logger__on_fct_end(LOGGER, KERN) \
     {\
-       if ( LOGGER->vtable->on_fct_end )\
+       if ( LOGGER->vtable.on_fct_end )\
        {\
-          LOGGER->vtable->on_fct_end(LOGGER, KERN);\
+          LOGGER->vtable.on_fct_end(LOGGER, KERN);\
        }\
     }
 
@@ -2552,9 +2556,9 @@ fct_logger__on_warn(fct_logger_i *logger, char const *warn)
 {
     assert( logger != NULL );
     assert( warn != NULL );
-    if ( logger->vtable->on_warn )
+    if ( logger->vtable.on_warn )
     {
-        logger->vtable->on_warn(logger, warn);
+        logger->vtable.on_warn(logger, warn);
     }
 }
 
@@ -2662,22 +2666,6 @@ fct_minimal_logger__del(fct_logger_i *self_)
 }
 
 
-static fct_logger_i_vtable_t fct_logger_minimal_vtable =
-{
-    fct_minimal_logger__on_cndtn,   /* 1.  on_cndtn */
-    NULL,   /* 2.  on_test_start */
-    NULL,   /* 3.  on_test_end */
-    NULL,   /* 4.  on_test_suite_start */
-    NULL,   /* 5.  on_test_suite_end */
-    NULL,   /* 6.  on_fct_start */
-    fct_minimal_logger__on_fct_end,   /* 7.  on_fct_end */
-    fct_minimal_logger__del,   /* 8.  on_delete */
-    NULL,   /* 9.  on_warn */
-    NULL,   /* 10. on_test_suite_skip */
-    NULL,   /* 11. on_test_skip */
-};
-
-
 fct_logger_i*
 fct_minimal_logger_new(void)
 {
@@ -2688,7 +2676,9 @@ fct_minimal_logger_new(void)
         return NULL;
     }
     fct_logger__init((fct_logger_i*)self);
-    self->vtable = &fct_logger_minimal_vtable;
+    self->vtable.on_cndtn = fct_minimal_logger__on_cndtn;
+    self->vtable.on_fct_end = fct_minimal_logger__on_fct_end;
+    self->vtable.on_delete = fct_minimal_logger__del;
     fct_nlist__init2(&(self->failed_cndtns_list), 0);
     return (fct_logger_i*)self;
 }
@@ -2856,22 +2846,6 @@ fct_standard_logger__warn(fct_logger_i* logger_, char const *warn)
 }
 
 
-static fct_logger_i_vtable_t fct_standard_logger_vtable =
-{
-    fct_standard_logger__on_cndtn,              /* on_cndtn */
-    fct_standard_logger__on_test_start,         /* on_test_start */
-    fct_standard_logger__on_test_end,           /* on_test_end */
-    fct_standard_logger__on_test_suite_start,   /* on_test_suite_start */
-    fct_standard_logger__on_test_suite_end,     /* on_test_suite_end */
-    fct_standard_logger__on_fct_start,          /* on_fct_start */
-    fct_standard_logger__on_fct_end,            /* on_fct_end */
-    fct_standard_logger__del,                   /* on_delete */
-    fct_standard_logger__warn,                  /* on_warn */
-    NULL,                                       /* on_test_suite_skip */
-    fct_standard_logger__on_test_skip           /* on_test_skip */
-};
-
-
 fct_logger_i*
 fct_standard_logger_new(void)
 {
@@ -2883,7 +2857,18 @@ fct_standard_logger_new(void)
         return NULL;
     }
     fct_logger__init((fct_logger_i*)logger);
-    logger->vtable = &fct_standard_logger_vtable;
+    logger->vtable.on_cndtn = fct_standard_logger__on_cndtn;
+    logger->vtable.on_test_start = fct_standard_logger__on_test_start;
+    logger->vtable.on_test_end = fct_standard_logger__on_test_end;
+    logger->vtable.on_test_suite_start = \
+                                         fct_standard_logger__on_test_suite_start;
+    logger->vtable.on_test_suite_end = \
+                                       fct_standard_logger__on_test_suite_end;
+    logger->vtable.on_fct_start = fct_standard_logger__on_fct_start;
+    logger->vtable.on_fct_end = fct_standard_logger__on_fct_end;
+    logger->vtable.on_delete = fct_standard_logger__del;
+    logger->vtable.on_warn = fct_standard_logger__warn;
+    logger->vtable.on_test_skip = fct_standard_logger__on_test_skip;
     fct_nlist__init2(&(logger->failed_cndtns_list), 0);
     fct_timer__init(&(logger->timer));
     return (fct_logger_i*)logger;
@@ -3069,40 +3054,27 @@ fct_junit_logger__del(fct_logger_i *logger_)
 }
 
 
-static fct_logger_i_vtable_t fct_junit_logger_vtable =
-{
-    NULL,                                   /* on_cndtn */
-    fct_junit_logger__on_test_start,        /* on_test_start */
-    fct_junit_logger__on_test_end,          /* on_test_end */
-    fct_junit_logger__on_test_suite_start,  /* on_test_suite_start */
-    fct_junit_logger__on_test_suite_end,    /* on_test_suite_end */
-    fct_junit_logger__on_fct_start,         /* on_fct_start */
-    fct_junit_logger__on_fct_end,           /* on_fct_end */
-    fct_junit_logger__del,                  /* on_delete */
-    NULL,                                   /* on_warn */
-    NULL,                                   /* on_test_suite_skip */
-    NULL                                    /* on_test_skip */
-};
-
-
 fct_junit_logger_t *
 fct_junit_logger_new(void)
 {
     fct_junit_logger_t *logger =
         (fct_junit_logger_t *)calloc(1, sizeof(fct_junit_logger_t));
-
     if ( logger == NULL )
     {
         return NULL;
     }
-
     fct_logger__init((fct_logger_i*)logger);
-    logger->vtable = &fct_junit_logger_vtable;
-
+    logger->vtable.on_test_start = fct_junit_logger__on_test_start;
+    logger->vtable.on_test_end = fct_junit_logger__on_test_end;
+    logger->vtable.on_test_suite_start = \
+                                         fct_junit_logger__on_test_suite_start;
+    logger->vtable.on_test_suite_end = fct_junit_logger__on_test_suite_end;
+    logger->vtable.on_fct_start = fct_junit_logger__on_fct_start;
+    logger->vtable.on_fct_end = fct_junit_logger__on_fct_end;
+    logger->vtable.on_delete = fct_junit_logger__del;
     fct_timer__init(&(logger->timer));
     fct_timer__init(&(logger->ts_timer));
     fct_timer__init(&(logger->test_timer));
-
     return logger;
 }
 
