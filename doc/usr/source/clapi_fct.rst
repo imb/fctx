@@ -46,6 +46,7 @@ command line options.
      ===============  ===============
      standard         The standard logger that comes with fctx.
      minimal          Displays a series of '.' for each test and a "x" if there was a failure.
+     junit            Output's JUnit compatible xml.
      ===============  ===============
  
 
