@@ -113,7 +113,7 @@ static fct_logger_i*
 fct_minimal_logger_new(void);
 
 static fct_junit_logger_t *
-fct_junit_logger__new(void);
+fct_junit_logger_new(void);
 
 static void
 fct_logger__del(fct_logger_i *logger);
@@ -1793,7 +1793,8 @@ static fctcl_init_t FCT_CLP_OPTIONS[] =
      /* Editting this, also edit FCT_LOGGER_TYPES */
      "Sets the logger. The types of loggers currently available are,\n"
      "    =standard : the basic fctx logger.\n"
-     "    =minimal  : displays least amount of logging information.\n"
+     "    =minimal  : outputs the least amount of logging information.\n"
+     "    =junit    : outputs junit compatible xml (experimental on WIN32).\n"  
      "  default is '" FCT_DEFAULT_LOGGER "'."
     },
     FCTCL_INIT_NULL /* Sentinel */
@@ -1810,6 +1811,7 @@ static fct_logger_types_t FCT_LOGGER_TYPES[] =
 {
     {"standard", (fct_logger_new_fn)fct_standard_logger_new},
     {"minimal", (fct_logger_new_fn)fct_minimal_logger_new},
+    {"junit", (fct_logger_new_fn)fct_junit_logger_new},
     {NULL, (fct_logger_new_fn)NULL} /* Sentinel */
 };
 
@@ -2837,25 +2839,27 @@ int saved_stderr;
 
 
 static void
-switch_std_to_buffer(int std_pipe[2], FILE *out, int fileno, int *save_handle)
+switch_std_to_buffer(int std_pipe[2], FILE *out, int fileno_, int *save_handle)
 {
+#if !defined(WIN32)
     fflush(out);
-    *save_handle = dup(fileno);
-
+    *save_handle = dup(fileno_);
     if( pipe(std_pipe) != 0 ) {
         exit(1);
     }
-
-    dup2(std_pipe[1], fileno);
+    dup2(std_pipe[1], fileno_);
     close(std_pipe[1]);
+#endif /* !WIN32 */
 }
 
 
 static void
-switch_std_to_std(FILE *out, int fileno, int save_handle)
+switch_std_to_std(FILE *out, int fileno_, int save_handle)
 {
+#if !defined(WIN32)
     fflush(out);
-    dup2(save_handle, fileno);
+    dup2(save_handle, fileno_);
+#endif /* !WIN32 */
 }
 
 
@@ -3047,7 +3051,7 @@ static fct_logger_i_vtable_t fct_junit_logger_vtable =
 
 
 fct_junit_logger_t *
-fct_junit_logger__new(void)
+fct_junit_logger_new(void)
 {
     fct_junit_logger_t *logger =
             (fct_junit_logger_t *)calloc(1, sizeof(fct_junit_logger_t));
@@ -3059,8 +3063,7 @@ fct_junit_logger__new(void)
 
     fct_logger__init((fct_logger_i*)logger);
     logger->vtable = &fct_junit_logger_vtable;
-    fct_nlist__init2(&(logger->failed_cndtns_list), 0);
-
+    
     fct_timer__init(&(logger->timer));
     fct_timer__init(&(logger->ts_timer));
     fct_timer__init(&(logger->test_timer));
