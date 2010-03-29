@@ -362,7 +362,7 @@ included. */
 static int
 fctstr_incl(char const *str, char const *check_incl)
 {
-    static char *blank_s = "";
+    static char const *blank_s = "";
     char const *found = NULL;
     if ( str == NULL )
     {
