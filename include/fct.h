@@ -198,7 +198,7 @@ that follows the ISO C++ conformant naming convention. */
 #    include <unistd.h>
 #    define _fct_pipe  pipe
 #    define _fct_dup   dup
-#    define _fct_dup   dup2
+#    define _fct_dup2  dup2
 #    define _fct_close close
 #    define _fct_read  read
 #endif /* WIN32 */
