@@ -2832,16 +2832,20 @@ JUNIT LOGGER
 */
 
 /* STDIO and STDERR redirect support */
-int stdout_pipe[2];
-int stderr_pipe[2];
-int saved_stdout;
-int saved_stderr;
-
+static int fct_stdout_pipe[2];
+static int fct_stderr_pipe[2];
+static int fct_saved_stdout;
+static int fct_saved_stderr;
 
 static void
 switch_std_to_buffer(int std_pipe[2], FILE *out, int fileno_, int *save_handle)
 {
-#if !defined(WIN32)
+#if defined(WIN32)
+    fct_unused(std_pipe);
+    fct_unused(out);
+    fct_unused(fileno_);
+    fct_unused(save_handle);
+#else
     fflush(out);
     *save_handle = dup(fileno_);
     if( pipe(std_pipe) != 0 ) {
@@ -2856,7 +2860,11 @@ switch_std_to_buffer(int std_pipe[2], FILE *out, int fileno_, int *save_handle)
 static void
 switch_std_to_std(FILE *out, int fileno_, int save_handle)
 {
-#if !defined(WIN32)
+#if defined(WIN32)
+    fct_unused(out);
+    fct_unused(fileno_);
+    fct_unused(save_handle);
+#else
     fflush(out);
     dup2(save_handle, fileno_);
 #endif /* !WIN32 */
@@ -2864,13 +2872,13 @@ switch_std_to_std(FILE *out, int fileno_, int save_handle)
 
 
 #define FCT_SWITCH_STDOUT_TO_BUFFER() \
-    switch_std_to_buffer(stdout_pipe, stdout, STDOUT_FILENO, &saved_stdout)
+    switch_std_to_buffer(fct_stdout_pipe, stdout, STDOUT_FILENO, &fct_saved_stdout)
 #define FCT_SWITCH_STDOUT_TO_STDOUT() \
-    switch_std_to_std(stdout, STDOUT_FILENO, saved_stdout)
+    switch_std_to_std(stdout, STDOUT_FILENO, fct_saved_stdout)
 #define FCT_SWITCH_STDERR_TO_BUFFER() \
-    switch_std_to_buffer(stderr_pipe, stderr, STDERR_FILENO, &saved_stderr)
+    switch_std_to_buffer(fct_stderr_pipe, stderr, STDERR_FILENO, &fct_saved_stderr)
 #define FCT_SWITCH_STDERR_TO_STDERR() \
-    switch_std_to_std(stderr, STDERR_FILENO, saved_stderr)
+    switch_std_to_std(stderr, STDERR_FILENO, fct_saved_stderr)
 
 
 /* JUnit logger */
@@ -2982,7 +2990,7 @@ fct_junit_logger__on_test_suite_end(fct_logger_i *logger_,
 
     first_out_line = 1;
     printf("\t\t<system-out>\n\t\t\t<![CDATA[");
-    while ((read_length = read(stdout_pipe[0], std_buffer, 1024))) {
+    while ((read_length = read(fct_stdout_pipe[0], std_buffer, 1024))) {
         if (first_out_line) {
             printf("\n");
             first_out_line = 0;
@@ -2993,7 +3001,7 @@ fct_junit_logger__on_test_suite_end(fct_logger_i *logger_,
 
     first_out_line = 1;
     printf("\t\t<system-err>\n\t\t\t<![CDATA[");
-    while ((read_length = read(stderr_pipe[0], std_buffer, 1024))) {
+    while ((read_length = read(fct_stderr_pipe[0], std_buffer, 1024))) {
         if (first_out_line) {
             printf("\n");
             first_out_line = 0;
