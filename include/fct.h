@@ -76,7 +76,6 @@ with a standard logger. */
 #include <float.h>
 #include <math.h>
 #include <ctype.h>
-#include <unistd.h>
 
 #define FCT_MAX_NAME           256
 #define FCT_MAX_LOG_LINE       256
@@ -172,6 +171,72 @@ for debugging purposes. */
 UTILITIES
 --------------------------------------------------------
 */
+
+
+/* STDIO and STDERR redirect support */
+#define FCT_PIPE_RESERVE_BYTES_DEFAULT  512
+static int fct_stdout_pipe[2];
+static int fct_stderr_pipe[2];
+static int fct_saved_stdout;
+static int fct_saved_stderr;
+
+/* Platform indepedent pipe functions. TODO: Look to figure this out in a way
+that follows the ISO C++ conformant naming convention. */
+#if defined(WIN32)
+#    include <io.h>
+#    include <fcntl.h>
+#    define _fct_pipe(_PFDS_) \
+        _pipe((_PFDS_), FCT_PIPE_RESERVE_BYTES_DEFAULT, _O_TEXT)
+#    define _fct_dup  _dup
+#    define _fct_dup2 _dup2
+#    define _fct_close _close
+#    define _fct_read  _read
+/* Until I can figure a better way to do this, rely on magic numbers. */
+#    define STDOUT_FILENO 1
+#    define STDERR_FILENO 2
+#else
+#    include <unistd.h>
+#    define _fct_pipe  pipe
+#    define _fct_dup   dup
+#    define _fct_dup   dup2
+#    define _fct_close close
+#    define _fct_read  read
+#endif /* WIN32 */
+
+
+
+
+static void
+fct_switch_std_to_buffer(int std_pipe[2], FILE *out, int fileno_, int *save_handle)
+{
+    fflush(out);
+    *save_handle = _fct_dup(fileno_);
+    if ( _fct_pipe(std_pipe) != 0 )
+    {
+        exit(1);
+    }
+    _fct_dup2(std_pipe[1], fileno_);
+    _fct_close(std_pipe[1]);
+}
+
+
+static void
+fct_switch_std_to_std(FILE *out, int fileno_, int save_handle)
+{
+    fflush(out);
+    _fct_dup2(save_handle, fileno_);
+}
+
+
+#define FCT_SWITCH_STDOUT_TO_BUFFER() \
+    fct_switch_std_to_buffer(fct_stdout_pipe, stdout, STDOUT_FILENO, &fct_saved_stdout)
+#define FCT_SWITCH_STDOUT_TO_STDOUT() \
+    fct_switch_std_to_std(stdout, STDOUT_FILENO, fct_saved_stdout)
+#define FCT_SWITCH_STDERR_TO_BUFFER() \
+    fct_switch_std_to_buffer(fct_stderr_pipe, stderr, STDERR_FILENO, &fct_saved_stderr)
+#define FCT_SWITCH_STDERR_TO_STDERR() \
+    fct_switch_std_to_std(stderr, STDERR_FILENO, fct_saved_stderr)
+
 
 /* Utility for truncated, safe string copies. The NUM
 should be the length of DST plus the null-termintor. */
@@ -1794,7 +1859,7 @@ static fctcl_init_t FCT_CLP_OPTIONS[] =
      "Sets the logger. The types of loggers currently available are,\n"
      "    =standard : the basic fctx logger.\n"
      "    =minimal  : outputs the least amount of logging information.\n"
-     "    =junit    : outputs junit compatible xml (experimental on WIN32).\n"  
+     "    =junit    : outputs junit compatible xml.\n"
      "  default is '" FCT_DEFAULT_LOGGER "'."
     },
     FCTCL_INIT_NULL /* Sentinel */
@@ -2831,55 +2896,6 @@ JUNIT LOGGER
 -----------------------------------------------------------
 */
 
-/* STDIO and STDERR redirect support */
-static int fct_stdout_pipe[2];
-static int fct_stderr_pipe[2];
-static int fct_saved_stdout;
-static int fct_saved_stderr;
-
-static void
-switch_std_to_buffer(int std_pipe[2], FILE *out, int fileno_, int *save_handle)
-{
-#if defined(WIN32)
-    fct_unused(std_pipe);
-    fct_unused(out);
-    fct_unused(fileno_);
-    fct_unused(save_handle);
-#else
-    fflush(out);
-    *save_handle = dup(fileno_);
-    if( pipe(std_pipe) != 0 ) {
-        exit(1);
-    }
-    dup2(std_pipe[1], fileno_);
-    close(std_pipe[1]);
-#endif /* !WIN32 */
-}
-
-
-static void
-switch_std_to_std(FILE *out, int fileno_, int save_handle)
-{
-#if defined(WIN32)
-    fct_unused(out);
-    fct_unused(fileno_);
-    fct_unused(save_handle);
-#else
-    fflush(out);
-    dup2(save_handle, fileno_);
-#endif /* !WIN32 */
-}
-
-
-#define FCT_SWITCH_STDOUT_TO_BUFFER() \
-    switch_std_to_buffer(fct_stdout_pipe, stdout, STDOUT_FILENO, &fct_saved_stdout)
-#define FCT_SWITCH_STDOUT_TO_STDOUT() \
-    switch_std_to_std(stdout, STDOUT_FILENO, fct_saved_stdout)
-#define FCT_SWITCH_STDERR_TO_BUFFER() \
-    switch_std_to_buffer(fct_stderr_pipe, stderr, STDERR_FILENO, &fct_saved_stderr)
-#define FCT_SWITCH_STDERR_TO_STDERR() \
-    switch_std_to_std(stderr, STDERR_FILENO, fct_saved_stderr)
-
 
 /* JUnit logger */
 struct _fct_junit_logger_t
@@ -2895,18 +2911,18 @@ struct _fct_junit_logger_t
 
 static void
 fct_junit_logger__on_test_start(fct_logger_i *logger_,
-                                   fct_test_t const *test)
+                                fct_test_t const *test)
 {
+    fct_junit_logger_t *logger = NULL;
     fct_unused(test);
-
-    fct_junit_logger_t *logger = (fct_junit_logger_t*)logger_;
+    logger = (fct_junit_logger_t*)logger_;
     fct_timer__start(&(logger->test_timer));
 }
 
 
 static void
 fct_junit_logger__on_test_end(fct_logger_i *logger_,
-                                 fct_test_t *test)
+                              fct_test_t *test)
 {
     fct_junit_logger_t *logger = (fct_junit_logger_t*)logger_;
     fct_timer__stop(&(logger->test_timer));
@@ -2917,11 +2933,12 @@ fct_junit_logger__on_test_end(fct_logger_i *logger_,
 
 static void
 fct_junit_logger__on_test_suite_start(fct_logger_i *logger_,
-        fct_ts_t const *ts)
+                                      fct_ts_t const *ts)
 {
+    fct_junit_logger_t *logger =NULL;
     fct_unused(ts);
 
-    fct_junit_logger_t *logger = (fct_junit_logger_t*)logger_;
+    logger = (fct_junit_logger_t*)logger_;
     fct_timer__start(&(logger->ts_timer));
 
     FCT_SWITCH_STDOUT_TO_BUFFER();
@@ -2931,10 +2948,13 @@ fct_junit_logger__on_test_suite_start(fct_logger_i *logger_,
 
 static void
 fct_junit_logger__on_test_suite_end(fct_logger_i *logger_,
-                                       fct_ts_t const *ts)
+                                    fct_ts_t const *ts)
 {
     nbool_t is_pass;
     double elasped_time = 0;
+    char std_buffer[1024];
+    int read_length;
+    int first_out_line;
 
     fct_junit_logger_t *logger = (fct_junit_logger_t*)logger_;
     fct_timer__stop(&(logger->ts_timer));
@@ -2945,53 +2965,57 @@ fct_junit_logger__on_test_suite_end(fct_logger_i *logger_,
 
     /* opening testsuite tag */
     printf("\t<testsuite errors=\"%d\" failures=\"0\" tests=\"%d\" "
-            "name=\"%s\" time=\"%.4f\">\n",
-            fct_ts__tst_cnt(ts) - fct_ts__tst_cnt_passed(ts),
-            fct_ts__tst_cnt(ts),
-            fct_ts__name(ts),
-            elasped_time);
+           "name=\"%s\" time=\"%.4f\">\n",
+           fct_ts__tst_cnt(ts) - fct_ts__tst_cnt_passed(ts),
+           fct_ts__tst_cnt(ts),
+           fct_ts__name(ts),
+           elasped_time);
 
     FCT_NLIST_FOREACH_BGN(fct_test_t*, test, &(ts->test_list))
     {
         is_pass = fct_test__is_pass(test);
 
         /* opening testcase tag */
-        if (is_pass) {
+        if (is_pass)
+        {
             printf("\t\t<testcase name=\"%s\" time=\"%.3f\"",
-                fct_test__name(test), test->duration);
-        } else {
+                   fct_test__name(test), test->duration);
+        }
+        else
+        {
             printf("\t\t<testcase name=\"%s\" time=\"%.3f\">\n",
-                fct_test__name(test), test->duration);
+                   fct_test__name(test), test->duration);
         }
 
         FCT_NLIST_FOREACH_BGN(fctchk_t*, chk, &(test->failed_chks))
         {
             /* error tag */
             printf("\t\t\t<error message=\"%s\" "
-                    "type=\"fctx\">", chk->msg);
+                   "type=\"fctx\">", chk->msg);
             printf("file:%s, line:%d", chk->file, chk->lineno);
             printf("</error>\n");
         }
         FCT_NLIST_FOREACH_END();
 
         /* closing testcase tag */
-        if (is_pass) {
+        if (is_pass)
+        {
             printf(" />\n");
-        } else {
+        }
+        else
+        {
             printf("\t\t</testcase>\n");
         }
     }
     FCT_NLIST_FOREACH_END();
 
     /* print the std streams */
-    char std_buffer[1024];
-    int read_length;
-    int first_out_line;
-
     first_out_line = 1;
     printf("\t\t<system-out>\n\t\t\t<![CDATA[");
-    while ((read_length = read(fct_stdout_pipe[0], std_buffer, 1024))) {
-        if (first_out_line) {
+    while ( (read_length = _fct_read(fct_stdout_pipe[0], std_buffer, 1024)) > 0)
+    {
+        if (first_out_line)
+        {
             printf("\n");
             first_out_line = 0;
         }
@@ -3001,8 +3025,10 @@ fct_junit_logger__on_test_suite_end(fct_logger_i *logger_,
 
     first_out_line = 1;
     printf("\t\t<system-err>\n\t\t\t<![CDATA[");
-    while ((read_length = read(fct_stderr_pipe[0], std_buffer, 1024))) {
-        if (first_out_line) {
+    while ((read_length = _fct_read(fct_stderr_pipe[0], std_buffer, 1024)) > 0)
+    {
+        if (first_out_line)
+        {
             printf("\n");
             first_out_line = 0;
         }
@@ -3016,7 +3042,7 @@ fct_junit_logger__on_test_suite_end(fct_logger_i *logger_,
 
 static void
 fct_junit_logger__on_fct_start(fct_logger_i *logger_,
-                                  fctkern_t const *nk)
+                               fctkern_t const *nk)
 {
     fct_unused(logger_);
     fct_unused(nk);
@@ -3031,7 +3057,8 @@ fct_junit_logger__on_fct_end(fct_logger_i *logger_, fctkern_t const *nk)
     fct_unused(logger_);
     fct_unused(nk);
 
-    printf("</testsuites>\n");}
+    printf("</testsuites>\n");
+}
 
 static void
 fct_junit_logger__del(fct_logger_i *logger_)
@@ -3062,7 +3089,7 @@ fct_junit_logger_t *
 fct_junit_logger_new(void)
 {
     fct_junit_logger_t *logger =
-            (fct_junit_logger_t *)calloc(1, sizeof(fct_junit_logger_t));
+        (fct_junit_logger_t *)calloc(1, sizeof(fct_junit_logger_t));
 
     if ( logger == NULL )
     {
@@ -3071,7 +3098,7 @@ fct_junit_logger_new(void)
 
     fct_logger__init((fct_logger_i*)logger);
     logger->vtable = &fct_junit_logger_vtable;
-    
+
     fct_timer__init(&(logger->timer));
     fct_timer__init(&(logger->ts_timer));
     fct_timer__init(&(logger->test_timer));
@@ -3135,7 +3162,7 @@ int main(int argc, const char* argv[])\
         exit(EXIT_FAILURE);\
    }\
    fctkern__log_start(fctkern_ptr__)\
-
+ 
 
 /* Ends the test suite but returning the number failed. THe "chk_cnt" call is
 made in order allow strict compilers to pass when it encounters unreferenced
