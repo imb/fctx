@@ -27,7 +27,7 @@ for l in RELEASE_LISTING:
     fname = l % (fname_args)
     m.update(open(fname).read())
     digest = m.hexdigest()
-    print "|| [[attachment:%s]] ||  %s ||" % (fname,digest)
+    print "|| [[http://fctx.wildbearsoftware.com/static/fctx/download/%s|%s]] ||  %s ||" % (fname,digest)
 
 print
 print
