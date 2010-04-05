@@ -100,6 +100,10 @@ FOREACH( PROGRAM ${SIMPLE_TESTS})
       ${EXECUTABLE_OUTPUT_PATH}/${PROGRAM} 
       --logger=junit
   )
+  ADD_TEST(run_${PROGRAM}_with_minimal
+      ${EXECUTABLE_OUTPUT_PATH}/${PROGRAM} 
+      --logger=minimal
+  )
   TEST_CPP_VERSION(${PROGRAM})
 ENDFOREACH(PROGRAM)
 
