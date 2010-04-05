@@ -58,8 +58,8 @@ with a standard logger. */
 #endif /* !FCT_DEFAULT_LOGGER */
 
 #define FCT_VERSION_MAJOR 1
-#define FCT_VERSION_MINOR 2
-#define FCT_VERSION_MICRO 1
+#define FCT_VERSION_MINOR 3
+#define FCT_VERSION_MICRO 0
 
 #define _FCT_QUOTEME(x) #x
 #define FCT_QUOTEME(x) _FCT_QUOTEME(x)
