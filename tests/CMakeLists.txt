@@ -33,6 +33,10 @@ MACRO(TEST_CPP_VERSION _NAME_)
         run_${_NAME_}_cpp 
         ${EXECUTABLE_OUTPUT_PATH}/${_NAME_}_cpp
     )
+    ADD_TEST(
+        run_${_NAME_}_cpp 
+        ${EXECUTABLE_OUTPUT_PATH}/${_NAME_}_cpp 
+    )
 ENDMACRO(TEST_CPP_VERSION)
 
 
@@ -91,6 +95,10 @@ ADD_EXECUTABLE(test_big "${CMAKE_CURRENT_BINARY_DIR}/test_big.c")
 FOREACH( PROGRAM ${SIMPLE_TESTS}) 
   ADD_TEST(run_${PROGRAM} 
       ${EXECUTABLE_OUTPUT_PATH}/${PROGRAM}
+  )
+  ADD_TEST(run_${PROGRAM}_with_junit
+      ${EXECUTABLE_OUTPUT_PATH}/${PROGRAM} 
+      --logger=junit
   )
   TEST_CPP_VERSION(${PROGRAM})
 ENDFOREACH(PROGRAM)
