@@ -2,8 +2,8 @@
 FCTX Changes
 ++++++++++++
 
-Whats new in FCT 1.3
---------------------
+Whats new in FCT 1.3.0
+----------------------
 
  - ENH: Add JUnit support thanks to timrule (http://github.com/timrule).
    (http://github.com/imb/fctx/issues/closed#issue/10)
