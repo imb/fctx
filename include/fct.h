@@ -2395,19 +2395,93 @@ struct _fct_logger_i
 };
 
 
+static void
+fct_logger__del(fct_logger_i *logger)
+{
+    if ( logger == NULL )
+    {
+        return;
+    }
+    if ( logger->vtable.on_delete)
+    {
+        logger->vtable.on_delete(logger);
+    }
+}
+
+
+static void
+fct_logger__on_cndtn_stub(fct_logger_i *l, fctchk_t const *c)
+{
+    fct_unused(l);
+    fct_unused(c);
+}
+
+static void
+fct_logger__on_test_start_stub(fct_logger_i* l, fct_test_t const *t)
+{
+    fct_unused(l);
+    fct_unused(t);
+}
+
+
+static void
+fct_logger__on_test_stop_stub(fct_logger_i* l, fct_test_t *t)
+{
+    fct_unused(l);
+    fct_unused(t);
+}
+
+
+
+static void
+fct_logger__on_test_suite_startstop_stub(fct_logger_i *l, fct_ts_t const *ts)
+{
+    fct_unused(l);
+    fct_unused(ts);
+}
+
+
+static void
+fct_logger__on_fct_startstop_stub(fct_logger_i *l, fctkern_t const *k)
+{
+    fct_unused(l);
+    fct_unused(k);
+}
+
+
+static void
+fct_logger__on_warn_stub(fct_logger_i *l, char const *m)
+{
+    fct_unused(l);
+    fct_unused(m);
+}
+
+
+static void
+fct_logger__on_skip_stub(
+    fct_logger_i *logger,
+    char const *condition,
+    char const *name
+)
+{
+    fct_unused(logger);
+    fct_unused(condition);
+    fct_unused(name);
+}
+
 static fct_logger_i_vtable_t fct_logger_default_vtable =
 {
-    NULL,   /* 1.  on_cndtn */
-    NULL,   /* 2.  on_test_start */
-    NULL,   /* 3.  on_test_end */
-    NULL,   /* 4.  on_test_suite_start */
-    NULL,   /* 5.  on_test_suite_end */
-    NULL,   /* 6.  on_fct_start */
-    NULL,   /* 7.  on_fct_end */
-    NULL,   /* 8.  on_delete */
-    NULL,   /* 9.  on_warn */
-    NULL,   /* 10. on_test_suite_skip */
-    NULL,   /* 11. on_test_skip */
+    fct_logger__on_cndtn_stub,   /* 1.  on_cndtn */
+    fct_logger__on_test_start_stub,   /* 2.  on_test_start */
+    fct_logger__on_test_stop_stub,   /* 3.  on_test_end */
+    fct_logger__on_test_suite_startstop_stub,   /* 4.  on_test_suite_start */
+    fct_logger__on_test_suite_startstop_stub,   /* 5.  on_test_suite_end */
+    fct_logger__on_fct_startstop_stub,   /* 6.  on_fct_start */
+    fct_logger__on_fct_startstop_stub,   /* 7.  on_fct_end */
+    fct_logger__del,   /* 8.  on_delete */
+    fct_logger__on_warn_stub,   /* 9.  on_warn */
+    fct_logger__on_skip_stub,   /* 10. on_test_suite_skip */
+    fct_logger__on_skip_stub,   /* 11. on_test_skip */
 };
 
 
@@ -2426,29 +2500,9 @@ fct_logger__init(fct_logger_i *logger)
 
 
 static void
-fct_logger__del(fct_logger_i *logger)
-{
-    if ( logger == NULL )
-    {
-        return;
-    }
-    if ( logger->vtable.on_delete)
-    {
-        logger->vtable.on_delete(logger);
-    }
-}
-
-
-static void
 fct_logger__on_test_start(fct_logger_i *logger, fct_test_t const *test)
 {
-    assert( logger != NULL && "invalid arg");
-    assert( test != NULL && "invalid arg");
-
-    if ( logger->vtable.on_test_start != NULL )
-    {
-        logger->vtable.on_test_start(logger, test);
-    }
+    logger->vtable.on_test_start(logger, test);
 }
 
 
@@ -2533,22 +2587,12 @@ fct_logger__on_cndtn(fct_logger_i *logger, fctchk_t const *chk)
 
 /* When we start all our tests. */
 #define fct_logger__on_fct_start(LOGGER, KERN) \
-    {\
-       if ( LOGGER->vtable.on_fct_start != NULL ) \
-       {\
-          LOGGER->vtable.on_fct_start(LOGGER, KERN);\
-       }\
-    }
+   (LOGGER)->vtable.on_fct_start((LOGGER), (KERN));\
 
 
 /* When we have reached the end of ALL of our testing. */
 #define fct_logger__on_fct_end(LOGGER, KERN) \
-    {\
-       if ( LOGGER->vtable.on_fct_end )\
-       {\
-          LOGGER->vtable.on_fct_end(LOGGER, KERN);\
-       }\
-    }
+    (LOGGER)->vtable.on_fct_end((LOGGER), (KERN));
 
 
 static void
@@ -2911,7 +2955,6 @@ fct_junit_logger__on_test_end(fct_logger_i *logger_,
 {
     fct_junit_logger_t *logger = (fct_junit_logger_t*)logger_;
     fct_timer__stop(&(logger->test_timer));
-
     test->duration = fct_timer__duration(&(logger->test_timer));
 }
 
@@ -3031,7 +3074,6 @@ fct_junit_logger__on_fct_start(fct_logger_i *logger_,
 {
     fct_unused(logger_);
     fct_unused(nk);
-
     printf("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
     printf("<testsuites>\n");
 }
