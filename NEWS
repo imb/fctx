@@ -2,6 +2,15 @@
 FCTX Changes
 ++++++++++++
 
+Whats new in FCTX 1.?.?
+-----------------------
+
+ - ENH: Test and Test Suites grow their own duration value. Getting the
+   time for a particular test or test suite is a common logging
+   operation. In order to simplify logging the test and test suite
+   objects will now take care to report their durations.
+
+
 Whats new in FCT 1.3.0
 ----------------------
 
