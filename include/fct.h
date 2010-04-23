@@ -59,7 +59,7 @@ with a standard logger. */
 
 #define FCT_VERSION_MAJOR 1
 #define FCT_VERSION_MINOR 3
-#define FCT_VERSION_MICRO 0
+#define FCT_VERSION_MICRO 1
 
 #define _FCT_QUOTEME(x) #x
 #define FCT_QUOTEME(x) _FCT_QUOTEME(x)
@@ -3146,9 +3146,7 @@ int main(int argc, const char* argv[])\
         (void)printf("FATAL ERROR: Unable to intialize FCT Kernal.");\
         exit(EXIT_FAILURE);\
    }\
-   fctkern__log_start(fctkern_ptr__)\
  
-
 /* Ends the test suite but returning the number failed. THe "chk_cnt" call is
 made in order allow strict compilers to pass when it encounters unreferenced
 functions. */
@@ -3175,6 +3173,8 @@ options. */
         _fct_cmt("Delay parse in order to allow for user customization.");\
         if ( !fctkern__cl_is_parsed((fctkern_ptr__)) ) {\
               int status = fctkern__cl_parse((fctkern_ptr__));\
+              _fct_cmt("Need to parse command line before we start logger.");\
+              fctkern__log_start((fctkern_ptr__));\
               switch( status ) {\
               case -1:\
               case 0:\
@@ -3205,6 +3205,8 @@ specification. */
       _fct_cmt("Delay parse in order to allow for user customization.");\
       if ( !fctkern__cl_is_parsed((fctkern_ptr__)) ) {\
           int status = fctkern__cl_parse((fctkern_ptr__));\
+          _fct_cmt("Need to parse command line before we start logger.");\
+          fctkern__log_start((fctkern_ptr__));\
           switch( status ) {\
           case -1:\
           case 0:\
