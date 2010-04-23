@@ -11,7 +11,7 @@ RELEASE_LISTING = [
     'fctx-doc-%(ver)s.tar.gz',
     'fctx-src-%(ver)s.tar.gz',
     'patch-%(ver)s.gz',
-    'README',
+    'README.rst',
     'NEWS-%(ver)s',
     'diffstat-%(ver)s',
     'ChangeLog-%(ver)s'
@@ -20,14 +20,17 @@ RELEASE_LISTING = [
 fname_args = {'ver':sys.argv[1]}
 
 print "== %(ver)s (Stable) ==" % (fname_args)
-print "||<tablestyle=\"float:right;margin:2em;\">'''Files''' ||<:>'''md5'''||"
+print "||<tablestyle=\"align:right;margin:2em;\">'''Files''' ||<:>'''md5'''||"
 
 for l in RELEASE_LISTING:
     m = hashlib.md5()
     fname = l % (fname_args)
     m.update(open(fname).read())
     digest = m.hexdigest()
-    print "|| [[attachment:%s]] ||  %s ||" % (fname,digest)
+    args = fname_args.copy()
+    args["fname"] = fname
+    args["digest"] = digest
+    print "|| [[http://fctx.wildbearsoftware.com/static/fctx/download/%(ver)s/%(fname)s|%(fname)s]] || %(digest)s ||" % args
 
 print
 print

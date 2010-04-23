@@ -58,7 +58,7 @@ with a standard logger. */
 #endif /* !FCT_DEFAULT_LOGGER */
 
 #define FCT_VERSION_MAJOR 1
-#define FCT_VERSION_MINOR 2
+#define FCT_VERSION_MINOR 3
 #define FCT_VERSION_MICRO 1
 
 #define _FCT_QUOTEME(x) #x
@@ -607,6 +607,10 @@ fct_dotted_line_end(char const *endswith)
 --------------------------------------------------------
 TIMER
 --------------------------------------------------------
+This is a low-res implementation at the moment.
+
+We will improve this in the future, and isolate the
+implementation from the rest of the code.
 */
 
 typedef struct _fct_timer_t fct_timer_t;
@@ -645,7 +649,7 @@ fct_timer__stop(fct_timer_t *timer)
 
 /* Returns the time in seconds. */
 static double
-fct_timer__duration(fct_timer_t *timer)
+fct_timer__duration(fct_timer_t const *timer)
 {
     assert( timer != NULL );
     return timer->duration;
@@ -914,7 +918,7 @@ struct _fct_test_t
     fct_nlist_t passed_chks;
 
     /* To store the test run time */
-    double duration;
+    fct_timer_t timer;
 
     /* The name of the test case. */
     char name[FCT_MAX_NAME];
@@ -963,6 +967,8 @@ fct_test_new(char const *name)
         goto finally;
     }
 
+    fct_timer__init(&(test->timer));
+
     ok =FCT_TRUE;
 finally:
     if ( !ok )
@@ -971,6 +977,30 @@ finally:
         test =NULL;
     }
     return test;
+}
+
+
+static void
+fct_test__start_timer(fct_test_t *test)
+{
+    assert( test != NULL );
+    fct_timer__start(&(test->timer));
+}
+
+
+static void
+fct_test__stop_timer(fct_test_t *test)
+{
+    assert( test != NULL );
+    fct_timer__stop(&(test->timer));
+}
+
+
+static double
+fct_test__duration(fct_test_t const *test)
+{
+    assert( test != NULL );
+    return fct_timer__duration(&(test->timer));
 }
 
 
@@ -1286,6 +1316,21 @@ fct_ts__chk_cnt(fct_ts_t const *ts)
     return tally;
 }
 #endif /* FCT_USE_TEST_COUNT */
+
+
+/* Currently the duration is simply a sum of all the tests. */
+static double
+fct_ts__duration(fct_ts_t const *ts)
+{
+    double tally =0.0;
+    assert( ts != NULL );
+    FCT_NLIST_FOREACH_BGN(fct_test_t *, test, &(ts->test_list))
+    {
+        tally += fct_test__duration(test);
+    }
+    FCT_NLIST_FOREACH_END();
+    return tally;
+}
 
 
 /*
@@ -2930,45 +2975,15 @@ JUNIT LOGGER
 struct _fct_junit_logger_t
 {
     _fct_logger_head;
-
-    /* Start time. For now we use the low-accuracy time_t version. */
-    fct_timer_t timer;
-    fct_timer_t ts_timer;
-    fct_timer_t test_timer;
 };
-
-
-static void
-fct_junit_logger__on_test_start(fct_logger_i *logger_,
-                                fct_test_t const *test)
-{
-    fct_junit_logger_t *logger = NULL;
-    fct_unused(test);
-    logger = (fct_junit_logger_t*)logger_;
-    fct_timer__start(&(logger->test_timer));
-}
-
-
-static void
-fct_junit_logger__on_test_end(fct_logger_i *logger_,
-                              fct_test_t *test)
-{
-    fct_junit_logger_t *logger = (fct_junit_logger_t*)logger_;
-    fct_timer__stop(&(logger->test_timer));
-    test->duration = fct_timer__duration(&(logger->test_timer));
-}
 
 
 static void
 fct_junit_logger__on_test_suite_start(fct_logger_i *logger_,
                                       fct_ts_t const *ts)
 {
-    fct_junit_logger_t *logger =NULL;
+    fct_unused(logger_);
     fct_unused(ts);
-
-    logger = (fct_junit_logger_t*)logger_;
-    fct_timer__start(&(logger->ts_timer));
-
     FCT_SWITCH_STDOUT_TO_BUFFER();
     FCT_SWITCH_STDERR_TO_BUFFER();
 }
@@ -2984,9 +2999,9 @@ fct_junit_logger__on_test_suite_end(fct_logger_i *logger_,
     int read_length;
     int first_out_line;
 
-    fct_junit_logger_t *logger = (fct_junit_logger_t*)logger_;
-    fct_timer__stop(&(logger->ts_timer));
-    elasped_time = fct_timer__duration(&(logger->ts_timer));
+    fct_unused(logger_);
+
+    elasped_time = fct_ts__duration(ts);
 
     FCT_SWITCH_STDOUT_TO_STDOUT();
     FCT_SWITCH_STDERR_TO_STDERR();
@@ -3007,12 +3022,16 @@ fct_junit_logger__on_test_suite_end(fct_logger_i *logger_,
         if (is_pass)
         {
             printf("\t\t<testcase name=\"%s\" time=\"%.3f\"",
-                   fct_test__name(test), test->duration);
+                   fct_test__name(test),
+                   fct_test__duration(test)
+                   );
         }
         else
         {
             printf("\t\t<testcase name=\"%s\" time=\"%.3f\">\n",
-                   fct_test__name(test), test->duration);
+                   fct_test__name(test),
+                   fct_test__duration(test)
+                   );
         }
 
         FCT_NLIST_FOREACH_BGN(fctchk_t*, chk, &(test->failed_chks))
@@ -3106,17 +3125,12 @@ fct_junit_logger_new(void)
         return NULL;
     }
     fct_logger__init((fct_logger_i*)logger);
-    logger->vtable.on_test_start = fct_junit_logger__on_test_start;
-    logger->vtable.on_test_end = fct_junit_logger__on_test_end;
     logger->vtable.on_test_suite_start = \
                                          fct_junit_logger__on_test_suite_start;
     logger->vtable.on_test_suite_end = fct_junit_logger__on_test_suite_end;
     logger->vtable.on_fct_start = fct_junit_logger__on_fct_start;
     logger->vtable.on_fct_end = fct_junit_logger__on_fct_end;
     logger->vtable.on_delete = fct_junit_logger__del;
-    fct_timer__init(&(logger->timer));
-    fct_timer__init(&(logger->ts_timer));
-    fct_timer__init(&(logger->test_timer));
     return logger;
 }
 
@@ -3175,9 +3189,7 @@ int main(int argc, const char* argv[])\
         (void)printf("FATAL ERROR: Unable to intialize FCT Kernal.");\
         exit(EXIT_FAILURE);\
    }\
-   fctkern__log_start(fctkern_ptr__)\
  
-
 /* Ends the test suite but returning the number failed. THe "chk_cnt" call is
 made in order allow strict compilers to pass when it encounters unreferenced
 functions. */
@@ -3204,6 +3216,8 @@ options. */
         _fct_cmt("Delay parse in order to allow for user customization.");\
         if ( !fctkern__cl_is_parsed((fctkern_ptr__)) ) {\
               int status = fctkern__cl_parse((fctkern_ptr__));\
+              _fct_cmt("Need to parse command line before we start logger.");\
+              fctkern__log_start((fctkern_ptr__));\
               switch( status ) {\
               case -1:\
               case 0:\
@@ -3234,6 +3248,8 @@ specification. */
       _fct_cmt("Delay parse in order to allow for user customization.");\
       if ( !fctkern__cl_is_parsed((fctkern_ptr__)) ) {\
           int status = fctkern__cl_parse((fctkern_ptr__));\
+          _fct_cmt("Need to parse command line before we start logger.");\
+          fctkern__log_start((fctkern_ptr__));\
           switch( status ) {\
           case -1:\
           case 0:\
@@ -3375,7 +3391,8 @@ object (should be rare). */
                        fct_ts__test_end(fctkern_ptr__->ns.ts_curr);\
                        continue;\
                  } else {\
-                     fctkern__log_test_start(fctkern_ptr__, fctkern_ptr__->ns.curr_test);\
+                      fctkern__log_test_start(fctkern_ptr__, fctkern_ptr__->ns.curr_test);\
+                      fct_test__start_timer(fctkern_ptr__->ns.curr_test);\
                       for (;;) \
                       {
 
@@ -3385,6 +3402,7 @@ object (should be rare). */
 #define FCT_TEST_END() \
                          break;\
                       }\
+                      fct_test__stop_timer(fctkern_ptr__->ns.curr_test);\
                  }\
                  fct_ts__add_test(fctkern_ptr__->ns.ts_curr, fctkern_ptr__->ns.curr_test);\
                  fctkern__log_test_end(fctkern_ptr__, fctkern_ptr__->ns.curr_test);\
