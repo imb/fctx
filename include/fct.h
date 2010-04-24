@@ -95,6 +95,7 @@ with a standard logger. */
 /* Forward declarations. The following forward declarations are required
 because there is a inter-relationship between certain objects that
 just can not be untwined. */
+typedef struct _fct_logger_evt_t fct_logger_evt_t;
 typedef struct _fct_logger_i fct_logger_i;
 typedef struct _fct_standard_logger_t fct_standard_logger_t;
 typedef struct _fct_junit_logger_t fct_junit_logger_t;
@@ -118,7 +119,7 @@ static void
 fct_logger__del(fct_logger_i *logger);
 
 static void
-fct_logger__on_cndtn(fct_logger_i *self, fctchk_t const *chk);
+fct_logger__on_chk(fct_logger_i *self, fctchk_t const *chk);
 
 static void
 fct_logger__on_test_start(fct_logger_i *logger, fct_test_t const *test);
@@ -2293,10 +2294,9 @@ fctkern__log_chk(fctkern_t *nk, fctchk_t const *chk)
 {
     assert( nk != NULL );
     assert( chk != NULL );
-
     FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, &(nk->logger_list))
     {
-        fct_logger__on_cndtn(logger, chk);
+        fct_logger__on_chk(logger, chk);
     }
     FCT_NLIST_FOREACH_END();
 }
@@ -2378,14 +2378,34 @@ of the implementation.
 -----------------------------------------------------------
 */
 
+/* Common event argument. The values of the each event may or may not be
+defined depending on the event in question. */
+struct _fct_logger_evt_t
+{
+    fctkern_t const *kern;
+    fctchk_t const *chk;
+    fct_test_t const *test;
+    fct_ts_t const *ts;
+    char const *msg;
+    char const *cndtn;
+    char const *name;
+};
+
+
 typedef struct _fct_logger_i_vtable_t
 {
-    /* 1 */
-    void (*on_cndtn)(fct_logger_i *logger, fctchk_t const *chk);
-    /* 2 */
+    /* 1 
+     * Fired when an "fct_chk*" (check) function is completed. The event
+     * will contain a reference to the "chk" object created. 
+     * */
+    void (*on_chk)(fct_logger_i *logger, fct_logger_evt_t const *e);
+
+    /* 2 
+     * Fired when a test starts and before any checks are made. The
+     * event will have its "test" object set. */
     void (*on_test_start)(
         fct_logger_i *logger,
-        fct_test_t const *test
+        fct_logger_evt_t const *e
     );
     /* 3 */
     void (*on_test_end)(
@@ -2432,7 +2452,8 @@ typedef struct _fct_logger_i_vtable_t
 } fct_logger_i_vtable_t;
 
 #define _fct_logger_head \
-    fct_logger_i_vtable_t vtable
+    fct_logger_i_vtable_t vtable; \
+    fct_logger_evt_t evt
 
 struct _fct_logger_i
 {
@@ -2455,17 +2476,17 @@ fct_logger__del(fct_logger_i *logger)
 
 
 static void
-fct_logger__on_cndtn_stub(fct_logger_i *l, fctchk_t const *c)
+fct_logger__on_chk_stub(fct_logger_i *l, fct_logger_evt_t const *e)
 {
     fct_unused(l);
-    fct_unused(c);
+    fct_unused(e);
 }
 
 static void
-fct_logger__on_test_start_stub(fct_logger_i* l, fct_test_t const *t)
+fct_logger__on_test_start_stub(fct_logger_i* l, fct_logger_evt_t const *e)
 {
     fct_unused(l);
-    fct_unused(t);
+    fct_unused(e);
 }
 
 
@@ -2516,7 +2537,7 @@ fct_logger__on_skip_stub(
 
 static fct_logger_i_vtable_t fct_logger_default_vtable =
 {
-    fct_logger__on_cndtn_stub,   /* 1.  on_cndtn */
+    fct_logger__on_chk_stub,   /* 1.  on_chk */
     fct_logger__on_test_start_stub,   /* 2.  on_test_start */
     fct_logger__on_test_stop_stub,   /* 3.  on_test_end */
     fct_logger__on_test_suite_startstop_stub,   /* 4.  on_test_suite_start */
@@ -2541,13 +2562,15 @@ fct_logger__init(fct_logger_i *logger)
         &fct_logger_default_vtable,
         sizeof(fct_logger_i_vtable_t)
     );
+    memset(&(logger->evt),0, sizeof(fct_logger_evt_t));
 }
 
 
 static void
 fct_logger__on_test_start(fct_logger_i *logger, fct_test_t const *test)
 {
-    logger->vtable.on_test_start(logger, test);
+    logger->evt.test = test;
+    logger->vtable.on_test_start(logger, &(logger->evt));
 }
 
 
@@ -2618,16 +2641,12 @@ fct_logger__on_test_skip(
 
 }
 
-static void
-fct_logger__on_cndtn(fct_logger_i *logger, fctchk_t const *chk)
-{
-    assert( logger != NULL && "invalid arg");
-    assert( chk != NULL && "invalid arg");
 
-    if ( logger->vtable.on_cndtn )
-    {
-        logger->vtable.on_cndtn(logger, chk);
-    }
+static void
+fct_logger__on_chk(fct_logger_i *logger, fctchk_t const *chk)
+{
+    logger->evt.chk = chk;
+    logger->vtable.on_chk(logger, &(logger->evt));
 }
 
 /* When we start all our tests. */
@@ -2718,17 +2737,20 @@ struct _fct_minimal_logger_t
 
 
 static void
-fct_minimal_logger__on_cndtn(fct_logger_i *self_, fctchk_t const *chk)
+fct_minimal_logger__on_chk(
+    fct_logger_i *self_,
+    fct_logger_evt_t const *e
+)
 {
     fct_minimal_logger_t *self = (fct_minimal_logger_t*)self_;
-    if ( fctchk__is_pass(chk) )
+    if ( fctchk__is_pass(e->chk) )
     {
         fputs(".", stdout);
     }
     else
     {
         fputs("x", stdout);
-        fct_logger_record_failure(chk, &(self->failed_cndtns_list));
+        fct_logger_record_failure(e->chk, &(self->failed_cndtns_list));
 
     }
 }
@@ -2765,7 +2787,7 @@ fct_minimal_logger_new(void)
         return NULL;
     }
     fct_logger__init((fct_logger_i*)self);
-    self->vtable.on_cndtn = fct_minimal_logger__on_cndtn;
+    self->vtable.on_chk = fct_minimal_logger__on_chk;
     self->vtable.on_fct_end = fct_minimal_logger__on_fct_end;
     self->vtable.on_delete = fct_minimal_logger__del;
     fct_nlist__init2(&(self->failed_cndtns_list), 0);
@@ -2797,15 +2819,16 @@ struct _fct_standard_logger_t
 /* When a failure occurrs, we will record the details so we can display
 them when the log "finishes" up. */
 static void
-fct_standard_logger__on_cndtn(fct_logger_i *logger_, fctchk_t const *chk)
+fct_standard_logger__on_chk(
+    fct_logger_i *logger_,
+    fct_logger_evt_t const *e
+)
 {
     fct_standard_logger_t *logger = (fct_standard_logger_t*)logger_;
-    assert( logger != NULL );
-    assert( chk != NULL );
     /* Only record failures. */
-    if ( !fctchk__is_pass(chk) )
+    if ( !fctchk__is_pass(e->chk) )
     {
-        fct_logger_record_failure(chk, &(logger->failed_cndtns_list));
+        fct_logger_record_failure(e->chk, &(logger->failed_cndtns_list));
     }
 }
 
@@ -2828,11 +2851,15 @@ fct_standard_logger__on_test_skip(
 
 
 static void
-fct_standard_logger__on_test_start(fct_logger_i *logger_,
-                                   fct_test_t const *test)
+fct_standard_logger__on_test_start(
+        fct_logger_i *logger_,
+        fct_logger_evt_t const *e)
 {
     fct_unused(logger_);
-    fct_dotted_line_start(FCT_STANDARD_LOGGER_MAX_LINE, fct_test__name(test));
+    fct_dotted_line_start(
+            FCT_STANDARD_LOGGER_MAX_LINE, 
+            fct_test__name(e->test)
+            );
 }
 
 
@@ -2946,7 +2973,7 @@ fct_standard_logger_new(void)
         return NULL;
     }
     fct_logger__init((fct_logger_i*)logger);
-    logger->vtable.on_cndtn = fct_standard_logger__on_cndtn;
+    logger->vtable.on_chk = fct_standard_logger__on_chk;
     logger->vtable.on_test_start = fct_standard_logger__on_test_start;
     logger->vtable.on_test_end = fct_standard_logger__on_test_end;
     logger->vtable.on_test_suite_start = \
@@ -3024,14 +3051,14 @@ fct_junit_logger__on_test_suite_end(fct_logger_i *logger_,
             printf("\t\t<testcase name=\"%s\" time=\"%.3f\"",
                    fct_test__name(test),
                    fct_test__duration(test)
-                   );
+                  );
         }
         else
         {
             printf("\t\t<testcase name=\"%s\" time=\"%.3f\">\n",
                    fct_test__name(test),
                    fct_test__duration(test)
-                   );
+                  );
         }
 
         FCT_NLIST_FOREACH_BGN(fctchk_t*, chk, &(test->failed_chks))
@@ -3125,8 +3152,7 @@ fct_junit_logger_new(void)
         return NULL;
     }
     fct_logger__init((fct_logger_i*)logger);
-    logger->vtable.on_test_suite_start = \
-                                         fct_junit_logger__on_test_suite_start;
+    logger->vtable.on_test_suite_start = fct_junit_logger__on_test_suite_start;
     logger->vtable.on_test_suite_end = fct_junit_logger__on_test_suite_end;
     logger->vtable.on_fct_start = fct_junit_logger__on_fct_start;
     logger->vtable.on_fct_end = fct_junit_logger__on_fct_end;
