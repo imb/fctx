@@ -2410,7 +2410,7 @@ typedef struct _fct_logger_i_vtable_t
     /* 3 */
     void (*on_test_end)(
         fct_logger_i *logger,
-        fct_test_t *test
+        fct_logger_evt_t const *e
     );
     /* 4 */
     void (*on_test_suite_start)(
@@ -2476,27 +2476,11 @@ fct_logger__del(fct_logger_i *logger)
 
 
 static void
-fct_logger__on_chk_stub(fct_logger_i *l, fct_logger_evt_t const *e)
+fct_logger__stub(fct_logger_i *l, fct_logger_evt_t const *e)
 {
     fct_unused(l);
     fct_unused(e);
 }
-
-static void
-fct_logger__on_test_start_stub(fct_logger_i* l, fct_logger_evt_t const *e)
-{
-    fct_unused(l);
-    fct_unused(e);
-}
-
-
-static void
-fct_logger__on_test_stop_stub(fct_logger_i* l, fct_test_t *t)
-{
-    fct_unused(l);
-    fct_unused(t);
-}
-
 
 
 static void
@@ -2537,9 +2521,9 @@ fct_logger__on_skip_stub(
 
 static fct_logger_i_vtable_t fct_logger_default_vtable =
 {
-    fct_logger__on_chk_stub,   /* 1.  on_chk */
-    fct_logger__on_test_start_stub,   /* 2.  on_test_start */
-    fct_logger__on_test_stop_stub,   /* 3.  on_test_end */
+    fct_logger__stub,   /* 1.  on_chk */
+    fct_logger__stub,   /* 2.  on_test_start */
+    fct_logger__stub,   /* 3.  on_test_end */
     fct_logger__on_test_suite_startstop_stub,   /* 4.  on_test_suite_start */
     fct_logger__on_test_suite_startstop_stub,   /* 5.  on_test_suite_end */
     fct_logger__on_fct_startstop_stub,   /* 6.  on_fct_start */
@@ -2577,13 +2561,8 @@ fct_logger__on_test_start(fct_logger_i *logger, fct_test_t const *test)
 static void
 fct_logger__on_test_end(fct_logger_i *logger, fct_test_t *test)
 {
-    assert( logger != NULL && "invalid arg");
-    assert( test != NULL && "invalid arg");
-
-    if ( logger->vtable.on_test_end != NULL )
-    {
-        logger->vtable.on_test_end(logger, test);
-    }
+    logger->evt.test = test;
+    logger->vtable.on_test_end(logger, &(logger->evt));
 }
 
 
@@ -2853,7 +2832,8 @@ fct_standard_logger__on_test_skip(
 static void
 fct_standard_logger__on_test_start(
         fct_logger_i *logger_,
-        fct_logger_evt_t const *e)
+        fct_logger_evt_t const *e
+        )
 {
     fct_unused(logger_);
     fct_dotted_line_start(
@@ -2864,13 +2844,14 @@ fct_standard_logger__on_test_start(
 
 
 static void
-fct_standard_logger__on_test_end(fct_logger_i *logger_,
-                                 fct_test_t *test)
+fct_standard_logger__on_test_end(
+        fct_logger_i *logger_,
+        fct_logger_evt_t const *e
+)
 {
     nbool_t is_pass;
     fct_unused(logger_);
-
-    is_pass = fct_test__is_pass(test);
+    is_pass = fct_test__is_pass(e->test);
     fct_dotted_line_end((is_pass) ? "PASS" : "FAIL ***" );
 }
 
