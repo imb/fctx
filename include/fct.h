@@ -1995,8 +1995,8 @@ static int
 fctkern__cl_parse(fctkern_t *nk)
 {
     int status =0;
-    int num_params =0;
-    int param_i =0;
+    size_t num_params =0;
+    size_t param_i =0;
     if ( nk == NULL )
     {
         return 0;

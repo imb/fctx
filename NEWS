@@ -2,6 +2,12 @@
 FCTX Changes
 ++++++++++++
 
+Whats new in FCTX 1.3.2
+-----------------------
+
+ - FIX: Use size_t instead of int to remove some nuisance warnings on a
+   64 bit compiler.
+
 Whats new in FCTX 1.3.1
 -----------------------
 
