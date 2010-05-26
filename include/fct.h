@@ -2415,12 +2415,12 @@ typedef struct _fct_logger_i_vtable_t
     /* 4 */
     void (*on_test_suite_start)(
         fct_logger_i *logger,
-        fct_ts_t const *ts
+        fct_logger_evt_t const *e
     );
     /* 5 */
     void (*on_test_suite_end)(
         fct_logger_i *logger,
-        fct_ts_t const *ts
+        fct_logger_evt_t const *e
     );
     /* 6 */
     void (*on_fct_start)(
@@ -2484,14 +2484,6 @@ fct_logger__stub(fct_logger_i *l, fct_logger_evt_t const *e)
 
 
 static void
-fct_logger__on_test_suite_startstop_stub(fct_logger_i *l, fct_ts_t const *ts)
-{
-    fct_unused(l);
-    fct_unused(ts);
-}
-
-
-static void
 fct_logger__on_fct_startstop_stub(fct_logger_i *l, fctkern_t const *k)
 {
     fct_unused(l);
@@ -2524,8 +2516,8 @@ static fct_logger_i_vtable_t fct_logger_default_vtable =
     fct_logger__stub,   /* 1.  on_chk */
     fct_logger__stub,   /* 2.  on_test_start */
     fct_logger__stub,   /* 3.  on_test_end */
-    fct_logger__on_test_suite_startstop_stub,   /* 4.  on_test_suite_start */
-    fct_logger__on_test_suite_startstop_stub,   /* 5.  on_test_suite_end */
+    fct_logger__stub,   /* 4.  on_test_suite_start */
+    fct_logger__stub,   /* 5.  on_test_suite_end */
     fct_logger__on_fct_startstop_stub,   /* 6.  on_fct_start */
     fct_logger__on_fct_startstop_stub,   /* 7.  on_fct_end */
     fct_logger__del,   /* 8.  on_delete */
@@ -2569,26 +2561,16 @@ fct_logger__on_test_end(fct_logger_i *logger, fct_test_t *test)
 static void
 fct_logger__on_test_suite_start(fct_logger_i *logger, fct_ts_t const *ts)
 {
-    assert( logger != NULL && "invalid arg");
-    assert( ts != NULL && "invalid arg");
-
-    if ( logger->vtable.on_test_suite_start != NULL )
-    {
-        logger->vtable.on_test_suite_start(logger, ts);
-    }
+    logger->evt.ts = ts;
+    logger->vtable.on_test_suite_start(logger, &(logger->evt));
 }
 
 
 static void
 fct_logger__on_test_suite_end(fct_logger_i *logger, fct_ts_t const *ts)
 {
-    assert( logger != NULL && "invalid arg");
-    assert( ts != NULL && "invalid arg");
-
-    if ( logger->vtable.on_test_suite_end != NULL )
-    {
-        logger->vtable.on_test_suite_end(logger, ts);
-    }
+    logger->evt.ts = ts;
+    logger->vtable.on_test_suite_start(logger, &(logger->evt));
 }
 
 
@@ -2857,24 +2839,6 @@ fct_standard_logger__on_test_end(
 
 
 static void
-fct_standard_logger__on_test_suite_start(fct_logger_i *logger_,
-        fct_ts_t const *ts)
-{
-    fct_unused(logger_);
-    fct_unused(ts);
-}
-
-
-static void
-fct_standard_logger__on_test_suite_end(fct_logger_i *logger_,
-                                       fct_ts_t const *ts)
-{
-    fct_unused(logger_);
-    fct_unused(ts);
-}
-
-
-static void
 fct_standard_logger__on_fct_start(fct_logger_i *logger_,
                                   fctkern_t const *nk)
 {
@@ -2957,10 +2921,6 @@ fct_standard_logger_new(void)
     logger->vtable.on_chk = fct_standard_logger__on_chk;
     logger->vtable.on_test_start = fct_standard_logger__on_test_start;
     logger->vtable.on_test_end = fct_standard_logger__on_test_end;
-    logger->vtable.on_test_suite_start = \
-                                         fct_standard_logger__on_test_suite_start;
-    logger->vtable.on_test_suite_end = \
-                                       fct_standard_logger__on_test_suite_end;
     logger->vtable.on_fct_start = fct_standard_logger__on_fct_start;
     logger->vtable.on_fct_end = fct_standard_logger__on_fct_end;
     logger->vtable.on_delete = fct_standard_logger__del;
@@ -2987,20 +2947,25 @@ struct _fct_junit_logger_t
 
 
 static void
-fct_junit_logger__on_test_suite_start(fct_logger_i *logger_,
-                                      fct_ts_t const *ts)
+fct_junit_logger__on_test_suite_start(
+        fct_logger_i *l,
+        fct_logger_evt_t const *e
+        )
 {
-    fct_unused(logger_);
-    fct_unused(ts);
+    fct_unused(l);
+    fct_unused(e);
     FCT_SWITCH_STDOUT_TO_BUFFER();
     FCT_SWITCH_STDERR_TO_BUFFER();
 }
 
 
 static void
-fct_junit_logger__on_test_suite_end(fct_logger_i *logger_,
-                                    fct_ts_t const *ts)
+fct_junit_logger__on_test_suite_end(
+        fct_logger_i *logger_,
+        fct_logger_evt_t const *e
+        )
 {
+    fct_ts_t const *ts = e->ts; /* Test Suite */
     nbool_t is_pass;
     double elasped_time = 0;
     char std_buffer[1024];
