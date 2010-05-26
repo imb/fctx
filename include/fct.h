@@ -2562,7 +2562,7 @@ static void
 fct_logger__on_test_suite_end(fct_logger_i *logger, fct_ts_t const *ts)
 {
     logger->evt.ts = ts;
-    logger->vtable.on_test_suite_start(logger, &(logger->evt));
+    logger->vtable.on_test_suite_end(logger, &(logger->evt));
 }
 
 
