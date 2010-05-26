@@ -2425,12 +2425,12 @@ typedef struct _fct_logger_i_vtable_t
     /* 6 */
     void (*on_fct_start)(
         fct_logger_i *logger,
-        fctkern_t const *kern
+        fct_logger_evt_t const *e
     );
     /* 7 */
     void (*on_fct_end)(
         fct_logger_i *logger,
-        fctkern_t const *kern
+        fct_logger_evt_t const *e
     );
     /* 8 */
     void (*on_delete)(fct_logger_i *logger);
@@ -2484,14 +2484,6 @@ fct_logger__stub(fct_logger_i *l, fct_logger_evt_t const *e)
 
 
 static void
-fct_logger__on_fct_startstop_stub(fct_logger_i *l, fctkern_t const *k)
-{
-    fct_unused(l);
-    fct_unused(k);
-}
-
-
-static void
 fct_logger__on_warn_stub(fct_logger_i *l, char const *m)
 {
     fct_unused(l);
@@ -2518,8 +2510,8 @@ static fct_logger_i_vtable_t fct_logger_default_vtable =
     fct_logger__stub,   /* 3.  on_test_end */
     fct_logger__stub,   /* 4.  on_test_suite_start */
     fct_logger__stub,   /* 5.  on_test_suite_end */
-    fct_logger__on_fct_startstop_stub,   /* 6.  on_fct_start */
-    fct_logger__on_fct_startstop_stub,   /* 7.  on_fct_end */
+    fct_logger__stub,   /* 6.  on_fct_start */
+    fct_logger__stub,   /* 7.  on_fct_end */
     fct_logger__del,   /* 8.  on_delete */
     fct_logger__on_warn_stub,   /* 9.  on_warn */
     fct_logger__on_skip_stub,   /* 10. on_test_suite_skip */
@@ -2599,7 +2591,6 @@ fct_logger__on_test_skip(
     {
         logger->vtable.on_test_skip(logger, name, condition);
     }
-
 }
 
 
@@ -2612,12 +2603,15 @@ fct_logger__on_chk(fct_logger_i *logger, fctchk_t const *chk)
 
 /* When we start all our tests. */
 #define fct_logger__on_fct_start(LOGGER, KERN) \
-   (LOGGER)->vtable.on_fct_start((LOGGER), (KERN));\
+   (LOGGER)->evt.kern = (KERN);\
+   (LOGGER)->vtable.on_fct_start((LOGGER), &((LOGGER)->evt));
 
 
 /* When we have reached the end of ALL of our testing. */
 #define fct_logger__on_fct_end(LOGGER, KERN) \
-    (LOGGER)->vtable.on_fct_end((LOGGER), (KERN));
+    (LOGGER)->evt.kern = (KERN);\
+    (LOGGER)->vtable.on_fct_end((LOGGER), &((LOGGER)->evt));
+
 
 
 static void
@@ -2717,10 +2711,13 @@ fct_minimal_logger__on_chk(
 }
 
 static void
-fct_minimal_logger__on_fct_end(fct_logger_i *self_, fctkern_t const *kern)
+fct_minimal_logger__on_fct_end(
+        fct_logger_i *self_, 
+        fct_logger_evt_t const *e
+        )
 {
     fct_minimal_logger_t *self = (fct_minimal_logger_t*)self_;
-    fct_unused(kern);
+    fct_unused(e);
     if ( fct_nlist__size(&(self->failed_cndtns_list)) >0 )
     {
         fct_logger_print_failures(&(self->failed_cndtns_list));
@@ -2839,17 +2836,22 @@ fct_standard_logger__on_test_end(
 
 
 static void
-fct_standard_logger__on_fct_start(fct_logger_i *logger_,
-                                  fctkern_t const *nk)
+fct_standard_logger__on_fct_start(
+        fct_logger_i *logger_,
+        fct_logger_evt_t const *e
+        )
 {
+    fct_unused(e);
     fct_standard_logger_t *logger = (fct_standard_logger_t*)logger_;
-    fct_unused(nk);
     fct_timer__start(&(logger->timer));
 }
 
 
 static void
-fct_standard_logger__on_fct_end(fct_logger_i *logger_, fctkern_t const *nk)
+fct_standard_logger__on_fct_end(
+        fct_logger_i *logger_,
+        fct_logger_evt_t const *e
+        )
 {
     fct_standard_logger_t *logger = (fct_standard_logger_t*)logger_;
     nbool_t is_success =1;
@@ -2868,8 +2870,8 @@ fct_standard_logger__on_fct_end(fct_logger_i *logger_, fctkern_t const *nk)
     puts(
         "\n----------------------------------------------------------------------------\n"
     );
-    num_tests = fctkern__tst_cnt(nk);
-    num_passed = fctkern__tst_cnt_passed(nk);
+    num_tests = fctkern__tst_cnt(e->kern);
+    num_passed = fctkern__tst_cnt_passed(e->kern);
     printf(
         "%s (%d/%d tests",
         (is_success) ? "PASSED" : "FAILED",
@@ -3061,21 +3063,25 @@ fct_junit_logger__on_test_suite_end(
 }
 
 static void
-fct_junit_logger__on_fct_start(fct_logger_i *logger_,
-                               fctkern_t const *nk)
+fct_junit_logger__on_fct_start(
+        fct_logger_i *logger_,
+        fct_logger_evt_t const *e
+        )
 {
     fct_unused(logger_);
-    fct_unused(nk);
+    fct_unused(e);
     printf("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
     printf("<testsuites>\n");
 }
 
 static void
-fct_junit_logger__on_fct_end(fct_logger_i *logger_, fctkern_t const *nk)
+fct_junit_logger__on_fct_end(
+        fct_logger_i *logger_, 
+        fct_logger_evt_t const *e
+       )
 {
     fct_unused(logger_);
-    fct_unused(nk);
-
+    fct_unused(e);
     printf("</testsuites>\n");
 }
 
