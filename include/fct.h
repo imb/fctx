@@ -2435,7 +2435,10 @@ typedef struct _fct_logger_i_vtable_t
     /* 8 */
     void (*on_delete)(fct_logger_i *logger);
     /* 9 */
-    void (*on_warn)(fct_logger_i *logger, char const *msg);
+    void (*on_warn)(
+            fct_logger_i *logger,
+            fct_logger_evt_t const *e
+            );
     /* -- new in 1.2 -- */
     /* 10 */
     void (*on_test_suite_skip)(
@@ -2484,14 +2487,6 @@ fct_logger__stub(fct_logger_i *l, fct_logger_evt_t const *e)
 
 
 static void
-fct_logger__on_warn_stub(fct_logger_i *l, char const *m)
-{
-    fct_unused(l);
-    fct_unused(m);
-}
-
-
-static void
 fct_logger__on_skip_stub(
     fct_logger_i *logger,
     char const *condition,
@@ -2513,7 +2508,7 @@ static fct_logger_i_vtable_t fct_logger_default_vtable =
     fct_logger__stub,   /* 6.  on_fct_start */
     fct_logger__stub,   /* 7.  on_fct_end */
     fct_logger__del,   /* 8.  on_delete */
-    fct_logger__on_warn_stub,   /* 9.  on_warn */
+    fct_logger__stub,   /* 9.  on_warn */
     fct_logger__on_skip_stub,   /* 10. on_test_suite_skip */
     fct_logger__on_skip_stub,   /* 11. on_test_skip */
 };
@@ -2613,16 +2608,11 @@ fct_logger__on_chk(fct_logger_i *logger, fctchk_t const *chk)
     (LOGGER)->vtable.on_fct_end((LOGGER), &((LOGGER)->evt));
 
 
-
 static void
-fct_logger__on_warn(fct_logger_i *logger, char const *warn)
+fct_logger__on_warn(fct_logger_i *logger, char const *msg)
 {
-    assert( logger != NULL );
-    assert( warn != NULL );
-    if ( logger->vtable.on_warn )
-    {
-        logger->vtable.on_warn(logger, warn);
-    }
+    logger->evt.msg = msg;
+    logger->vtable.on_chk(logger, &(logger->evt));
 }
 
 
@@ -2902,10 +2892,13 @@ fct_standard_logger__del(fct_logger_i *logger_)
 
 
 static void
-fct_standard_logger__warn(fct_logger_i* logger_, char const *warn)
+fct_standard_logger__on_warn(
+        fct_logger_i* logger_, 
+        fct_logger_evt_t const *e
+        )
 {
     fct_unused(logger_);
-    (void)printf("WARNING: %s", warn);
+    (void)printf("WARNING: %s", e->msg);
 }
 
 
@@ -2926,7 +2919,7 @@ fct_standard_logger_new(void)
     logger->vtable.on_fct_start = fct_standard_logger__on_fct_start;
     logger->vtable.on_fct_end = fct_standard_logger__on_fct_end;
     logger->vtable.on_delete = fct_standard_logger__del;
-    logger->vtable.on_warn = fct_standard_logger__warn;
+    logger->vtable.on_warn = fct_standard_logger__on_warn;
     logger->vtable.on_test_skip = fct_standard_logger__on_test_skip;
     fct_nlist__init2(&(logger->failed_cndtns_list), 0);
     fct_timer__init(&(logger->timer));
