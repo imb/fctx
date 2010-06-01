@@ -2394,13 +2394,13 @@ struct _fct_logger_evt_t
 
 typedef struct _fct_logger_i_vtable_t
 {
-    /* 1 
+    /* 1
      * Fired when an "fct_chk*" (check) function is completed. The event
-     * will contain a reference to the "chk" object created. 
+     * will contain a reference to the "chk" object created.
      * */
     void (*on_chk)(fct_logger_i *logger, fct_logger_evt_t const *e);
 
-    /* 2 
+    /* 2
      * Fired when a test starts and before any checks are made. The
      * event will have its "test" object set. */
     void (*on_test_start)(
@@ -2433,12 +2433,15 @@ typedef struct _fct_logger_i_vtable_t
         fct_logger_evt_t const *e
     );
     /* 8 */
-    void (*on_delete)(fct_logger_i *logger);
+    void (*on_delete)(
+        fct_logger_i *logger,
+        fct_logger_evt_t const *e
+    );
     /* 9 */
     void (*on_warn)(
-            fct_logger_i *logger,
-            fct_logger_evt_t const *e
-            );
+        fct_logger_i *logger,
+        fct_logger_evt_t const *e
+    );
     /* -- new in 1.2 -- */
     /* 10 */
     void (*on_test_suite_skip)(
@@ -2462,20 +2465,6 @@ struct _fct_logger_i
 {
     _fct_logger_head;
 };
-
-
-static void
-fct_logger__del(fct_logger_i *logger)
-{
-    if ( logger == NULL )
-    {
-        return;
-    }
-    if ( logger->vtable.on_delete)
-    {
-        logger->vtable.on_delete(logger);
-    }
-}
 
 
 static void
@@ -2507,7 +2496,7 @@ static fct_logger_i_vtable_t fct_logger_default_vtable =
     fct_logger__stub,   /* 5.  on_test_suite_end */
     fct_logger__stub,   /* 6.  on_fct_start */
     fct_logger__stub,   /* 7.  on_fct_end */
-    fct_logger__del,   /* 8.  on_delete */
+    fct_logger__stub,   /* 8.  on_delete */
     fct_logger__stub,   /* 9.  on_warn */
     fct_logger__on_skip_stub,   /* 10. on_test_suite_skip */
     fct_logger__on_skip_stub,   /* 11. on_test_skip */
@@ -2526,6 +2515,15 @@ fct_logger__init(fct_logger_i *logger)
         sizeof(fct_logger_i_vtable_t)
     );
     memset(&(logger->evt),0, sizeof(fct_logger_evt_t));
+}
+
+static void
+fct_logger__del(fct_logger_i *logger)
+{
+    if ( logger )
+    {
+        logger->vtable.on_delete(logger, &(logger->evt));
+    }
 }
 
 
@@ -2702,9 +2700,9 @@ fct_minimal_logger__on_chk(
 
 static void
 fct_minimal_logger__on_fct_end(
-        fct_logger_i *self_, 
-        fct_logger_evt_t const *e
-        )
+    fct_logger_i *self_,
+    fct_logger_evt_t const *e
+)
 {
     fct_minimal_logger_t *self = (fct_minimal_logger_t*)self_;
     fct_unused(e);
@@ -2715,13 +2713,17 @@ fct_minimal_logger__on_fct_end(
 }
 
 
-
 static void
-fct_minimal_logger__del(fct_logger_i *self_)
+fct_minimal_logger__on_delete(
+    fct_logger_i *self_,
+    fct_logger_evt_t const *e
+)
 {
+    fct_unused(e);
     fct_minimal_logger_t *self = (fct_minimal_logger_t*)self_;
     fct_nlist__final(&(self->failed_cndtns_list), free);
     free(self);
+
 }
 
 
@@ -2737,7 +2739,7 @@ fct_minimal_logger_new(void)
     fct_logger__init((fct_logger_i*)self);
     self->vtable.on_chk = fct_minimal_logger__on_chk;
     self->vtable.on_fct_end = fct_minimal_logger__on_fct_end;
-    self->vtable.on_delete = fct_minimal_logger__del;
+    self->vtable.on_delete = fct_minimal_logger__on_delete;
     fct_nlist__init2(&(self->failed_cndtns_list), 0);
     return (fct_logger_i*)self;
 }
@@ -2800,22 +2802,22 @@ fct_standard_logger__on_test_skip(
 
 static void
 fct_standard_logger__on_test_start(
-        fct_logger_i *logger_,
-        fct_logger_evt_t const *e
-        )
+    fct_logger_i *logger_,
+    fct_logger_evt_t const *e
+)
 {
     fct_unused(logger_);
     fct_dotted_line_start(
-            FCT_STANDARD_LOGGER_MAX_LINE, 
-            fct_test__name(e->test)
-            );
+        FCT_STANDARD_LOGGER_MAX_LINE,
+        fct_test__name(e->test)
+    );
 }
 
 
 static void
 fct_standard_logger__on_test_end(
-        fct_logger_i *logger_,
-        fct_logger_evt_t const *e
+    fct_logger_i *logger_,
+    fct_logger_evt_t const *e
 )
 {
     nbool_t is_pass;
@@ -2827,9 +2829,9 @@ fct_standard_logger__on_test_end(
 
 static void
 fct_standard_logger__on_fct_start(
-        fct_logger_i *logger_,
-        fct_logger_evt_t const *e
-        )
+    fct_logger_i *logger_,
+    fct_logger_evt_t const *e
+)
 {
     fct_unused(e);
     fct_standard_logger_t *logger = (fct_standard_logger_t*)logger_;
@@ -2839,9 +2841,9 @@ fct_standard_logger__on_fct_start(
 
 static void
 fct_standard_logger__on_fct_end(
-        fct_logger_i *logger_,
-        fct_logger_evt_t const *e
-        )
+    fct_logger_i *logger_,
+    fct_logger_evt_t const *e
+)
 {
     fct_standard_logger_t *logger = (fct_standard_logger_t*)logger_;
     nbool_t is_success =1;
@@ -2882,8 +2884,12 @@ fct_standard_logger__on_fct_end(
 
 
 static void
-fct_standard_logger__del(fct_logger_i *logger_)
+fct_standard_logger__on_delete(
+    fct_logger_i *logger_,
+    fct_logger_evt_t const *e
+)
 {
+    fct_unused(e);
     fct_standard_logger_t *logger = (fct_standard_logger_t*)logger_;
     fct_nlist__final(&(logger->failed_cndtns_list), free);
     free(logger);
@@ -2893,9 +2899,9 @@ fct_standard_logger__del(fct_logger_i *logger_)
 
 static void
 fct_standard_logger__on_warn(
-        fct_logger_i* logger_, 
-        fct_logger_evt_t const *e
-        )
+    fct_logger_i* logger_,
+    fct_logger_evt_t const *e
+)
 {
     fct_unused(logger_);
     (void)printf("WARNING: %s", e->msg);
@@ -2918,7 +2924,7 @@ fct_standard_logger_new(void)
     logger->vtable.on_test_end = fct_standard_logger__on_test_end;
     logger->vtable.on_fct_start = fct_standard_logger__on_fct_start;
     logger->vtable.on_fct_end = fct_standard_logger__on_fct_end;
-    logger->vtable.on_delete = fct_standard_logger__del;
+    logger->vtable.on_delete = fct_standard_logger__on_delete;
     logger->vtable.on_warn = fct_standard_logger__on_warn;
     logger->vtable.on_test_skip = fct_standard_logger__on_test_skip;
     fct_nlist__init2(&(logger->failed_cndtns_list), 0);
@@ -2943,9 +2949,9 @@ struct _fct_junit_logger_t
 
 static void
 fct_junit_logger__on_test_suite_start(
-        fct_logger_i *l,
-        fct_logger_evt_t const *e
-        )
+    fct_logger_i *l,
+    fct_logger_evt_t const *e
+)
 {
     fct_unused(l);
     fct_unused(e);
@@ -2956,9 +2962,9 @@ fct_junit_logger__on_test_suite_start(
 
 static void
 fct_junit_logger__on_test_suite_end(
-        fct_logger_i *logger_,
-        fct_logger_evt_t const *e
-        )
+    fct_logger_i *logger_,
+    fct_logger_evt_t const *e
+)
 {
     fct_ts_t const *ts = e->ts; /* Test Suite */
     nbool_t is_pass;
@@ -3057,9 +3063,9 @@ fct_junit_logger__on_test_suite_end(
 
 static void
 fct_junit_logger__on_fct_start(
-        fct_logger_i *logger_,
-        fct_logger_evt_t const *e
-        )
+    fct_logger_i *logger_,
+    fct_logger_evt_t const *e
+)
 {
     fct_unused(logger_);
     fct_unused(e);
@@ -3069,9 +3075,9 @@ fct_junit_logger__on_fct_start(
 
 static void
 fct_junit_logger__on_fct_end(
-        fct_logger_i *logger_, 
-        fct_logger_evt_t const *e
-       )
+    fct_logger_i *logger_,
+    fct_logger_evt_t const *e
+)
 {
     fct_unused(logger_);
     fct_unused(e);
@@ -3079,8 +3085,12 @@ fct_junit_logger__on_fct_end(
 }
 
 static void
-fct_junit_logger__del(fct_logger_i *logger_)
+fct_junit_logger__on_delete(
+    fct_logger_i *logger_,
+    fct_logger_evt_t const *e
+)
 {
+    fct_unused(e);
     fct_junit_logger_t *logger = (fct_junit_logger_t*)logger_;
     free(logger);
     logger_ =NULL;
@@ -3101,7 +3111,7 @@ fct_junit_logger_new(void)
     logger->vtable.on_test_suite_end = fct_junit_logger__on_test_suite_end;
     logger->vtable.on_fct_start = fct_junit_logger__on_fct_start;
     logger->vtable.on_fct_end = fct_junit_logger__on_fct_end;
-    logger->vtable.on_delete = fct_junit_logger__del;
+    logger->vtable.on_delete = fct_junit_logger__on_delete;
     return logger;
 }
 
