@@ -2446,14 +2446,12 @@ typedef struct _fct_logger_i_vtable_t
     /* 10 */
     void (*on_test_suite_skip)(
         fct_logger_i *logger,
-        char const *condition,
-        char const *name
+        fct_logger_evt_t const *e
     );
     /* 11 */
     void (*on_test_skip)(
         fct_logger_i *logger,
-        char const *condition,
-        char const *name
+        fct_logger_evt_t const *e
     );
 } fct_logger_i_vtable_t;
 
@@ -2475,18 +2473,6 @@ fct_logger__stub(fct_logger_i *l, fct_logger_evt_t const *e)
 }
 
 
-static void
-fct_logger__on_skip_stub(
-    fct_logger_i *logger,
-    char const *condition,
-    char const *name
-)
-{
-    fct_unused(logger);
-    fct_unused(condition);
-    fct_unused(name);
-}
-
 static fct_logger_i_vtable_t fct_logger_default_vtable =
 {
     fct_logger__stub,   /* 1.  on_chk */
@@ -2498,8 +2484,8 @@ static fct_logger_i_vtable_t fct_logger_default_vtable =
     fct_logger__stub,   /* 7.  on_fct_end */
     fct_logger__stub,   /* 8.  on_delete */
     fct_logger__stub,   /* 9.  on_warn */
-    fct_logger__on_skip_stub,   /* 10. on_test_suite_skip */
-    fct_logger__on_skip_stub,   /* 11. on_test_skip */
+    fct_logger__stub,   /* 10. on_test_suite_skip */
+    fct_logger__stub,   /* 11. on_test_skip */
 };
 
 
@@ -2566,10 +2552,9 @@ fct_logger__on_test_suite_skip(
     char const *name
 )
 {
-    if ( logger->vtable.on_test_suite_skip != NULL )
-    {
-        logger->vtable.on_test_suite_skip(logger, condition, name);
-    }
+    logger->evt.cndtn = condition;
+    logger->evt.name = name;
+    logger->vtable.on_test_suite_skip(logger, &(logger->evt));
 }
 
 
@@ -2580,10 +2565,9 @@ fct_logger__on_test_skip(
     char const *name
 )
 {
-    if ( logger->vtable.on_test_skip != NULL )
-    {
-        logger->vtable.on_test_skip(logger, name, condition);
-    }
+    logger->evt.cndtn = condition;
+    logger->evt.name = name;
+    logger->vtable.on_test_skip(logger, &(logger->evt));
 }
 
 
@@ -2786,10 +2770,11 @@ fct_standard_logger__on_chk(
 static void
 fct_standard_logger__on_test_skip(
     fct_logger_i* logger_,
-    char const *condition,
-    char const *name
+    fct_logger_evt_t const *e
 )
 {
+    char const *condition = e->cndtn;
+    char const *name = e->name;
     char msg[256] = {'\0'};
     fct_unused(logger_);
     fct_unused(condition);
