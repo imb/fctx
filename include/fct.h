@@ -2594,7 +2594,7 @@ static void
 fct_logger__on_warn(fct_logger_i *logger, char const *msg)
 {
     logger->evt.msg = msg;
-    logger->vtable.on_chk(logger, &(logger->evt));
+    logger->vtable.on_warn(logger, &(logger->evt));
 }
 
 
