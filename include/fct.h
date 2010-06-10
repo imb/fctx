@@ -3376,8 +3376,10 @@ object (should be rare). */
 CHECKING MACROS
 ----------------------------------------------------------
 
-The chk variants will continue on while as the req variants will abort
-if there is one test that fails. */
+The chk variants will continue on while the req variants will abort
+a test if a chk condition fails. The req variants are useful when you
+no longer want to keep checking conditions because a critical condition
+is not being met. */
 
 
 /* To support older compilers that do not have macro variable argument lists
