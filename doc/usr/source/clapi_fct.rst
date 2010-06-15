@@ -92,7 +92,7 @@ What follows is how to go about setting up a custom command line option so we
 can check if the *use_slow* option should be set to true at run-time.
 
 The first thing we will do is install our command line options. This is a NULL
-terminated list of :ctype:`fctcl_init_t` entries. 
+terminated list of :c:type:`fctcl_init_t` entries. 
 
 .. code-block:: c
 
@@ -122,7 +122,7 @@ terminated list of :ctype:`fctcl_init_t` entries.
 The entry we added says: "if you encounter the long ``--use-slow`` option, then
 set a true flag that we can read later."
 
-Next we install the options with the :cfunc:`fctcl_install`.
+Next we install the options with the :c:func:`fctcl_install`.
 
 .. code-block:: c
 
@@ -156,10 +156,10 @@ Next we install the options with the :cfunc:`fctcl_install`.
 .. /* (Fixes VIM highlighter)
 
 After you have installed the options you can now check if a flag is set using
-the :cfunc:`fctcl_is` macro. If the user had entered ``--use-slow`` at the
-command prompt, then the value of :cfunc:`fctcl_is` would return TRUE (1).
+the :c:func:`fctcl_is` macro. If the user had entered ``--use-slow`` at the
+command prompt, then the value of :c:func:`fctcl_is` would return TRUE (1).
 
-Your last option is to use the :cfunc:`FCT_QTEST_BGN_IF` macro.
+Your last option is to use the :c:func:`FCT_QTEST_BGN_IF` macro.
 
 .. code-block:: c
 
@@ -195,50 +195,50 @@ This will run the "slow_test" if the *use_slow* variable is TRUE (non-zero).
 Types
 -----
 
-.. ctype:: fctcl_init_t
+.. c:type:: fctcl_init_t
 
    Use this structure to initialize your options. The structure is usually
    initialized as part of a listing of command line options. Each filed is
    described below.
 
-   .. cmember:: char const * long_opt
+   .. c:member:: char const * long_opt
 
       Long option on the command line.
 
-   .. cmember:: char const * short_opt
+   .. c:member:: char const * short_opt
 
       Short option on the command line. This can be set to NULL if you do not
       wish to have a short option available.
 
-   .. cmember:: fctcl_store_t action
+   .. c:member:: fctcl_store_t action
 
       When a command line option is encountered by the parser this describes
-      what the parser should do. If, for example, :cmacro:`FCTCL_STORE_TRUE`
+      what the parser should do. If, for example, :c:macro:`FCTCL_STORE_TRUE`
       is used, then a true boolean value (1) is stored. If
-      :cmacro:`FCTCL_STORE_VALUE` is used, then a string is stored and can be
+      :c:macro:`FCTCL_STORE_VALUE` is used, then a string is stored and can be
       later retrieved.
 
-   .. cmember:: char const * help
+   .. c:member:: char const * help
 
       This is the help string that is displayed if the command line parser
       encounters a ``-h`` or ``--help``.
 
-.. ctype:: fctcl_store_t
+.. c:type:: fctcl_store_t
 
      Describes the action to take if a command line option is recognized by the
      parser. Valid options currently are,
 
-     .. cmacro:: FCTCL_STORE_UNDEFINED
+     .. c:macro:: FCTCL_STORE_UNDEFINED
          
         Do not use. This is the default value when we don't have an available
         option.
 
-     .. cmacro:: FCTCL_STORE_TRUE
+     .. c:macro:: FCTCL_STORE_TRUE
 
         When present it signals to the command line parser that we store a true
         (1) flag.
 
-     .. cmacro:: FCTCL_STORE_VALUE
+     .. c:macro:: FCTCL_STORE_VALUE
 
         When present it signals to the command line parser that we store a
         string value corresponding to the next argument in the parser. For
@@ -256,29 +256,29 @@ Types
 Functions
 ---------
 
-.. cfunction:: void fctcl_install(cl_options)
+.. c:function:: void fctcl_install(cl_options)
 
-   Installs your :ctype:`fctcl_init_t` NULL terminated array of *cl_options*
+   Installs your :c:type:`fctcl_init_t` NULL terminated array of *cl_options*
    into the command line parser. The command line is then parsed at this
-   moment, and any subsequent queries via :cfunc:`fctcl_is` or
-   :cfunc:`fctcl_val` will return the parse results. See `Customizing
+   moment, and any subsequent queries via :c:func:`fctcl_is` or
+   :c:func:`fctcl_val` will return the parse results. See `Customizing
    the Command Line`_ for an example of installing your own command line
    options.
 
-.. cfunction:: int fctcl_is(flag)
+.. c:function:: int fctcl_is(flag)
 
    Returns true if the *flag* has been used. The *flag* is the either the long
    or short option used during the configuration stage. Use this macro to
-   retrieve :cmacro:`FCTCL_STORE_TRUE` command line options. 
+   retrieve :c:macro:`FCTCL_STORE_TRUE` command line options. 
 
-.. cfunction:: const char* fctcl_val(flag)
+.. c:function:: const char* fctcl_val(flag)
 
    Returns a character buffer defined by the *flag*. It will return NULL if
    *flag* was not defined at the command line. Use this macro to retrieve
-   :cmacro:`FCTCL_STORE_VALUE` command line options. 
+   :c:macro:`FCTCL_STORE_VALUE` command line options. 
 
-.. cfunction:: const char * fctcl_val2(flag, defval)
+.. c:function:: const char * fctcl_val2(flag, defval)
 
    Returns a character buffer defiend by the *flag* or the pointer to *defval*
    if the *flag* was not defined on the command line. Use this macro to
-   retrieve :cmacro:`FCTCL_STORE_VALUE` command line options.
+   retrieve :c:macro:`FCTCL_STORE_VALUE` command line options.

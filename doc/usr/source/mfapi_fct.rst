@@ -155,50 +155,50 @@ and you will be able to continue to use /W4 with MVC as well as GCC.
 Multi-File Test Suites
 ----------------------
 
-.. cfunction:: FCTMF_SUITE_CALL(name)
+.. c:function:: FCTMF_SUITE_CALL(name)
 
         This launches the test suite defined by *name*. You would place this
-        call between the :cfunc:`FCT_BGN()` and :cfunc:`FCT_END()` scope. This
+        call between the :c:func:`FCT_BGN()` and :c:func:`FCT_END()` scope. This
         simply calls off to another file, and it does not prevent you from
-        having other tests within the :cfunc:`FCT_BGN()` and :cfunc:`FCT_END()`
+        having other tests within the :c:func:`FCT_BGN()` and :c:func:`FCT_END()`
         scope.
 
         For Visual Studio 6 compilers, you will need to use the
-        :cfunc:`FCTMF_SUITE_DEF` function.
+        :c:func:`FCTMF_SUITE_DEF` function.
 
-.. cfunction:: FCTMF_FIXTURE_SUITE_BGN(name)
+.. c:function:: FCTMF_FIXTURE_SUITE_BGN(name)
 	
 	Following the xtest convention, every test suite needs to start with a 
 	SUITE_BGN function. In by using the FIXTURE variants you are indicating
 	that you wish to install a SETUP and TEARDOWN fixture via the
-	:cfunc:`FCT_SETUP_BGN` and :cfunc:`FCT_SETUP_END` and
-	:cfunc:`FCT_TEARDOWN_BGN` and :cfunc:`FCT_TEARDOWN_END` functions.
+	:c:func:`FCT_SETUP_BGN` and :c:func:`FCT_SETUP_END` and
+	:c:func:`FCT_TEARDOWN_BGN` and :c:func:`FCT_TEARDOWN_END` functions.
 
-	See also :cfunc:`FCTMF_SUITE_BGN`.
+	See also :c:func:`FCTMF_SUITE_BGN`.
 
 .. /*  (Just fixes VIM highlighter)
 
-.. cfunction:: FCTMF_FIXTURE_SUITE_END(name)
+.. c:function:: FCTMF_FIXTURE_SUITE_END(name)
 
 	This closes a test suite that contains fixtures. If you do not wish to
-	specify a setup/teardown you would use the :cfunc:`FCT_SUITE_END` 
+	specify a setup/teardown you would use the :c:func:`FCT_SUITE_END` 
 	function instead.
 
-.. cfunction:: FCTMF_SUITE_BGN(name)
+.. c:function:: FCTMF_SUITE_BGN(name)
 
         Use this FCTMF_SUITE variant if you do not want to bother specifying a
         SETUP and TEARDOWN blocks.
 
-        See also :cfunc:`FCTMF_FIXTURE_SUITE_BGN`.
+        See also :c:func:`FCTMF_FIXTURE_SUITE_BGN`.
 
-.. cfunction:: FCTMF_SUITE_END()
+.. c:function:: FCTMF_SUITE_END()
 
-        Closes the :cfunc:`FCTMF_SUITE_BGN` function.
+        Closes the :c:func:`FCTMF_SUITE_BGN` function.
 
-.. cfunction:: FCTMF_SUITE_DEF(name)
+.. c:function:: FCTMF_SUITE_DEF(name)
 
         Defines a test suite with the given *name*. This is only required for
         the Visual Studio 6 compilers (or if you choose to avoid the comments
         in `Note for MVC Compilers`_). This call must be made *before* the
-        :cfunc:`FCT_BGN` function. The *name* must be the same as the name in
-        :cfunc:`FCTMF_SUITE_CALL` and :cfunc:`FCTMF_SUITE_BGN`.
+        :c:func:`FCT_BGN` function. The *name* must be the same as the name in
+        :c:func:`FCTMF_SUITE_CALL` and :c:func:`FCTMF_SUITE_BGN`.

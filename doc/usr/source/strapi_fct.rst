@@ -18,59 +18,59 @@ testing. This module will grow over time.
 String Functions
 ----------------
 
-.. cfunction:: fctstr_clone(s)
+.. c:function:: fctstr_clone(s)
 
         Allocates new memory, and copies the contents of *s* into the result.
         Callee should use the standard C Runtime Library's *free* function to
         clean up the memory.
 
-.. cfunction:: fctstr_clone_lower(s)
+.. c:function:: fctstr_clone_lower(s)
 
-        *New in FCTX 1.3.* Same as :cfunc:`fctstr_clone`, but returns the
+        *New in FCTX 1.3.* Same as :c:func:`fctstr_clone`, but returns the
         string, *s*, as a lower case string. 
 
-.. cfunction:: fctstr_eq(s1,s2)
+.. c:function:: fctstr_eq(s1,s2)
 
         Returns a non-zero (TRUE) if *s1* and *s2* are equal. Unlike the
         standard strcmp function, this function can handle NULL values. This
         function will also quit the moment one of the strings is unequal. If
         *s1* and *s2* are NULL, this function will return non-zero (TRUE)
-        value. See :cfunc:`fctstr_ieq` for a case-insensitive string compare.
+        value. See :c:func:`fctstr_ieq` for a case-insensitive string compare.
 
-.. cfunction:: fctstr_endswith(s, check)
+.. c:function:: fctstr_endswith(s, check)
 
         *New in FCTX 1.3*. Returns true if the string, *s*, ends with
         the given *check* string.
 
-.. cfunction:: fctstr_ieq(s1,s2) 
+.. c:function:: fctstr_ieq(s1,s2) 
          
-        Performs a case insensitve string compare, see :cfunc:`fctstr_eq` for
+        Performs a case insensitve string compare, see :c:func:`fctstr_eq` for
         more details.
 
-.. cfunction:: fctstr_iendswith(s, check)
+.. c:function:: fctstr_iendswith(s, check)
 
         *New in FCTX 1.3.* Case insensitive variant of
-        :cfunc:`fctstr_endswith`.
+        :c:func:`fctstr_endswith`.
 
-.. cfunction:: fctstr_incl(s1, check)
+.. c:function:: fctstr_incl(s1, check)
 
         *New in FCTX 1.3.* Returns true if the sub-string, *check*, can
         be found in the string *s1*.  This function will change NULL input
         values for a blank string before proceeding to call the standard
         C *strstr* function.
 
-.. cfunction:: fctstr_iincl(s1, check)
+.. c:function:: fctstr_iincl(s1, check)
 
         *New in FCTX 1.3.* Case insensitive version of
-        :cfunc:`fctstr_incl`.
+        :c:func:`fctstr_incl`.
 
-.. cfunction:: fctstr_istartswith(s1, check)
+.. c:function:: fctstr_istartswith(s1, check)
 
         *New in FCTX 1.3*. Case insensitive variant of
-        :cfunc:`fctstr_startswith`. 
+        :c:func:`fctstr_startswith`. 
 
 
-.. cfunction:: fctstr_startswith(s1, check)
+.. c:function:: fctstr_startswith(s1, check)
 
         *New in FCTX 1.3*. Returns true (1) if the string, *s1*, starts
         with the given string, *check*. This will treat two NULL values
