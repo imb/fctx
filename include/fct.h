@@ -59,7 +59,7 @@ with a standard logger. */
 
 #define FCT_VERSION_MAJOR 1
 #define FCT_VERSION_MINOR 3
-#define FCT_VERSION_MICRO 1
+#define FCT_VERSION_MICRO 2
 
 #define _FCT_QUOTEME(x) #x
 #define FCT_QUOTEME(x) _FCT_QUOTEME(x)
@@ -2040,8 +2040,8 @@ static int
 fctkern__cl_parse(fctkern_t *nk)
 {
     int status =0;
-    int num_params =0;
-    int param_i =0;
+    size_t num_params =0;
+    size_t param_i =0;
     if ( nk == NULL )
     {
         return 0;

@@ -10,17 +10,17 @@ FCTX API
 Initialize/Finalize
 -------------------
 
-.. cfunction:: FCT_BGN()
+.. c:function:: FCT_BGN()
 
 	Initializes your test framework. Every test program needs to begin with
 	this declaration.
 
-.. cfunction:: FCT_END()
+.. c:function:: FCT_END()
 
 	Finalizes your test framwork. Every test program neesd to end with this
 	declaration.
 
-.. cfunction:: FCT_EXPECTED_FAILURES(num_failed)
+.. c:function:: FCT_EXPECTED_FAILURES(num_failed)
 
         *New in 1.2*. Mainly used internally by FCTX to test that failures are
         occurring properly. If the actual number of failed tests matches the
@@ -30,15 +30,15 @@ Initialize/Finalize
 Test Suites
 -----------
 
-.. cfunction:: FCT_FIXTURE_SUITE_BGN(name)
+.. c:function:: FCT_FIXTURE_SUITE_BGN(name)
 	
 	Following the xtest convention, every test suite needs to start with a 
 	SUITE_BGN function. In by using the FIXTURE variants you are indicating
 	that you wish to install a SETUP and TEARDOWN fixture via the
-	:cfunc:`FCT_SETUP_BGN`/:cfunc:`FCT_SETUP_END` and
-	:cfunc:`FCT_TEARDOWN_BGN`/:cfunc:`FCT_TEARDOWN_END` functions.
+	:c:func:`FCT_SETUP_BGN`/:c:func:`FCT_SETUP_END` and
+	:c:func:`FCT_TEARDOWN_BGN`/:c:func:`FCT_TEARDOWN_END` functions.
 
-	See also :cfunc:`FCT_SUITE_BGN`.
+	See also :c:func:`FCT_SUITE_BGN`.
 
         The following example shows calling a setup/teardown to allocate memory
 	to *data* structure. 
@@ -75,18 +75,18 @@ Test Suites
 .. /*  (Just fixes VIM highlighter)
 
 
-.. cfunction:: FCT_FIXTURE_SUITE_END()
+.. c:function:: FCT_FIXTURE_SUITE_END()
 
 	This closes a test suite that contains fixtures. If you do not wish to
-	specify a setup/teardown you would use the :cfunc:`FCT_SUITE_END` 
+	specify a setup/teardown you would use the :c:func:`FCT_SUITE_END` 
 	function instead.
 
-.. cfunction:: FCT_SUITE_BGN(name)
+.. c:function:: FCT_SUITE_BGN(name)
 
         Use this FCT_SUITE variant if you do not want to bother specifying a
         SETUP and TEARDOWN blocks.
 
-        See also :cfunc:`FCT_FIXTURE_SUITE_BGN`.
+        See also :c:func:`FCT_FIXTURE_SUITE_BGN`.
 
         The following test suite does not have a setup/teardown method. This
         is generally used for convenience, to group a set of tests under
@@ -106,23 +106,23 @@ Test Suites
 	       }
 
 
-.. cfunction:: FCT_SUITE_END()
+.. c:function:: FCT_SUITE_END()
 
         Closes the FCT_SUITE_BGN macro.
 
-.. cfunction:: FCT_SETUP_BGN()
+.. c:function:: FCT_SETUP_BGN()
 
         Opens a SETUP block. This block is executed *before* every test.
 
-.. cfunction:: FCT_SETUP_END()
+.. c:function:: FCT_SETUP_END()
    
         Closes the SETUP block.
 
-.. cfunction:: FCT_TEARDOWN_BGN()
+.. c:function:: FCT_TEARDOWN_BGN()
 
         Opens up a teardown block. This block is executed *after* every test.
 
-.. cfunction:: FCT_TEARDOWN_END()
+.. c:function:: FCT_TEARDOWN_END()
 
         Ends a teardown block. 
 
@@ -133,24 +133,24 @@ Conditional Test Suites
 test suite based on some condition. If the condition is TRUE (non-zero) then
 the test suite and its tests will be executed.
 
-.. cfunction:: FCT_FIXTURE_SUITE_BGN_IF(condition, name)
+.. c:function:: FCT_FIXTURE_SUITE_BGN_IF(condition, name)
 
-        Same as :cfunc:`FCT_SUITE_BGN`, but will only run if the *condition* is
+        Same as :c:func:`FCT_SUITE_BGN`, but will only run if the *condition* is
         a non-zero value (TRUE).
 	
-.. cfunction:: FCT_FIXTURE_SUITE_END_IF()
+.. c:function:: FCT_FIXTURE_SUITE_END_IF()
 
-        Closes the :cfunc:`FCT_FIXTURE_SUITE_BGN_IF` macro.
+        Closes the :c:func:`FCT_FIXTURE_SUITE_BGN_IF` macro.
 
 
-.. cfunction:: FCT_SUITE_BGN_IF(condition, name)
+.. c:function:: FCT_SUITE_BGN_IF(condition, name)
 
-        Same as :cfunc:`FCT_SUITE_BGN`, but will only run if the *condition* is
+        Same as :c:func:`FCT_SUITE_BGN`, but will only run if the *condition* is
         a non-zero value (TRUE).
 
-.. cfunction:: FCT_SUITE_END_IF()
+.. c:function:: FCT_SUITE_END_IF()
 
-        Closes the :cfunc:`FCT_SUITE_BGN_IF` macro.
+        Closes the :c:func:`FCT_SUITE_BGN_IF` macro.
 
 Quick Test
 ----------
@@ -192,21 +192,21 @@ infrastructure. For example,
 The above code block lacks any test suites, and provide a convenient way to get
 of the ground quickly and start writing tests.
 
-.. cfunction:: FCT_QTEST_BGN(name)
+.. c:function:: FCT_QTEST_BGN(name)
 
    Opens the quick test block with the given *name*.
 
-.. cfunction:: FCT_QTEST_END()
+.. c:function:: FCT_QTEST_END()
 
    Ends the quick test block.
 
-.. cfunction:: FCT_QTEST_BGN_IF(condition, name)
+.. c:function:: FCT_QTEST_BGN_IF(condition, name)
 
    *New in FCTX 1.2*. Opens the quick test block with the given *name*. The
    contents of the test block are only executed if the *condition* is a
    non-zero (TRUE) value.
 
-.. cfunction:: FCT_QTEST_END_IF()
+.. c:function:: FCT_QTEST_END_IF()
 
    *New in FCTX 1.2*. Ends the conditional quick test block.
 
@@ -215,13 +215,13 @@ Tests
 -----
 
 These define a beginning and end of a test block. See also
-:cfunc:`FCT_QTEST_BGN` and :cfunc:`FCT_QTEST_END`.
+:c:func:`FCT_QTEST_BGN` and :c:func:`FCT_QTEST_END`.
 
-.. cfunction:: FCT_TEST_BGN(name)
+.. c:function:: FCT_TEST_BGN(name)
 
    Opens a test block with the given *name*.
 
-.. cfunction:: FCT_TEST_END()
+.. c:function:: FCT_TEST_END()
 
    Closes a test block. 
 
@@ -231,12 +231,12 @@ Conditional Tests
 *New in FCTX 1.2*.  Use these variants to run a test based on a conditional
 value.
 
-.. cfunction:: FCT_TEST_BGN_IF(condition, name)
+.. c:function:: FCT_TEST_BGN_IF(condition, name)
 
    Opens a test block with the given *name*. The test is only executed if the
    *condition* is a non-zero (TRUE) value.
 
-.. cfunction:: FCT_TEST_END_IF()
+.. c:function:: FCT_TEST_END_IF()
 
    Closes a test block. 
 
@@ -245,14 +245,14 @@ Checks
 ------
 
 These are used to verify that a condition is true. They are executed within
-:cfunc:`FCT_TEST_BGN`/:cfunc:`FCT_TEST_END` blocks. 
+:c:func:`FCT_TEST_BGN`/:c:func:`FCT_TEST_END` blocks. 
 
 
-.. cfunction:: fct_chk(condition)
+.. c:function:: fct_chk(condition)
 
     Evaluates the *condition*, and if it is false will cause the tests to fail.
     Further lines in the test block continue to execute. If you want a check to
-    terminate testing, then use the :cfunc:`fct_req` function instead.
+    terminate testing, then use the :c:func:`fct_req` function instead.
 
     A feature of this check is that you can provide notes to yourself as in,
 
@@ -264,57 +264,57 @@ These are used to verify that a condition is true. They are executed within
     in both those cases if an error was generated (the second case always will
     fail), you will get a message in the final error log.
 
-.. cfunction:: fct_chk_empty_str(s)
+.. c:function:: fct_chk_empty_str(s)
 
     *New in FCTX 1.3*. Causes a test failure if the string, *s*, is not
     empty. NULL is considered an empty string.
 
-.. cfunction:: fct_chk_eq_dbl(a, b) 
+.. c:function:: fct_chk_eq_dbl(a, b) 
 
     *New in FCTX 1.1*. Causes a test failure if *a* != *b*. Testing for
     equality is done based on an absolute floating point difference less than
     the *DBL_EPISLON* defined in the standard <float.h> file.
 
-.. cfunction:: fct_chk_eq_int(a, b)
+.. c:function:: fct_chk_eq_int(a, b)
 
     *New in FCTX 1.1*. Causes a test failure if *a* != *b*. Testing for
     equality is done based on the "==" operator. An error message is generated
     showing the values of *a* and *b*.
 
-.. cfunction:: fct_chk_eq_istr(a, b)
+.. c:function:: fct_chk_eq_istr(a, b)
 
     *New in FCTX 1.1*. Causes a test failure if *a* != *b* (case-insensitive).
     Testing for equality is done based on first checking for NULL values, then
     making a case-insensitive compare.
 
-.. cfunction:: fct_chk_eq_str(a, b)
+.. c:function:: fct_chk_eq_str(a, b)
 
     *New in FCTX 1.1*. Causes a test failure if *a* != *b*. Testing for
     equality is done based on first checking for NULL values, then making a
     case-sensitive compare.
 
-.. cfunction:: fct_chk_endswith_str(s, check)
+.. c:function:: fct_chk_endswith_str(s, check)
 
     *New in FCTX 1.3* Checks that the given string, *s*, ends with the
     given *check*. NULL's are treated as blank strings.
 
-.. cfunction:: fct_chk_excl_str(s, check)
+.. c:function:: fct_chk_excl_str(s, check)
 
     *New in FCTX 1.3*. Will cause a test failure when it does find the
     *check* within the given string, *s*. NULL is treated as a blank
     string in this case.
 
-.. cfunction:: fct_chk_excl_istr(s, check)
+.. c:function:: fct_chk_excl_istr(s, check)
 
     *New in FCTX 1.3*. Case insensitive variant of
-    :cfunc:`fct_chk_excl_str`.
+    :c:func:`fct_chk_excl_str`.
 
-.. cfunction:: fct_chk_full_str(s)
+.. c:function:: fct_chk_full_str(s)
 
     *New in FCTX 1.3*. Fails if the string, *s*, is full. A string with
     whitespace is still considered full.
 
-.. cfunction:: fct_chk_incl_str(s, check) 
+.. c:function:: fct_chk_incl_str(s, check) 
 
     *New in FCTX 1.3*. Causes a test failure when it can not find *check*
     within the given string, *s*. NULL is treated as a blank string in
@@ -322,59 +322,59 @@ These are used to verify that a condition is true. They are executed within
     guts of this function, there is a call to the Standard C *strstr*
     function.
 
-.. cfunction:: fct_chk_incl_istr(s, check) 
+.. c:function:: fct_chk_incl_istr(s, check) 
 
     *New in FCTX 1.3*. This is a case insensitive variant of
-    :cfunc:`fct_chk_incl_str`.
+    :c:func:`fct_chk_incl_str`.
 
-.. cfunction:: fct_chk_iendswith(s, check)
+.. c:function:: fct_chk_iendswith(s, check)
 
     *New in FCTX 1.3*. This is a cse insensitive variant of
-    :cfunc:`fct_chk_endswith`.
+    :c:func:`fct_chk_endswith`.
 
-.. cfunction:: fct_chk_istartswith_istr(s, check)
+.. c:function:: fct_chk_istartswith_istr(s, check)
 
    *New in FCTX 1.3*. Case insensitive variant of
-   :cfunc:`fct_chk_startswith_str`.
+   :c:func:`fct_chk_startswith_str`.
 
-.. cfunction:: fct_chk_startswith_str(s, check)
+.. c:function:: fct_chk_startswith_str(s, check)
 
     *New in FCTX 1.3*. Will return true if the string, *s*, starts with
     the given *check* string. Will output a useful error message
     otherwise.
 
-.. cfunction:: fct_chk_neq_dbl(a, b) 
+.. c:function:: fct_chk_neq_dbl(a, b) 
 
     *New in FCTX 1.1*. Causes a test failure if *a* == *b*. Testing for
     inequality is done based on an absolute floating point difference that is
     NOT less than the *DBL_EPISLON* defined in the standard <float.h> file. 
 
-.. cfunction:: fct_chk_neq_int(a, b)
+.. c:function:: fct_chk_neq_int(a, b)
 
     *New in FCTX 1.1*. Causes a test failure if *a* == *b*. Testing for
     equality is done based on the "!=" operator. An error message is generated
     showing the values of *a* and *b*.
 
-.. cfunction:: fct_chk_neq_istr(a, b)
+.. c:function:: fct_chk_neq_istr(a, b)
 
     *New in FCTX 1.1*. Causes a test failure if *a* == *b* (case-insensitive).
     Testing for inequality is done based on first checking for NULL, then
     making a case-insensitive compare.
 
-.. cfunction:: fct_chk_neq_str(a, b)
+.. c:function:: fct_chk_neq_str(a, b)
 
     *New in FCTX 1.1*. Causes a test failure if *a* == *b*. Testing for
     inequality is done based on first checking for NULL, then making a
     case-sensitive compare.
 
-.. cfunction:: fct_xchk(condition, format_str, ...)
+.. c:function:: fct_xchk(condition, format_str, ...)
 
     *New in FCTX 1.1*. Evaluates the *condition*, and if it is false will cause
     the tests to fail.  Further lines in the test block continue to execute.
     The message reported is a function of a printf-style *format_str*, with
     multiple arguments.
 
-    :cfunc:`fct_xchk` can be extended to generate your own check functions. For
+    :c:func:`fct_xchk` can be extended to generate your own check functions. For
     example, say you had a structure such as,
 
     .. code-block:: c
@@ -417,9 +417,9 @@ These are used to verify that a condition is true. They are executed within
              
     in the above example, the second check should generate a test error.
 
-.. cfunction:: fct_req(condition)
+.. c:function:: fct_req(condition)
 
     *New in FCTX 1.1*. Evaluates the *condition*, and if it is false it will
-    cause a test to fail.  This differs from :cfunc:`fct_chk` in so far as a
+    cause a test to fail.  This differs from :c:func:`fct_chk` in so far as a
     false state causes the test block to abort.
 
