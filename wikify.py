@@ -36,7 +36,7 @@ print
 print
 print "=== Release Notes ==="
 print
-release_lines = open("NEWS").readlines()
+release_lines = open('NEWS-%(ver)s' % args).readlines()
 notes = []
 start_parse = False
 for line in release_lines:
