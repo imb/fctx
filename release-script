@@ -29,3 +29,5 @@ echo "cd ../.."
 
 echo "cp include/fct.h dist/$new/fct.h"
 echo "cp NEWS dist/$new/NEWS-$new"
+
+echo "cp wikify.py dist/$new/wikify.py"
