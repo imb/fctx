@@ -32,13 +32,14 @@ Test Suites
 
 .. c:function:: FCT_FIXTURE_SUITE_BGN(name)
 	
-	Following the xtest convention, every test suite needs to start with a 
-	SUITE_BGN function. In by using the FIXTURE variants you are indicating
-	that you wish to install a SETUP and TEARDOWN fixture via the
+	Using the xtest convention, every test suite starts with a 
+	SUITE_BGN macro. By using the FIXTURE variants you are indicating
+	that you wish to use a SETUP and TEARDOWN fixture via the
 	:c:func:`FCT_SETUP_BGN`/:c:func:`FCT_SETUP_END` and
-	:c:func:`FCT_TEARDOWN_BGN`/:c:func:`FCT_TEARDOWN_END` functions.
+	:c:func:`FCT_TEARDOWN_BGN`/:c:func:`FCT_TEARDOWN_END` macro blocks.
 
-	See also :c:func:`FCT_SUITE_BGN`.
+	See also :c:func:`FCT_SUITE_BGN`, which allows you to skip a setup
+        and teardown block.
 
         The following example shows calling a setup/teardown to allocate memory
 	to *data* structure. 
