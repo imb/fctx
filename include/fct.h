@@ -929,7 +929,7 @@ struct _fct_test_t
 /* Clears the failed tests ... partly for internal testing. */
 #define fct_test__clear_failed(test) \
     fct_nlist__clear(test->failed_chks, (fct_nlist_on_del_t)fctchk__del);\
- 
+
 
 static void
 fct_test__del(fct_test_t *test)
@@ -3107,8 +3107,29 @@ they are needed, but at runtime, only the cheap, first call is made. */
     {\
         int check = 0 && fctstr_ieq(NULL, NULL);\
         if ( check ) {\
+            _fct_cmt("not to be executed");\
             (void)_fct_chk_empty_str(NULL);\
             (void)_fct_chk_full_str(NULL);\
+            (void)fct_test__start_timer(NULL);\
+            (void)fct_test__stop_timer(NULL);\
+            (void)fct_ts_new(NULL);\
+            (void)fct_ts__test_begin(NULL);\
+            (void)fct_ts__add_test(NULL, NULL);\
+            (void)fct_ts__test_end(NULL);\
+            (void)fct_ts__inc_total_test_num(NULL);\
+            (void)fct_ts__setup_end(NULL);\
+            (void)fct_ts__teardown_end(NULL);\
+            (void)fct_ts__cnt_end(NULL);\
+            (void)fct_ts__is_test_cnt(NULL, 0);\
+            (void)fct_xchk_fn(0, "");\
+            (void)fctkern__cl_parse(NULL);\
+            (void)fctkern__add_ts(NULL, NULL);\
+            (void)fctkern__pass_filter(NULL, NULL);\
+            (void)fctkern__log_suite_start(NULL, NULL);\
+            (void)fctkern__log_suite_end(NULL, NULL);\
+            (void)fctkern__log_test_skip(NULL, NULL, NULL);\
+            (void)fctkern__log_test_start(NULL, NULL);\
+            (void)fctkern__log_test_end(NULL, NULL);\
             (void)fctstr_endswith(NULL,NULL);\
             (void)fctstr_iendswith(NULL,NULL);\
             (void)fctstr_ieq(NULL,NULL);\
@@ -3123,6 +3144,8 @@ they are needed, but at runtime, only the cheap, first call is made. */
             (void)fctkern__cl_val2(NULL, NULL, NULL);\
             fctkern__log_suite_skip(NULL, NULL, NULL);\
             (void)fct_clp__is_param(NULL,NULL);\
+	    _fct_cmt("should never construct an object");\
+            (void)fct_test_new(NULL);\
         }\
     }
 
@@ -3146,7 +3169,7 @@ int main(int argc, const char* argv[])\
         (void)printf("FATAL ERROR: Unable to intialize FCT Kernal.");\
         exit(EXIT_FAILURE);\
    }\
- 
+
 /* Ends the test suite but returning the number failed. THe "chk_cnt" call is
 made in order allow strict compilers to pass when it encounters unreferenced
 functions. */
@@ -3233,7 +3256,7 @@ specification. */
                fct_ts__end(fctkern_ptr__->ns.ts_curr);\
                break;\
              }\
- 
+
 
 
 /*  Closes off a "Fixture" test suite. */
@@ -3262,7 +3285,7 @@ specification. */
     FCT_FIXTURE_SUITE_END();\
     fctkern_ptr__->ns.ts_is_skip_suite =0;\
     fctkern_ptr__->ns.ts_skip_cndtn =NULL;\
- 
+
 #define FCT_SETUP_BGN()\
    if ( fct_ts__is_setup_mode(fctkern_ptr__->ns.ts_curr) ) {
 
@@ -3271,7 +3294,7 @@ specification. */
 
 #define FCT_TEARDOWN_BGN() \
    if ( fct_ts__is_teardown_mode(fctkern_ptr__->ns.ts_curr) ) {\
- 
+
 #define FCT_TEARDOWN_END() \
    fct_ts__teardown_end(fctkern_ptr__->ns.ts_curr); \
    continue; \
@@ -3283,14 +3306,14 @@ do it by 'stubbing' out the setup/teardown logic. */
    FCT_FIXTURE_SUITE_BGN(Name) {\
    FCT_SETUP_BGN() {_fct_cmt("stubbed"); } FCT_SETUP_END()\
    FCT_TEARDOWN_BGN() {_fct_cmt("stubbed");} FCT_TEARDOWN_END()\
- 
+
 #define FCT_SUITE_END() } FCT_FIXTURE_SUITE_END()
 
 #define FCT_SUITE_BGN_IF(_CONDITION_, _NAME_) \
     FCT_FIXTURE_SUITE_BGN_IF(_CONDITION_, (_NAME_)) {\
     FCT_SETUP_BGN() {_fct_cmt("stubbed"); } FCT_SETUP_END()\
     FCT_TEARDOWN_BGN() {_fct_cmt("stubbed");} FCT_TEARDOWN_END()\
- 
+
 #define FCT_SUITE_END_IF() } FCT_FIXTURE_SUITE_END_IF()
 
 typedef enum
@@ -3304,7 +3327,7 @@ typedef enum
     fctkern_ptr__->ns.test_is_skip = !(_CONDITION_);\
     fctkern_ptr__->ns.test_skip_cndtn = #_CONDITION_;\
     FCT_TEST_BGN(_NAME_) {\
- 
+
 #define FCT_TEST_END_IF() \
     } FCT_TEST_END();\
     fctkern_ptr__->ns.test_is_skip = 0;\
@@ -3368,7 +3391,7 @@ object (should be rare). */
                continue;\
             }\
          }\
- 
+
 
 
 /*
@@ -3695,7 +3718,7 @@ The basic idea is that there is one test per test suite.
 #define FCT_QTEST_BGN(NAME) \
 	FCT_SUITE_BGN(NAME) {\
 		FCT_TEST_BGN(NAME) {\
- 
+
 #define FCT_QTEST_END() \
 		} FCT_TEST_END();\
 	} FCT_SUITE_END();
@@ -3704,7 +3727,7 @@ The basic idea is that there is one test per test suite.
 #define FCT_QTEST_BGN_IF(_CONDITION_, _NAME_) \
 	FCT_SUITE_BGN(_NAME_) {\
 		FCT_TEST_BGN_IF(_CONDITION_, _NAME_) {\
- 
+
 #define FCT_QTEST_END_IF() \
 		} FCT_TEST_END_IF();\
 	} FCT_SUITE_END();
