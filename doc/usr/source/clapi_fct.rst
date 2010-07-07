@@ -53,7 +53,7 @@ command line options.
 
  to be able to define the type of logger used.
 
-All all future pre-built command line options in FCTX will all be prefixed with
+All future pre-built command line options in FCTX will all be prefixed with
 a "f", as in ``--foption``.
 
 Customizing the Command Line
