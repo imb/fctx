@@ -11,23 +11,23 @@
 stable="$1"
 last="$2"
 new="$3"
+fctx_dist_dir=../fctx.dist/$new
 
-
-echo "mkdir dist/$new"
+echo "mkdir $fctx_dist_dir"
 
 echo "git tag -s -m \"FCTX v$new\" v$new"
-echo "git archive --prefix=fctx-$new/ v$new | gzip -9 > dist/$new/fctx-src-$new.tar.gz"
-echo "git diff v$stable v$new | gzip -9 > dist/$new/patch-$new.gz"
-echo "git log --no-merges v$new v$last > dist/$new/ChangeLog-$new"
-echo "git shortlog --no-merges v$new v$last > dist/$new/ShortLog"
-echo "git diff --stat --summary -M v$last v$new > dist/$new/diffstat-$new"
+echo "git archive --prefix=fctx-$new/ v$new | gzip -9 > $fctx_dist_dir/fctx-src-$new.tar.gz"
+echo "git diff v$stable v$new | gzip -9 > $fctx_dist_dir/patch-$new.gz"
+echo "git log --no-merges v$new v$last > $fctx_dist_dir/ChangeLog-$new"
+echo "git shortlog --no-merges v$new v$last > $fctx_dist_dir/ShortLog"
+echo "git diff --stat --summary -M v$last v$new > $fctx_dist_dir/diffstat-$new"
 
 echo "cd doc/usr"
 echo "make clean html html_web VERSION=$new"
-echo "tar --create --verbose --transform='s,build/html,fct-doc-$new,' build/html | gzip > ../../dist/$new/fctx-doc-$new.tar.gz"
+echo "tar --create --verbose --transform='s,build/html,fct-doc-$new,' build/html | gzip > ../../$fctx_dist_dir/fctx-doc-$new.tar.gz"
 echo "cd ../.."
 
-echo "cp include/fct.h dist/$new/fct.h"
-echo "cp NEWS dist/$new/NEWS-$new"
+echo "cp include/fct.h $fctx_dist_dir/fct.h"
+echo "cp NEWS $fctx_dist_dir/NEWS-$new"
 
-echo "cp wikify.py dist/$new/wikify.py"
+echo "cp wikify.py $fctx_dist_dir/wikify.py"d
