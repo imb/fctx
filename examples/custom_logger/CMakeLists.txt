@@ -5,7 +5,7 @@
 # you should have received as part of this distribution.  
 # ====================================================================
 
-INCLUDE_DIRECTORIES(../../include)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/include)
 
 ADD_EXECUTABLE(example_custom_logger
     # The 'custom header'.
