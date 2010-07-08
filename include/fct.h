@@ -2980,14 +2980,14 @@ fct_junit_logger__on_test_suite_end(fct_logger_i *logger_,
             printf("\t\t<testcase name=\"%s\" time=\"%.3f\"",
                    fct_test__name(test),
                    fct_test__duration(test)
-                   );
+                  );
         }
         else
         {
             printf("\t\t<testcase name=\"%s\" time=\"%.3f\">\n",
                    fct_test__name(test),
                    fct_test__duration(test)
-                   );
+                  );
         }
 
         FCT_NLIST_FOREACH_BGN(fctchk_t*, chk, &(test->failed_chks))
