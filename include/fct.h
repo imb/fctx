@@ -3709,10 +3709,4 @@ The basic idea is that there is one test per test suite.
 		} FCT_TEST_END_IF();\
 	} FCT_SUITE_END();
 
-/*
----------------------------------------------------------
-CLOSING STATEMENTS
-----------------------------------------------------------
-*/
-
 #endif /* !FCT_INCLUDED__IMB */
