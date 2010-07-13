@@ -98,6 +98,7 @@ because there is a inter-relationship between certain objects that
 just can not be untwined. */
 typedef struct _fct_logger_evt_t fct_logger_evt_t;
 typedef struct _fct_logger_i fct_logger_i;
+typedef struct _fct_logger_types_t fct_logger_types_t;
 typedef struct _fct_standard_logger_t fct_standard_logger_t;
 typedef struct _fct_junit_logger_t fct_junit_logger_t;
 typedef struct _fct_minimal_logger_t fct_minimal_logger_t;
@@ -931,7 +932,7 @@ struct _fct_test_t
 /* Clears the failed tests ... partly for internal testing. */
 #define fct_test__clear_failed(test) \
     fct_nlist__clear(test->failed_chks, (fct_nlist_on_del_t)fctchk__del);\
- 
+
 
 static void
 fct_test__del(fct_test_t *test)
@@ -1857,7 +1858,6 @@ struct _fctkern_t
     /* Hold onto the command line arguments. */
     int cl_argc;
     char const **cl_argv;
-
     /* Track user options. */
     fctcl_init_t const *cl_user_opts;
 
@@ -1866,6 +1866,11 @@ struct _fctkern_t
 
     /* This is an list of loggers that can be used in the fct system. */
     fct_nlist_t logger_list;
+
+    /* Array of custom types, you have built-in system ones and you
+    have optionally supplied user ones.. */
+    fct_logger_types_t *lt_usr;
+    fct_logger_types_t *lt_sys;
 
     /* This is a list of prefix's that can be used to determine if a
     test is should be run or not. */
@@ -1913,11 +1918,11 @@ static fctcl_init_t FCT_CLP_OPTIONS[] =
 };
 
 typedef fct_logger_i* (*fct_logger_new_fn)(void);
-typedef struct _fct_logger_types_t
+struct _fct_logger_types_t
 {
     char const *name;
     fct_logger_new_fn logger_new_fn;
-} fct_logger_types_t;
+};
 
 static fct_logger_types_t FCT_LOGGER_TYPES[] =
 {
@@ -2006,33 +2011,52 @@ fctkern__cl_val2(fctkern_t *nk, char const *opt_str, char const *def_str)
 }
 
 
+/* Selects a logger from the list based on the selection name.
+May return NULL if the name doesn't exist in the list. */
+static fct_logger_i*
+fckern_sel_log(fct_logger_types_t *search, char const *sel_logger)
+{
+    fct_logger_types_t *iter;
+    assert(search != NULL);
+    assert(sel_logger != NULL);
+    assert(strlen(sel_logger) > 0);
+    for ( iter = search; iter->name != NULL; ++iter)
+    {
+        if ( fctstr_ieq(iter->name, sel_logger) )
+        {
+            return iter->logger_new_fn();
+        }
+    }
+    return NULL;
+}
+
 static int
 fctkern__cl_parse_config_logger(fctkern_t *nk)
 {
-    fct_logger_types_t *iter;
     fct_logger_i *logger =NULL;
     char const *sel_logger =NULL;
     char const *def_logger =FCT_DEFAULT_LOGGER;
     sel_logger = fctkern__cl_val2(nk, FCT_OPT_LOGGER, def_logger);
     assert(sel_logger != NULL && "should never be NULL");
-    for (iter = FCT_LOGGER_TYPES; iter->name != NULL; ++iter)
-    {
-        if ( fctstr_ieq(iter->name, sel_logger) )
-        {
-            logger = iter->logger_new_fn();
-            if ( logger == NULL )
-            {
-                return 0;
-            }
-            fctkern__add_logger(nk, logger);
-            logger =NULL;   /* Owned by fctkern. */
-            return 1;   /* Done, logger configured. */
-        }
+    /* First search the user selected types, then search the
+    built-in types. */
+    if ( nk->lt_usr != NULL ) {
+        logger = fckern_sel_log(nk->lt_usr, sel_logger);
     }
-    /* No logger configured, you must have supplied an invalid selection. */
-    fprintf(stderr, "error: unknown logger selected - '%s'", sel_logger);
-    return 0;
+    if ( nk->lt_sys != NULL && logger == NULL ) {
+        logger = fckern_sel_log(nk->lt_sys, sel_logger);
+    }
+    if ( logger == NULL )
+    {
+        /* No logger configured, you must have supplied an invalid selection. */
+        fprintf(stderr, "error: unknown logger selected - '%s'", sel_logger);
+        return 0;
+    }
+    fctkern__add_logger(nk, logger);
+    logger = NULL;  /* owned by nk. */
+    return 1;
 }
+
 
 
 /* Call this if you want to (re)parse the command line options with a new
@@ -2115,6 +2139,8 @@ fctkern__init(fctkern_t *nk, int argc, const char *argv[])
     memset(nk, 0, sizeof(fctkern_t));
     fct_clp__init(&(nk->cl_parser), NULL);
     fct_nlist__init(&(nk->logger_list));
+    nk->lt_usr = NULL;  /* Supplied via 'install' mechanics. */
+    nk->lt_sys = FCT_LOGGER_TYPES;
     fct_nlist__init2(&(nk->prefix_list), 0);
     fct_nlist__init2(&(nk->ts_list), 0);
     nk->cl_is_parsed =0;
@@ -3156,7 +3182,7 @@ int main(int argc, const char* argv[])\
         (void)printf("FATAL ERROR: Unable to intialize FCT Kernal.");\
         exit(EXIT_FAILURE);\
    }\
- 
+
 /* Ends the test suite but returning the number failed. THe "chk_cnt" call is
 made in order allow strict compilers to pass when it encounters unreferenced
 functions. */
@@ -3174,6 +3200,9 @@ functions. */
       return (int)num_failed__;\
    }\
 }
+
+#define fctlog_install(_CUST_LOGGER_LIST_) \
+    fctkern_ptr__->lt_usr = (_CUST_LOGGER_LIST_)
 
 /* Re-parses the command line options with the addition of user defined
 options. */
@@ -3243,7 +3272,7 @@ specification. */
                fct_ts__end(fctkern_ptr__->ns.ts_curr);\
                break;\
              }\
- 
+
 
 
 /*  Closes off a "Fixture" test suite. */
@@ -3272,7 +3301,7 @@ specification. */
     FCT_FIXTURE_SUITE_END();\
     fctkern_ptr__->ns.ts_is_skip_suite =0;\
     fctkern_ptr__->ns.ts_skip_cndtn =NULL;\
- 
+
 #define FCT_SETUP_BGN()\
    if ( fct_ts__is_setup_mode(fctkern_ptr__->ns.ts_curr) ) {
 
@@ -3281,7 +3310,7 @@ specification. */
 
 #define FCT_TEARDOWN_BGN() \
    if ( fct_ts__is_teardown_mode(fctkern_ptr__->ns.ts_curr) ) {\
- 
+
 #define FCT_TEARDOWN_END() \
    fct_ts__teardown_end(fctkern_ptr__->ns.ts_curr); \
    continue; \
@@ -3293,14 +3322,14 @@ do it by 'stubbing' out the setup/teardown logic. */
    FCT_FIXTURE_SUITE_BGN(Name) {\
    FCT_SETUP_BGN() {_fct_cmt("stubbed"); } FCT_SETUP_END()\
    FCT_TEARDOWN_BGN() {_fct_cmt("stubbed");} FCT_TEARDOWN_END()\
- 
+
 #define FCT_SUITE_END() } FCT_FIXTURE_SUITE_END()
 
 #define FCT_SUITE_BGN_IF(_CONDITION_, _NAME_) \
     FCT_FIXTURE_SUITE_BGN_IF(_CONDITION_, (_NAME_)) {\
     FCT_SETUP_BGN() {_fct_cmt("stubbed"); } FCT_SETUP_END()\
     FCT_TEARDOWN_BGN() {_fct_cmt("stubbed");} FCT_TEARDOWN_END()\
- 
+
 #define FCT_SUITE_END_IF() } FCT_FIXTURE_SUITE_END_IF()
 
 typedef enum
@@ -3314,7 +3343,7 @@ typedef enum
     fctkern_ptr__->ns.test_is_skip = !(_CONDITION_);\
     fctkern_ptr__->ns.test_skip_cndtn = #_CONDITION_;\
     FCT_TEST_BGN(_NAME_) {\
- 
+
 #define FCT_TEST_END_IF() \
     } FCT_TEST_END();\
     fctkern_ptr__->ns.test_is_skip = 0;\
@@ -3378,7 +3407,7 @@ object (should be rare). */
                continue;\
             }\
          }\
- 
+
 
 
 /*
@@ -3703,7 +3732,7 @@ The basic idea is that there is one test per test suite.
 #define FCT_QTEST_BGN(NAME) \
 	FCT_SUITE_BGN(NAME) {\
 		FCT_TEST_BGN(NAME) {\
- 
+
 #define FCT_QTEST_END() \
 		} FCT_TEST_END();\
 	} FCT_SUITE_END();
@@ -3712,7 +3741,7 @@ The basic idea is that there is one test per test suite.
 #define FCT_QTEST_BGN_IF(_CONDITION_, _NAME_) \
 	FCT_SUITE_BGN(_NAME_) {\
 		FCT_TEST_BGN_IF(_CONDITION_, _NAME_) {\
- 
+
 #define FCT_QTEST_END_IF() \
 		} FCT_TEST_END_IF();\
 	} FCT_SUITE_END();

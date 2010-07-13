@@ -13,8 +13,8 @@ File: custom_logger.c
 header. This header will be responsible for exentending the logger.  */
 #include "custom_logger_fct.h"
 
-FCT_BGN() {
+CL_FCT_BGN() {
    FCT_QTEST_BGN(custom_logger_test1) {
       fct_chk("pass");
    } FCT_QTEST_END();
-} FCT_END();
+} CL_FCT_END();
