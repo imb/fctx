@@ -2384,7 +2384,7 @@ fctkern__log_test_end(fctkern_t *nk, fct_test_t *test)
     {\
        FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, &((_NK_)->logger_list))\
        {\
-          fct_logger__on_fct_end(logger, (_NK_));\
+          fct_logger__on_fctx_end(logger, (_NK_));\
        }\
        FCT_NLIST_FOREACH_END();\
     }
@@ -2450,12 +2450,12 @@ typedef struct _fct_logger_i_vtable_t
         fct_logger_evt_t const *e
     );
     /* 6 */
-    void (*on_fct_start)(
+    void (*on_fctx_start)(
         fct_logger_i *logger,
         fct_logger_evt_t const *e
     );
     /* 7 */
-    void (*on_fct_end)(
+    void (*on_fctx_end)(
         fct_logger_i *logger,
         fct_logger_evt_t const *e
     );
@@ -2507,8 +2507,8 @@ static fct_logger_i_vtable_t fct_logger_default_vtable =
     fct_logger__stub,   /* 3.  on_test_end */
     fct_logger__stub,   /* 4.  on_test_suite_start */
     fct_logger__stub,   /* 5.  on_test_suite_end */
-    fct_logger__stub,   /* 6.  on_fct_start */
-    fct_logger__stub,   /* 7.  on_fct_end */
+    fct_logger__stub,   /* 6.  on_fctx_start */
+    fct_logger__stub,   /* 7.  on_fctx_end */
     fct_logger__stub,   /* 8.  on_delete */
     fct_logger__stub,   /* 9.  on_warn */
     fct_logger__stub,   /* 10. on_test_suite_skip */
@@ -2606,15 +2606,15 @@ fct_logger__on_chk(fct_logger_i *logger, fctchk_t const *chk)
 }
 
 /* When we start all our tests. */
-#define fct_logger__on_fct_start(LOGGER, KERN) \
+#define fct_logger__on_fctx_start(LOGGER, KERN) \
    (LOGGER)->evt.kern = (KERN);\
-   (LOGGER)->vtable.on_fct_start((LOGGER), &((LOGGER)->evt));
+   (LOGGER)->vtable.on_fctx_start((LOGGER), &((LOGGER)->evt));
 
 
 /* When we have reached the end of ALL of our testing. */
-#define fct_logger__on_fct_end(LOGGER, KERN) \
+#define fct_logger__on_fctx_end(LOGGER, KERN) \
     (LOGGER)->evt.kern = (KERN);\
-    (LOGGER)->vtable.on_fct_end((LOGGER), &((LOGGER)->evt));
+    (LOGGER)->vtable.on_fctx_end((LOGGER), &((LOGGER)->evt));
 
 
 static void
@@ -2710,7 +2710,7 @@ fct_minimal_logger__on_chk(
 }
 
 static void
-fct_minimal_logger__on_fct_end(
+fct_minimal_logger__on_fctx_end(
     fct_logger_i *self_,
     fct_logger_evt_t const *e
 )
@@ -2749,7 +2749,7 @@ fct_minimal_logger_new(void)
     }
     fct_logger__init((fct_logger_i*)self);
     self->vtable.on_chk = fct_minimal_logger__on_chk;
-    self->vtable.on_fct_end = fct_minimal_logger__on_fct_end;
+    self->vtable.on_fctx_end = fct_minimal_logger__on_fctx_end;
     self->vtable.on_delete = fct_minimal_logger__on_delete;
     fct_nlist__init2(&(self->failed_cndtns_list), 0);
     return (fct_logger_i*)self;
@@ -2840,7 +2840,7 @@ fct_standard_logger__on_test_end(
 
 
 static void
-fct_standard_logger__on_fct_start(
+fct_standard_logger__on_fctx_start(
     fct_logger_i *logger_,
     fct_logger_evt_t const *e
 )
@@ -2852,7 +2852,7 @@ fct_standard_logger__on_fct_start(
 
 
 static void
-fct_standard_logger__on_fct_end(
+fct_standard_logger__on_fctx_end(
     fct_logger_i *logger_,
     fct_logger_evt_t const *e
 )
@@ -2934,8 +2934,8 @@ fct_standard_logger_new(void)
     logger->vtable.on_chk = fct_standard_logger__on_chk;
     logger->vtable.on_test_start = fct_standard_logger__on_test_start;
     logger->vtable.on_test_end = fct_standard_logger__on_test_end;
-    logger->vtable.on_fct_start = fct_standard_logger__on_fct_start;
-    logger->vtable.on_fct_end = fct_standard_logger__on_fct_end;
+    logger->vtable.on_fctx_start = fct_standard_logger__on_fct_start;
+    logger->vtable.on_fctx_end = fct_standard_logger__on_fctx_end;
     logger->vtable.on_delete = fct_standard_logger__on_delete;
     logger->vtable.on_warn = fct_standard_logger__on_warn;
     logger->vtable.on_test_skip = fct_standard_logger__on_test_skip;
@@ -3086,7 +3086,7 @@ fct_junit_logger__on_fct_start(
 }
 
 static void
-fct_junit_logger__on_fct_end(
+fct_junit_logger__on_fctx_end(
     fct_logger_i *logger_,
     fct_logger_evt_t const *e
 )
@@ -3122,7 +3122,7 @@ fct_junit_logger_new(void)
     logger->vtable.on_test_suite_start = fct_junit_logger__on_test_suite_start;
     logger->vtable.on_test_suite_end = fct_junit_logger__on_test_suite_end;
     logger->vtable.on_fct_start = fct_junit_logger__on_fct_start;
-    logger->vtable.on_fct_end = fct_junit_logger__on_fct_end;
+    logger->vtable.on_fctx_end = fct_junit_logger__on_fctx_end;
     logger->vtable.on_delete = fct_junit_logger__on_delete;
     return logger;
 }
