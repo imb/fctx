@@ -38,48 +38,54 @@ custlog__on_chk(fct_logger_i *l, fct_logger_evt_t const *e) {
 }
 
 static void
-custlog__on_test_start(fct_logger_i *, fct_logger_evt_t const *e) {
+custlog__on_test_start(fct_logger_i *l, fct_logger_evt_t const *e) {
+    (void)l; (void)e;
+}
+
+static void
+custlog__on_test_end(fct_logger_i *l, fct_logger_evt_t const *e) {
+    (void)l; (void)e;
 }
 
 
 static void
-custlog__on_test_end(fct_logger_i *, fct_logger_evt_t const *e) {
+custlog__on_test_suite_start(fct_logger_i *l, fct_logger_evt_t const *e) {
+(void)l; (void)e;
 }
 
 static void
-custlog__on_test_start(fct_logger_i *, fct_logger_evt_t const *e) {
+custlog__on_test_suite_end(fct_logger_i *l, fct_logger_evt_t const *e) {
+(void)l; (void)e;
 }
 
 static void
-custlog__on_test_suite_start(fct_logger_i *, fct_logger_evt_t const *e) {
+custlog__on_fctx_start(fct_logger_i *l, fct_logger_evt_t const *e) {
+(void)l; (void)e;
 }
 
 static void
-custlog__on_test_suite_end(fct_logger_i *, fct_logger_evt_t const *e) {
+custlog__on_fctx_end(fct_logger_i *l, fct_logger_evt_t const *e) {
+(void)l; (void)e;
 }
 
 static void
-custlog__on_fctx_start(fct_logger_i *, fct_logger_evt_t const *e) {
+custlog__on_warn(fct_logger_i *l, fct_logger_evt_t const *e) {
+(void)l; (void)e;
 }
 
 static void
-custlog__on_fctx_end(fct_logger_i *, fct_logger_evt_t const *e) {
+custlog__on_test_suite_skip(fct_logger_i *l, fct_logger_evt_t const *e) {
+(void)l; (void)e;
 }
 
 static void
-custlog__on_warn(fct_logger_i *, fct_logger_evt_t const *e) {
+custlog__on_test_skip(fct_logger_i *l, fct_logger_evt_t const *e) {
+(void)l; (void)e;
 }
 
 static void
-custlog__on_test_suite_skip(fct_logger_i *, fct_logger_evt_t const *e) {
-}
-
-static void
-custlog__on_test_skip(fct_logger_i *, fct_logger_evt_t const *e) {
-}
-
-static void
-custlog__on_delete(fct_logger_i *, fct_logger_evt_t const *e) {
+custlog__on_delete(fct_logger_i *l, fct_logger_evt_t const *e) {
+(void)l; (void)e;
 }
 
 
@@ -102,7 +108,7 @@ custlog_new(void) {
   logger->vtable.on_test_suite_end = custlog__on_test_suite_end;
   logger->vtable.on_fctx_start = custlog__on_fctx_start;
   logger->vtable.on_fctx_end = custlog__on_fctx_end;
-  logger->vtable.on_warn = custlog_on_warn;
+  logger->vtable.on_warn = custlog__on_warn;
   logger->vtable.on_test_suite_skip =  custlog__on_test_suite_skip;
   logger->vtable.on_test_skip = custlog__on_test_skip;
   return (fct_logger_i*)logger;
@@ -115,8 +121,10 @@ custlog_new(void) {
 /* Define how to install the custom logger. To override the built in
 ones use the same name (i.e. "standard" to override the default logger). */
 static fct_logger_types_t custlogs[] = {
-   {"custlog", (fct_logger_new_fn)custlog_new},
-   {NULL, (fct_logger_new_fn)NULL} /* Sentinel */
+   {"custlog", (fct_logger_new_fn)custlog_new,
+   "custom logger example, outputs everything!"
+   },
+   {NULL, (fct_logger_new_fn)NULL, NULL} /* Sentinel */
 };
 
 
