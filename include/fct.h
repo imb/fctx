@@ -2374,7 +2374,7 @@ fctkern__log_test_end(fctkern_t *nk, fct_test_t *test)
    {\
        FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, &((_NK_)->logger_list))\
        {\
-          fct_logger__on_fct_start(logger, (_NK_));\
+          fct_logger__on_fctx_start(logger, (_NK_));\
        }\
        FCT_NLIST_FOREACH_END();\
    }
@@ -2459,7 +2459,8 @@ typedef struct _fct_logger_i_vtable_t
         fct_logger_i *logger,
         fct_logger_evt_t const *e
     );
-    /* 8 */
+    /* 8
+    Called when the logger object must "clean up". */
     void (*on_delete)(
         fct_logger_i *logger,
         fct_logger_evt_t const *e
@@ -2934,7 +2935,7 @@ fct_standard_logger_new(void)
     logger->vtable.on_chk = fct_standard_logger__on_chk;
     logger->vtable.on_test_start = fct_standard_logger__on_test_start;
     logger->vtable.on_test_end = fct_standard_logger__on_test_end;
-    logger->vtable.on_fctx_start = fct_standard_logger__on_fct_start;
+    logger->vtable.on_fctx_start = fct_standard_logger__on_fctx_start;
     logger->vtable.on_fctx_end = fct_standard_logger__on_fctx_end;
     logger->vtable.on_delete = fct_standard_logger__on_delete;
     logger->vtable.on_warn = fct_standard_logger__on_warn;
@@ -3121,7 +3122,7 @@ fct_junit_logger_new(void)
     fct_logger__init((fct_logger_i*)logger);
     logger->vtable.on_test_suite_start = fct_junit_logger__on_test_suite_start;
     logger->vtable.on_test_suite_end = fct_junit_logger__on_test_suite_end;
-    logger->vtable.on_fct_start = fct_junit_logger__on_fct_start;
+    logger->vtable.on_fctx_start = fct_junit_logger__on_fct_start;
     logger->vtable.on_fctx_end = fct_junit_logger__on_fctx_end;
     logger->vtable.on_delete = fct_junit_logger__on_delete;
     return logger;
