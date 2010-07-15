@@ -932,7 +932,7 @@ struct _fct_test_t
 /* Clears the failed tests ... partly for internal testing. */
 #define fct_test__clear_failed(test) \
     fct_nlist__clear(test->failed_chks, (fct_nlist_on_del_t)fctchk__del);\
-
+ 
 
 static void
 fct_test__del(fct_test_t *test)
@@ -1737,28 +1737,6 @@ fct_clp__optval2(fct_clp_t *clp, char const *option, char const *default_val)
 }
 
 
-/* Writes the output to the OUTPUT stream. */
-static void
-fct_clp__write_help(fct_clp_t *clp, FILE *out)
-{
-    fprintf(out, "test.exe [options] prefix_filter ...\n\n");
-    FCT_NLIST_FOREACH_BGN(fctcl_t*, clo, &(clp->clo_list))
-    {
-        if ( clo->short_opt != NULL )
-        {
-            fprintf(out, "%s, %s\n", clo->short_opt, clo->long_opt);
-        }
-        else
-        {
-            fprintf(out, "%s\n", clo->long_opt);
-        }
-        /* For now lets not get to fancy with the text wrapping. */
-        fprintf(out, "  %s\n", clo->help);
-    }
-    FCT_NLIST_FOREACH_END();
-    fputs("\n", out);
-}
-
 
 /* Mainly used for unit tests. */
 static int
@@ -1907,12 +1885,7 @@ static fctcl_init_t FCT_CLP_OPTIONS[] =
     {FCT_OPT_LOGGER,
      FCT_OPT_LOGGER_SHORT,
      FCTCL_STORE_VALUE,
-     /* Editting this, also edit FCT_LOGGER_TYPES */
-     "Sets the logger. The types of loggers currently available are,\n"
-     "    =standard : the basic fctx logger.\n"
-     "    =minimal  : outputs the least amount of logging information.\n"
-     "    =junit    : outputs junit compatible xml.\n"
-     "  default is '" FCT_DEFAULT_LOGGER "'."
+     NULL
     },
     FCTCL_INIT_NULL /* Sentinel */
 };
@@ -1922,14 +1895,24 @@ struct _fct_logger_types_t
 {
     char const *name;
     fct_logger_new_fn logger_new_fn;
+    char const *desc;
 };
 
 static fct_logger_types_t FCT_LOGGER_TYPES[] =
 {
-    {"standard", (fct_logger_new_fn)fct_standard_logger_new},
-    {"minimal", (fct_logger_new_fn)fct_minimal_logger_new},
-    {"junit", (fct_logger_new_fn)fct_junit_logger_new},
-    {NULL, (fct_logger_new_fn)NULL} /* Sentinel */
+    {"standard",
+        (fct_logger_new_fn)fct_standard_logger_new,
+        "the basic fctx logger"
+    },
+    {"minimal",
+     (fct_logger_new_fn)fct_minimal_logger_new,
+     "the least amount of logging information."
+    },
+    {"junit",
+     (fct_logger_new_fn)fct_junit_logger_new,
+     "junit compatable xml"
+    },
+    {NULL, (fct_logger_new_fn)NULL, NULL} /* Sentinel */
 };
 
 
@@ -1943,6 +1926,48 @@ fctkern__add_logger(fctkern_t *nk, fct_logger_i *logger_owns)
     assert(nk != NULL && "invalid arg");
     assert(logger_owns != NULL && "invalid arg");
     fct_nlist__append(&(nk->logger_list), logger_owns);
+}
+
+
+static void
+fctkern__write_help(fctkern_t *nk, FILE *out)
+{
+    fct_clp_t *clp = &(nk->cl_parser);
+    fprintf(out, "test.exe [options] prefix_filter ...\n\n");
+    FCT_NLIST_FOREACH_BGN(fctcl_t*, clo, &(clp->clo_list))
+    {
+        if ( clo->short_opt != NULL )
+        {
+            fprintf(out, "%s, %s\n", clo->short_opt, clo->long_opt);
+        }
+        else
+        {
+            fprintf(out, "%s\n", clo->long_opt);
+        }
+        if ( !fctstr_ieq(clo->long_opt, FCT_OPT_LOGGER) )
+        {
+            /* For now lets not get to fancy with the text wrapping. */
+            fprintf(out, "  %s\n", clo->help);
+        }
+        else
+        {
+            fct_logger_types_t *types[] = {nk->lt_sys, nk->lt_usr};
+            int type_i;
+            fct_logger_types_t *itr;
+            fputs("  Sets the logger. The types of loggers currently "
+                  "available are,\n", out);
+            for (type_i =0; type_i != 2; ++type_i )
+            {
+                for ( itr=types[type_i]; itr->name != NULL; ++itr )
+                {
+                    fprintf(out, "   =%s : %s\n", itr->name, itr->desc);
+                }
+            }
+            fprintf(out, "  default is '%s'.\n", FCT_DEFAULT_LOGGER);
+        }
+    }
+    FCT_NLIST_FOREACH_END();
+    fputs("\n", out);
 }
 
 
@@ -2040,10 +2065,12 @@ fctkern__cl_parse_config_logger(fctkern_t *nk)
     assert(sel_logger != NULL && "should never be NULL");
     /* First search the user selected types, then search the
     built-in types. */
-    if ( nk->lt_usr != NULL ) {
+    if ( nk->lt_usr != NULL )
+    {
         logger = fckern_sel_log(nk->lt_usr, sel_logger);
     }
-    if ( nk->lt_sys != NULL && logger == NULL ) {
+    if ( nk->lt_sys != NULL && logger == NULL )
+    {
         logger = fckern_sel_log(nk->lt_sys, sel_logger);
     }
     if ( logger == NULL )
@@ -2110,7 +2137,7 @@ fctkern__cl_parse(fctkern_t *nk)
     }
     if ( fctkern__cl_is(nk, FCT_OPT_HELP) )
     {
-        fct_clp__write_help(&(nk->cl_parser), stdout);
+        fctkern__write_help(nk, stdout);
         status = -1;
         goto finally;
     }
@@ -3183,7 +3210,7 @@ int main(int argc, const char* argv[])\
         (void)printf("FATAL ERROR: Unable to intialize FCT Kernal.");\
         exit(EXIT_FAILURE);\
    }\
-
+ 
 /* Ends the test suite but returning the number failed. THe "chk_cnt" call is
 made in order allow strict compilers to pass when it encounters unreferenced
 functions. */
@@ -3273,7 +3300,7 @@ specification. */
                fct_ts__end(fctkern_ptr__->ns.ts_curr);\
                break;\
              }\
-
+ 
 
 
 /*  Closes off a "Fixture" test suite. */
@@ -3302,7 +3329,7 @@ specification. */
     FCT_FIXTURE_SUITE_END();\
     fctkern_ptr__->ns.ts_is_skip_suite =0;\
     fctkern_ptr__->ns.ts_skip_cndtn =NULL;\
-
+ 
 #define FCT_SETUP_BGN()\
    if ( fct_ts__is_setup_mode(fctkern_ptr__->ns.ts_curr) ) {
 
@@ -3311,7 +3338,7 @@ specification. */
 
 #define FCT_TEARDOWN_BGN() \
    if ( fct_ts__is_teardown_mode(fctkern_ptr__->ns.ts_curr) ) {\
-
+ 
 #define FCT_TEARDOWN_END() \
    fct_ts__teardown_end(fctkern_ptr__->ns.ts_curr); \
    continue; \
@@ -3323,14 +3350,14 @@ do it by 'stubbing' out the setup/teardown logic. */
    FCT_FIXTURE_SUITE_BGN(Name) {\
    FCT_SETUP_BGN() {_fct_cmt("stubbed"); } FCT_SETUP_END()\
    FCT_TEARDOWN_BGN() {_fct_cmt("stubbed");} FCT_TEARDOWN_END()\
-
+ 
 #define FCT_SUITE_END() } FCT_FIXTURE_SUITE_END()
 
 #define FCT_SUITE_BGN_IF(_CONDITION_, _NAME_) \
     FCT_FIXTURE_SUITE_BGN_IF(_CONDITION_, (_NAME_)) {\
     FCT_SETUP_BGN() {_fct_cmt("stubbed"); } FCT_SETUP_END()\
     FCT_TEARDOWN_BGN() {_fct_cmt("stubbed");} FCT_TEARDOWN_END()\
-
+ 
 #define FCT_SUITE_END_IF() } FCT_FIXTURE_SUITE_END_IF()
 
 typedef enum
@@ -3344,7 +3371,7 @@ typedef enum
     fctkern_ptr__->ns.test_is_skip = !(_CONDITION_);\
     fctkern_ptr__->ns.test_skip_cndtn = #_CONDITION_;\
     FCT_TEST_BGN(_NAME_) {\
-
+ 
 #define FCT_TEST_END_IF() \
     } FCT_TEST_END();\
     fctkern_ptr__->ns.test_is_skip = 0;\
@@ -3408,7 +3435,7 @@ object (should be rare). */
                continue;\
             }\
          }\
-
+ 
 
 
 /*
@@ -3733,7 +3760,7 @@ The basic idea is that there is one test per test suite.
 #define FCT_QTEST_BGN(NAME) \
 	FCT_SUITE_BGN(NAME) {\
 		FCT_TEST_BGN(NAME) {\
-
+ 
 #define FCT_QTEST_END() \
 		} FCT_TEST_END();\
 	} FCT_SUITE_END();
@@ -3742,7 +3769,7 @@ The basic idea is that there is one test per test suite.
 #define FCT_QTEST_BGN_IF(_CONDITION_, _NAME_) \
 	FCT_SUITE_BGN(_NAME_) {\
 		FCT_TEST_BGN_IF(_CONDITION_, _NAME_) {\
-
+ 
 #define FCT_QTEST_END_IF() \
 		} FCT_TEST_END_IF();\
 	} FCT_SUITE_END();
