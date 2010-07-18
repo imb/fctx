@@ -19,8 +19,9 @@ IF (MSVC)
     # Warning Level 4, Treat all warnings as errors!
     IF (MSVC80)
         # 64 bit warning flags are only really used in MSVC80.
-	SET(C_WARNINGS "/WX /W4 /Wp64")
-	SET(CXX_WARNINGS "/WX /W4 /Wp64")
+	SET(WARN_LEV 4)
+	SET(C_WARNINGS "/WX /Wp64")
+	SET(CXX_WARNINGS "/WX /Wp64")
     ELSEIF(MSVC60)
         # Treating warnings as errors for this compiler makes things unworkable
         # as you get warnings about functions being inlined (who cares),
@@ -30,12 +31,16 @@ IF (MSVC)
         #
         # Not only am I not turning on warnings, I am dialing them down to a
         # "sane" level 3.
-	SET(C_WARNINGS "/W3")
-	SET(CXX_WARNINGS "/W3")
+	SET(WARN_LEV 3)
+	SET(C_WARNINGS )
+	SET(CXX_WARNINGS  )
     ELSE()
-	SET(C_WARNINGS "/WX /W4")
-	SET(CXX_WARNINGS "/WX /W4")
+	SET(WARN_LEV 4)    
+	SET(C_WARNINGS "/WX")
+	SET(CXX_WARNINGS "/WX")
     ENDIF()
+    STRING(REPLACE "/W3" "/W${WARN_LEV}" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
+    STRING(REPLACE "/W3" "/W${WARN_LEV}" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 ELSEIF (CMAKE_COMPILER_IS_GNUCC)
     set(GCC_COMMON_WARNING_FLAGS 
         "-Wall -Wextra -O -Werror -Wformat=2 -Wshadow -Wfloat-equal"
