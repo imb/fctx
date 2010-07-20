@@ -1329,7 +1329,7 @@ fct_ts__duration(fct_ts_t const *ts)
     FCT_NLIST_FOREACH_END();
     return tally;
 }
-   
+
 
 /*
 --------------------------------------------------------
