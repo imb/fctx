@@ -1033,7 +1033,6 @@ fct_test__add(fct_test_t *test, fctchk_t *chk)
 }
 
 /* Returns the number of checks made throughout the test. */
-#if defined(FCT_USE_TEST_COUNT)
 static size_t
 fct_test__chk_cnt(fct_test_t const *test)
 {
@@ -1041,7 +1040,6 @@ fct_test__chk_cnt(fct_test_t const *test)
     return fct_nlist__size(&(test->failed_chks)) \
            + fct_nlist__size(&(test->passed_chks));
 }
-#endif /* FCT_USE_TEST_COUNT */
 
 
 /*
@@ -1303,7 +1301,6 @@ fct_ts__tst_cnt_passed(fct_ts_t const *ts)
 
 
 /* Returns the # of checks made throughout a test suite. */
-#if defined(FCT_USE_TEST_COUNT)
 static size_t
 fct_ts__chk_cnt(fct_ts_t const *ts)
 {
@@ -1318,8 +1315,6 @@ fct_ts__chk_cnt(fct_ts_t const *ts)
     FCT_NLIST_FOREACH_END();
     return tally;
 }
-#endif /* FCT_USE_TEST_COUNT */
-
 
 /* Currently the duration is simply a sum of all the tests. */
 static double
@@ -1334,7 +1329,7 @@ fct_ts__duration(fct_ts_t const *ts)
     FCT_NLIST_FOREACH_END();
     return tally;
 }
-
+   
 
 /*
 --------------------------------------------------------
@@ -3187,6 +3182,7 @@ they are needed, but at runtime, only the cheap, first call is made. */
             (void)fctkern__cl_val2(NULL, NULL, NULL);\
             fctkern__log_suite_skip(NULL, NULL, NULL);\
             (void)fct_clp__is_param(NULL,NULL);\
+            (void)fct_ts__chk_cnt(NULL);\
         }\
     }
 

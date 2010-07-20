@@ -26,66 +26,140 @@ static void
 custlog__on_chk(fct_logger_i *l, fct_logger_evt_t const *e) {
     fct_unused(l);
     fctchk_t const *chk = e->chk;
-    printf("on_chk: %s (%s)\n"
+    printf("on_chk: %s\n"
            "    -  location: %s(%d)\n"
-           "    -   message: %s\n",
-           fctchk__cndtn(chk),
+           "    -   message: %s\n"
+           "    - condition: %s [DEPRECATED]\n",
            (fctchk__is_pass(chk)) ? "PASS" : "FAIL",
            fctchk__file(chk),
            fctchk__lineno(chk),
-           fctchk__msg(chk)
+           fctchk__msg(chk),
+           fctchk__cndtn(chk) /* This should be deprecated. */
    );
 }
 
+
+
+/* Handles the start of a test, for example FCT_TEST_BGN(). */
 static void
 custlog__on_test_start(fct_logger_i *l, fct_logger_evt_t const *e) {
     (void)l; (void)e;
+    fct_test_t const *test = e->test;
+    printf("on_test_start:\n"
+           "    -      name: %s\n",
+           fct_test__name(test)
+          );
 }
 
+/* Handles the end of a test, for example FCT_TEST_END(). */
 static void
 custlog__on_test_end(fct_logger_i *l, fct_logger_evt_t const *e) {
-    (void)l; (void)e;
+    (void)l;
+    fct_test_t const *test = e->test;
+    printf("on_test_end:\n"
+           "    -      name: %s\n"
+           "    -  duration: %f ms\n",
+           fct_test__name(test),
+           fct_test__duration(test)
+          );
 }
 
-
+/* Handles the start of a test suite, for example FCT_TESTSUITE_BGN(). */
 static void
 custlog__on_test_suite_start(fct_logger_i *l, fct_logger_evt_t const *e) {
-(void)l; (void)e;
+   (void)l;
+   fct_ts_t const *test_suite = e->ts;
+   printf("on_test_suite_start:\n"
+           "    -      name: %s\n",
+           fct_ts__name(test_suite)
+         );
 }
 
+/* Handles the end of a test suite, for example FCT_TESTSUITE_END(). */
 static void
 custlog__on_test_suite_end(fct_logger_i *l, fct_logger_evt_t const *e) {
-(void)l; (void)e;
+   fct_ts_t const *test_suite = e->ts;
+   int test_cnt = fct_ts__tst_cnt(test_suite);
+   int passed_test_cnt = fct_ts__tst_cnt(test_suite);
+   int failed_test_cnt = test_cnt - passed_test_cnt;
+   (void)l;
+   printf("on_test_suite_end:\n"
+           "    -          name: %s\n"
+           "    -      duration: %f ms\n"
+           "    -  tests passed: %d\n"
+           "    -  tests failed: %d\n"
+           "    -        checks: %d\n",
+           fct_ts__name(test_suite),
+           fct_ts__duration(test_suite),
+           passed_test_cnt,
+           failed_test_cnt,
+           fct_ts__chk_cnt(test_suite)
+         );
 }
 
+/* Handles the first time FCTX can offically say 'start'. */
 static void
 custlog__on_fctx_start(fct_logger_i *l, fct_logger_evt_t const *e) {
-(void)l; (void)e;
+    (void)l; 
+    (void)e;
+    printf("on_fctx_start:\n");
 }
 
+/* Handles the last time FCTX can do anything. */
 static void
 custlog__on_fctx_end(fct_logger_i *l, fct_logger_evt_t const *e) {
-(void)l; (void)e;
+    (void)l; 
+    (void)e;
+    printf("on_fctx_end:\n"); 
 }
 
+/* Handles a warning message produced by FCTX. */
 static void
 custlog__on_warn(fct_logger_i *l, fct_logger_evt_t const *e) {
-(void)l; (void)e;
+   (void)l;
+   char const *message = e->msg;
+   printf("on_warn: %s\n", message);
 }
 
+/* When a conditional test suite is skipped due to conditional evaluation. */
 static void
-custlog__on_test_suite_skip(fct_logger_i *l, fct_logger_evt_t const *e) {
-(void)l; (void)e;
+custlog__on_test_suite_skip(fct_logger_i *l, fct_logger_evt_t const *e) { 
+   (void)l; 
+   /* Conditional evaluation on why we skipped. */
+   const char *condition = e->cndtn;
+   /* Name of test suite skipped. */
+   const char *name = e->name;   
+   printf("on_test_suite_skip:\n"
+          "    -      name: %s\n"
+          "    - condition: %s\n",
+          name,
+          condition
+         );
 }
 
+/* When a conditional test is skipped due to conditional evaluation. */
 static void
 custlog__on_test_skip(fct_logger_i *l, fct_logger_evt_t const *e) {
-(void)l; (void)e;
+   (void)l; 
+   /* Conditional evaluation on why we skipped. */
+   const char *condition = e->cndtn;
+   /* Name of test suite skipped. */
+   const char *name = e->name;   
+   printf("on_test_suite_skip:\n"
+          "    -      name: %s\n"
+          "    - condition: %s\n",
+          name,
+          condition
+         );
 }
 
+/* Handles the clean up of the logger object. Perform your special
+clean up code here. */
 static void
 custlog__on_delete(fct_logger_i *l, fct_logger_evt_t const *e) {
-(void)l; (void)e;
+    (void)e; /* Currently doesn't supply anything. */
+    puts("custlog__on_delete:\n");
+    free((struct _custlog_t*)l);
 }
 
 
