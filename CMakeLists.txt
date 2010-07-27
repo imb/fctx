@@ -75,6 +75,9 @@ if(ASTYLE)
                 -E chdir "${CMAKE_CURRENT_SOURCE_DIR}"
                 ${ASTYLE}
                 --options=${CMAKE_CURRENT_SOURCE_DIR}/astyle.conf 
-                include/*.h tests/*.c
+                include/*.h 
+                tests/*.c
+                examples/custom_logger/*.h
+                examples/custom_logger/*.c
     )
 endif()

@@ -5,5 +5,14 @@
 # you should have received as part of this distribution.  
 # ====================================================================
 
-ADD_SUBDIRECTORY(custom_check)
-ADD_SUBDIRECTORY(custom_logger)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/include)
+
+ADD_EXECUTABLE(example_custom_logger
+    # The 'custom header'.
+    custom_logger_fct.h
+    # The unit test
+    custom_logger.c
+)
+ADD_TEST(example_custom_logger 
+	 ${EXECUTABLE_OUTPUT_PATH}/example_custom_logger
+)
