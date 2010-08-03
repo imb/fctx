@@ -48,4 +48,15 @@ for line in release_lines:
     elif start_parse and not line.startswith("-----"):
         notes.append(line)
 
-print "".join(notes)
+chunks =[]
+chunk =""
+for line in notes:
+    if line.strip().startswith("-"):
+        if bool(chunk):
+           chunks.append(chunk + "\n")
+        chunk = " " + line.replace(" - ", " * ").strip() + " " 
+    else:
+        chunk += line.strip() + " "
+chunks.append(chunk)
+
+print "".join(chunks)

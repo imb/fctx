@@ -5,19 +5,18 @@
 #
 # Examples would be:
 #
-#       release-script 1.2.0 1.2.0 1.2.1
-#       release-script 2.6.12 2.6.13-rc6 2.6.13-rc7
+#       release-script 1.2.1 1.3.0
+#       release-script 1.3.1 1.3.2
 # 
-stable="$1"
-last="$2"
-new="$3"
+last="$1"
+new="$2"
 fctx_dist_dir=../fctx.dist/$new
 
-echo "mkdir $fctx_dist_dir"
+echo "mkdir --parents $fctx_dist_dir"
 
 echo "git tag -s -m \"FCTX v$new\" v$new"
-echo "git archive --prefix=fctx-$new/ v$new | gzip -9 > $fctx_dist_dir/fctx-src-$new.tar.gz"
-echo "git diff v$stable v$new | gzip -9 > $fctx_dist_dir/patch-$new.gz"
+echo "git arc.yhive --prefix=fctx-$new/ v$new | gzip -9 > $fctx_dist_dir/fctx-src-$new.tar.gz"
+echo "git diff v$last v$new | gzip -9 > $fctx_dist_dir/patch-$new.gz"
 echo "git log --no-merges v$new v$last > $fctx_dist_dir/ChangeLog-$new"
 echo "git shortlog --no-merges v$new v$last > $fctx_dist_dir/ShortLog"
 echo "git diff --stat --summary -M v$last v$new > $fctx_dist_dir/diffstat-$new"
@@ -29,5 +28,6 @@ echo "cd ../.."
 
 echo "cp include/fct.h $fctx_dist_dir/fct.h"
 echo "cp NEWS $fctx_dist_dir/NEWS-$new"
+echo "cp README.rst $fctx_dist_dir/README.rst"
 
-echo "cp wikify.py $fctx_dist_dir/wikify.py"d
+echo "cp wikify.py $fctx_dist_dir/wikify.py"
