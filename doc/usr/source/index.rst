@@ -22,4 +22,6 @@ Contents
    api_fct.rst
    clapi_fct.rst
    mfapi_fct.rst
+   custom_logger.rst
    strapi_fct.rst
+
