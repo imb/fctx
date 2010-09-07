@@ -3226,11 +3226,13 @@ int main(int argc, const char* argv[])\
    fctkern_t* fctkern_ptr__ = &fctkern__;\
    FCT_REFERENCE_FUNCS();\
    if ( !fctkern__init(fctkern_ptr__, argc, argv) ) {\
-        (void)printf("FATAL ERROR: Unable to intialize FCT Kernal.");\
+        (void)fprintf(\
+            stderr, "FATAL ERROR: Unable to initialize FCTX Kernel."\
+        );\
         exit(EXIT_FAILURE);\
    }\
  
-/* Ends the test suite but returning the number failed. THe "chk_cnt" call is
+/* Ends the test suite by returning the number failed. The "chk_cnt" call is
 made in order allow strict compilers to pass when it encounters unreferenced
 functions. */
 #define FCT_END()\
