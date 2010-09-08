@@ -1,8 +1,8 @@
-=================
-Customized Logger
-=================
+=============================
+fct_logger: Customized Logger
+=============================
 
-.. module:: custom logger
+.. module:: fct_logger
    :platform: Unix, Windows
    :synopsis: Provides ability to add your own customized logger.
 
@@ -11,7 +11,14 @@ Customized Logger
 Introduction
 ------------
 
-xxx
+FCTX is built with default loggers, but these loggers may not be
+suitable for your project or organization. The FCTX API provides a
+method for you to customize your own logger by defining and installing
+logger type that can handle events that occur during unit testing.
+
+Your organization or project can then be directed to use this custom
+logger as the standard method for logging when writing unit tests
+using FCTX.
 
 Building a Logger
 -----------------
@@ -19,13 +26,15 @@ Building a Logger
 The following section will walk through the code shown in the source
 tarball under :file:`/examples/custom_logger/custom_logger_fct.h`.
 
-First, create a file that you will call as your header file, in this
-file you will override certain behaviour found in the original
-:file:`fct.h` file.
-
-Next we will create our custom logger "object",
+First, create a file that you will use as your project standard header
+file, in this file you will override certain behaviour found in the
+original :file:`fct.h` file. For logging we we will start with our
+custom logger type,
 
 .. code-block:: c
+
+        /* Load the FCTX API */
+        #include "fct.h"
 
 	/* Define our custom logger object. */
 	struct _custlog_t
@@ -33,10 +42,11 @@ Next we will create our custom logger "object",
 	    /* Define the common logger header. */
 	    _fct_logger_head;
 	    /* Add any data members you want to maintain here. Perhaps
-	    you want to track something from event to event? */
+	    you want to track something from event to event? Lets
+            count the number of checks. */
+            size_t num_chks;
 	};
 
-   #include "fct.h"
 
 .. /*  fix vi styling.
 
@@ -48,27 +58,30 @@ like to add for managing your logger information.
 Now we will go through the process of adding an event handler for our
 custom logger. The example in the source code will go over each
 available event, but for our document we will discuss the event that
-is executed when an fct_chk call is made. 
+is executed when an :c:func:`fct_chk` call is made. 
 
 .. code-block:: c
 
    static void
    custlog__on_chk(fct_logger_i *l, fct_logger_evt_t const *e) {
+      struct *_custlog_t = (struct _custlog_t*)l;
+      fct_unused(e); /* In this example, we will ignore it. */
+      ++(l->num_chks);
    }
 
 .. /* fix vi styling
 
 At this point the *l* argument will point to your custom logger
 defined above (i.e. struct _custlog_t), and the *e* argument will
-provide you with details specific to this event. You may take your
-logger, *i*, cast it to your logger type and add information, or you
-may do something as simple as output a some informationa about the
-check.
+provide you with details specific to this event (see
+:ref:`fct_logger_events`). You may take your logger, *i*, cast it to
+your logger type and add information, or you may do something as
+simple as output a some information about the check.
 
 The next step is to define a creation method for your logger. This
-creates up a new custom logger and returns a generic logger type
+should create new custom logger and returns a generic logger type
 pointer. The following shows how to create your logger type, and set
-the new `custlog__on_chk` function.
+the new :c:func:`custlog__on_chk` function.
 
 .. code-block:: c
 
@@ -103,8 +116,9 @@ need to write our delete function,
 in our demo we don't have much to clean up other than the object we
 allocated.
 
-Finally, lets register our logger with FCTX, so the user can select it
-and use it themselves,
+Once we have defined our custom logger, we need to associate it with a
+command so the user can select it from the command prompt. We do it
+via the :c:type:`fct_logger_types_t` as shown below,
 
 .. code-block:: c
 
@@ -118,9 +132,9 @@ and use it themselves,
 
 will define a list of custom loggers to install. You can override the
 standard logger here by defining a "standard" field. The last step is
-to install our definition with FCTX via the :cfunc:`fctlog_install`
-call. In our example, we will override the :cfunc:`FCT_BGN` and
-:cfunc:`FCT_END` macros with our own custom macro, as in,
+to install our definition with FCTX via the :c:func:`fctlog_install`
+call. In our example, we will override the :c:func:`FCT_BGN` and
+:c:func:`FCT_END` macros with our own custom macro, as in,
 
 .. code-block:: c
 
@@ -133,18 +147,109 @@ call. In our example, we will override the :cfunc:`FCT_BGN` and
 
 .. /* fix vi styling
 
-Now your code base can use the :cmacro:`CL_FCT_BGN` and
-:cmacro:`CL_FCT_END` macros as well as your custom header to write
+Now your code base can use the :c:macro:`CL_FCT_BGN` and
+:c:macro:`CL_FCT_END` macros as well as your custom header to write
 unit tests that follow and use your project's standard logging
 methods.
 
-Install Functions
+Assuming the program generated was called :file:`test.exe`, the
+custom logger would be invoked with::
 
-.. cfunc:: fct_install(custlog)
+  test.exe --logger=custlog
+
+If you use the ``--help`` option you get a list of available loggers
+that will include your custom logger.
+
+Install Functions
+-----------------
+
+.. c:function:: fct_install(custlog)
 
    Installs the :ctype:`fct_logger_types_t` structure that defines the
    correct function to invoked based on a user selected option.  Fields
    in the *custlog* will override the default standards.
+
+.. _fct_logger_events:
+
+Events
+------
+
+The sample code found in the source tree under
+:file:`/examples/custom_logger` directory illustrates in code, what
+you can extract from a particular logging event.
+
+.. _fct_logger_on_chk:
+
+On fct_chk
+..........
+
+:c:member:`vtable.on_chk`.
+
+xxx
+
+On FCT_TEST_BGN
+...............
+
+:c:member:`vtable.on_test_start`
+
+xxx
+
+On FCT_TEST_END
+...............
+
+:c:member:`vtable.on_test_end`
+
+xxx
+
+On FCT_TEST_SUITE_BGN
+......................
+
+:c:member:`vtable.on_test_suite_start`
+
+xxx
+
+On FCT_TEST_SUITE_END
+.....................
+
+:c:member:`vtable.on_test_suite_end`
+
+xxx
+
+On FCTX Start
+.............
+
+:c:member:`vtable.on_fctx_start`
+
+xxx
+
+On FCTX End
+...........
+
+:c:member:`vtable.on_fctx_end`
+
+xxx
+
+On Warn
+.......
+
+:c:member:`vtable.on_warn`
+
+xxx
+
+On Test Suite Skip
+..................
+
+:c:member:`vtable.on_test_suite_skip`
+
+xxx
+
+On Test Skip
+............
+
+:c:member:`vtable.on_test_skip`
+
+xxx
+
 
 Useful Logger Types 
 -------------------
