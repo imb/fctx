@@ -254,7 +254,44 @@ xxx
 Useful Logger Types 
 -------------------
 
-fct_logger_i
+FCT Logger
+..........
+
+.. c:type:: fct_logger_i
+
+   Defines the base logger interface. All custom loggers should derive
+   from this by inserting a reference to :c:macro:`_fct_logger_head`.
+
+   .. :c:member:: fct_logger_i_vtable vtable
+
+      Contains a list of event handlers that you can override for your
+      custom logger.
+
+   .. :c:member:: fct_logger_evt_t evt;
+  
+      *Internal usage only.* Used mainly to hold a structure that we
+      can populate prior to each event firing.
+   
+.. c:macro:`_fct_logger_head`
+
+   Macro definition that should be at the start of your custom
+   structure. This defines common fields used for the logger interface.
+
+.. c:type:: fct_logger_i_vtable_t
+
+   Virtual table of events defined for your custom logger. Assign your
+   own event handlers for logging events that you wish to handle.
+   Default no-op event handlers are assigned by default.
+
+   All event handlers accept two arguments:
+
+     1. :c:type`	
+
+   See :ref:`fct_logger_events` for a list of available event
+   handlers.
+   
+
+
 fct_logger_evt_t
 fct_logger_types_t
 
