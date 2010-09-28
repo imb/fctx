@@ -1946,9 +1946,11 @@ fctkern__write_help(fctkern_t *nk, FILE *out)
         }
         else
         {
-            fct_logger_types_t *types[] = {nk->lt_sys, nk->lt_usr};
+            fct_logger_types_t *types[2];
             int type_i;
             fct_logger_types_t *itr;
+            types[0] = nk->lt_sys;
+            types[1] = nk->lt_usr;
             fputs("  Sets the logger. The types of loggers currently "
                   "available are,\n", out);
             for (type_i =0; type_i != 2; ++type_i )
@@ -2753,8 +2755,8 @@ fct_minimal_logger__on_delete(
     fct_logger_evt_t const *e
 )
 {
-    fct_unused(e);
     fct_minimal_logger_t *self = (fct_minimal_logger_t*)self_;
+    fct_unused(e);
     fct_nlist__final(&(self->failed_cndtns_list), free);
     free(self);
 
@@ -2868,8 +2870,8 @@ fct_standard_logger__on_fctx_start(
     fct_logger_evt_t const *e
 )
 {
-    fct_unused(e);
     fct_standard_logger_t *logger = (fct_standard_logger_t*)logger_;
+    fct_unused(e);
     fct_timer__start(&(logger->timer));
 }
 
@@ -2924,8 +2926,8 @@ fct_standard_logger__on_delete(
     fct_logger_evt_t const *e
 )
 {
-    fct_unused(e);
     fct_standard_logger_t *logger = (fct_standard_logger_t*)logger_;
+    fct_unused(e);
     fct_nlist__final(&(logger->failed_cndtns_list), free);
     free(logger);
     logger_ =NULL;
@@ -3125,8 +3127,8 @@ fct_junit_logger__on_delete(
     fct_logger_evt_t const *e
 )
 {
-    fct_unused(e);
     fct_junit_logger_t *logger = (fct_junit_logger_t*)logger_;
+    fct_unused(e);
     free(logger);
     logger_ =NULL;
 }

@@ -26,8 +26,8 @@ struct _custlog_t
 static void
 custlog__on_chk(fct_logger_i *l, fct_logger_evt_t const *e)
 {
-    fct_unused(l);
     fctchk_t const *chk = e->chk;
+    fct_unused(l);
     printf("on_chk: %s\n"
            "    -  location: %s(%d)\n"
            "    -   message: %s\n"
@@ -46,9 +46,9 @@ custlog__on_chk(fct_logger_i *l, fct_logger_evt_t const *e)
 static void
 custlog__on_test_start(fct_logger_i *l, fct_logger_evt_t const *e)
 {
+    fct_test_t const *test = e->test;
     (void)l;
     (void)e;
-    fct_test_t const *test = e->test;
     printf("on_test_start:\n"
            "    -      name: %s\n",
            fct_test__name(test)
@@ -59,8 +59,8 @@ custlog__on_test_start(fct_logger_i *l, fct_logger_evt_t const *e)
 static void
 custlog__on_test_end(fct_logger_i *l, fct_logger_evt_t const *e)
 {
-    (void)l;
     fct_test_t const *test = e->test;
+    (void)l;
     printf("on_test_end:\n"
            "    -      name: %s\n"
            "    -  duration: %f ms\n",
@@ -73,8 +73,8 @@ custlog__on_test_end(fct_logger_i *l, fct_logger_evt_t const *e)
 static void
 custlog__on_test_suite_start(fct_logger_i *l, fct_logger_evt_t const *e)
 {
-    (void)l;
     fct_ts_t const *test_suite = e->ts;
+    (void)l;
     printf("on_test_suite_start:\n"
            "    -      name: %s\n",
            fct_ts__name(test_suite)
@@ -126,8 +126,8 @@ custlog__on_fctx_end(fct_logger_i *l, fct_logger_evt_t const *e)
 static void
 custlog__on_warn(fct_logger_i *l, fct_logger_evt_t const *e)
 {
-    (void)l;
     char const *message = e->msg;
+    (void)l;
     printf("on_warn: %s\n", message);
 }
 
@@ -135,11 +135,11 @@ custlog__on_warn(fct_logger_i *l, fct_logger_evt_t const *e)
 static void
 custlog__on_test_suite_skip(fct_logger_i *l, fct_logger_evt_t const *e)
 {
-    (void)l;
     /* Conditional evaluation on why we skipped. */
     const char *condition = e->cndtn;
     /* Name of test suite skipped. */
     const char *name = e->name;
+    (void)l;
     printf("on_test_suite_skip:\n"
            "    -      name: %s\n"
            "    - condition: %s\n",
@@ -152,11 +152,11 @@ custlog__on_test_suite_skip(fct_logger_i *l, fct_logger_evt_t const *e)
 static void
 custlog__on_test_skip(fct_logger_i *l, fct_logger_evt_t const *e)
 {
-    (void)l;
     /* Conditional evaluation on why we skipped. */
     const char *condition = e->cndtn;
     /* Name of test suite skipped. */
     const char *name = e->name;
+    (void)l;
     printf("on_test_suite_skip:\n"
            "    -      name: %s\n"
            "    - condition: %s\n",
