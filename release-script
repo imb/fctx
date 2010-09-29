@@ -15,7 +15,7 @@ fctx_dist_dir=../fctx.dist/$new
 echo "mkdir --parents $fctx_dist_dir"
 
 echo "git tag -s -m \"FCTX v$new\" v$new"
-echo "git arc.yhive --prefix=fctx-$new/ v$new | gzip -9 > $fctx_dist_dir/fctx-src-$new.tar.gz"
+echo "git archive --prefix=fctx-$new/ v$new | gzip -9 > $fctx_dist_dir/fctx-src-$new.tar.gz"
 echo "git diff v$last v$new | gzip -9 > $fctx_dist_dir/patch-$new.gz"
 echo "git log --no-merges v$new v$last > $fctx_dist_dir/ChangeLog-$new"
 echo "git shortlog --no-merges v$new v$last > $fctx_dist_dir/ShortLog"
