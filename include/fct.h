@@ -3183,6 +3183,7 @@ they are needed, but at runtime, only the cheap, first call is made. */
             (void)fct_ts__cnt_end(NULL);\
             (void)fct_ts__is_test_cnt(NULL, 0);\
             (void)fct_xchk_fn(0, "");\
+            (void)fct_xchk2_fn(NULL, 0, "");\
             (void)fctkern__cl_parse(NULL);\
             (void)fctkern__add_ts(NULL, NULL);\
             (void)fctkern__pass_filter(NULL, NULL);\
@@ -3484,16 +3485,18 @@ static char const *fct_xchk_file = NULL;
 static fct_test_t *fct_xchk_test = NULL;
 static fctkern_t *fct_xchk_kern =NULL;
 
-static int
-fct_xchk_fn(int is_pass, char const *format, ...)
-{
-    va_list args;
-    fctchk_t *chk =NULL;
 
-    va_start(args, format);
+static int
+_fct_xchk_fn_varg(
+    char const *condition,
+    int is_pass,
+    char const *format,
+    va_list args
+) {
+    fctchk_t *chk =NULL;
     chk = fctchk_new(
               is_pass,
-              "<none-from-xchk>",
+              condition,
               fct_xchk_file,
               fct_xchk_lineno,
               format,
@@ -3507,15 +3510,37 @@ fct_xchk_fn(int is_pass, char const *format, ...)
 
     fct_test__add(fct_xchk_test, chk);
     fctkern__log_chk(fct_xchk_kern, chk);
-
 finally:
-    va_end(args);
     fct_xchk_lineno =0;
     fct_xchk_file =NULL;
     fct_xchk_test =NULL;
     fct_xchk_kern =NULL;
     return is_pass;
 }
+
+
+static int
+fct_xchk2_fn(const char *condition, int is_pass, char const *format, ...) {
+    int r =0;
+    va_list args;
+    va_start(args, format);
+    r = _fct_xchk_fn_varg(condition, is_pass, format, args);
+    va_end(args);
+    return r;
+}
+
+
+static int
+fct_xchk_fn(int is_pass, char const *format, ...)
+{
+    int r=0;
+    va_list args;
+    va_start(args, format);
+    r = _fct_xchk_fn_varg("<none-from-xchk>", is_pass, format, args);
+    va_end(args);
+    return r;
+}
+
 
 /* Call this with the following argument list:
 
@@ -3529,6 +3554,13 @@ libraries error checking routines. */
                   fct_xchk_lineno =__LINE__,\
                   fct_xchk_file=__FILE__,\
                   fct_xchk_fn
+
+#define fct_xchk2  fct_xchk_kern = fctkern_ptr__,\
+                   fct_xchk_test = fctkern_ptr__->ns.curr_test,\
+                   fct_xchk_lineno =__LINE__,\
+                   fct_xchk_file=__FILE__,\
+                   fct_xchk2_fn
+
 
 /* This checks the condition and reports the condition as a string
 if it fails. */
