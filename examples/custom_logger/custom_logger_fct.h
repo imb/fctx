@@ -95,12 +95,12 @@ custlog__on_test_suite_end(fct_logger_i *l, fct_logger_evt_t const *e)
            "    -      duration: %f ms\n"
            "    -  tests passed: %d\n"
            "    -  tests failed: %d\n"
-           "    -        checks: %d\n",
+           "    -        checks: %lu\n",
            fct_ts__name(test_suite),
            fct_ts__duration(test_suite),
            passed_test_cnt,
            failed_test_cnt,
-           fct_ts__chk_cnt(test_suite)
+           (unsigned long) fct_ts__chk_cnt(test_suite)
           );
 }
 
