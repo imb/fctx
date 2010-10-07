@@ -87,6 +87,18 @@ with a standard logger. */
 
 #define FCTMIN(x, y) ( x < y) ? (x) : (y)
 
+#ifndef __INTEL_COMPILER
+/* Use regular assertions for non-Intel compilers */
+#define FCT_ASSERT(expr) assert(expr)
+#else
+/* Silence Intel warnings on assert(expr && "str") or assert("str") */
+#define FCT_ASSERT(expr) do {             \
+    _Pragma("warning(push,disable:279)"); \
+    assert(expr);                         \
+    _Pragma("warning(pop)");              \
+    } while (0)
+#endif
+
 #if defined(__cplusplus)
 #define FCT_EXTERN_C extern "C"
 #else
@@ -246,9 +258,9 @@ should be the length of DST plus the null-termintor. */
 static void
 fctstr_safe_cpy(char *dst, char const *src, size_t num)
 {
-    assert( dst != NULL );
-    assert( src != NULL );
-    assert( num > 0 );
+    FCT_ASSERT( dst != NULL );
+    FCT_ASSERT( src != NULL );
+    FCT_ASSERT( num > 0 );
 #if defined(WIN32) && _MSC_VER >= 1400
     strncpy_s(dst, num, src, _TRUNCATE);
 #else
@@ -299,7 +311,7 @@ fctstr_clone(char const *s)
 {
     char *k =NULL;
     size_t klen =0;
-    assert( s != NULL && "invalid arg");
+    FCT_ASSERT( s != NULL && "invalid arg");
     klen = strlen(s)+1;
     k = (char*)malloc(sizeof(char)*klen+1);
     fctstr_safe_cpy(k, s, klen);
@@ -340,7 +352,7 @@ fct_filter_pass(char const *prefix, char const *test_str)
     char const *test_str_p;
 
     /* If you got nothing to test against, why test? */
-    assert( test_str != NULL );
+    FCT_ASSERT( test_str != NULL );
 
     /* When the prefix is NULL or blank, we always return FCT_TRUE. */
     if ( prefix == NULL  || prefix[0] == '\0' )
@@ -628,7 +640,7 @@ struct _fct_timer_t
 static void
 fct_timer__init(fct_timer_t *timer)
 {
-    assert(timer != NULL);
+    FCT_ASSERT(timer != NULL);
     memset(timer, 0, sizeof(fct_timer_t));
 }
 
@@ -636,7 +648,7 @@ fct_timer__init(fct_timer_t *timer)
 static void
 fct_timer__start(fct_timer_t *timer)
 {
-    assert(timer != NULL);
+    FCT_ASSERT(timer != NULL);
     timer->start = clock();
 }
 
@@ -644,7 +656,7 @@ fct_timer__start(fct_timer_t *timer)
 static void
 fct_timer__stop(fct_timer_t *timer)
 {
-    assert(timer != NULL);
+    FCT_ASSERT(timer != NULL);
     timer->stop = clock();
     timer->duration = (double) (timer->stop - timer->start) / CLOCKS_PER_SEC;
 }
@@ -654,7 +666,7 @@ fct_timer__stop(fct_timer_t *timer)
 static double
 fct_timer__duration(fct_timer_t const *timer)
 {
-    assert( timer != NULL );
+    FCT_ASSERT( timer != NULL );
     return timer->duration;
 }
 
@@ -718,7 +730,7 @@ static void
 fct_nlist__clear(fct_nlist_t *list, fct_nlist_on_del_t on_del)
 {
     size_t itm_i__ =0;
-    assert( list != NULL );
+    FCT_ASSERT( list != NULL );
     if ( on_del != NULL )
     {
         for ( itm_i__=0; itm_i__ != list->used_itm_num; ++itm_i__ )
@@ -735,7 +747,7 @@ working with structures that live on the stack. */
 static void
 fct_nlist__final(fct_nlist_t *list, fct_nlist_on_del_t on_del)
 {
-    assert( list != NULL );
+    FCT_ASSERT( list != NULL );
     fct_nlist__clear(list, on_del);
     free(list->itm_list);
 }
@@ -744,7 +756,7 @@ fct_nlist__final(fct_nlist_t *list, fct_nlist_on_del_t on_del)
 static int
 fct_nlist__init2(fct_nlist_t *list, size_t start_sz)
 {
-    assert( list != NULL );
+    FCT_ASSERT( list != NULL );
     if ( start_sz == 0 )
     {
         list->itm_list = NULL;
@@ -777,7 +789,7 @@ Returns 0 if there was an error allocating memory. Returns 1 otherwise. */
 static size_t
 fct_nlist__size(fct_nlist_t const *list)
 {
-    assert( list != NULL );
+    FCT_ASSERT( list != NULL );
     return list->used_itm_num;
 }
 
@@ -786,8 +798,8 @@ fct_nlist__size(fct_nlist_t const *list)
 static void*
 fct_nlist__at(fct_nlist_t const *list, size_t idx)
 {
-    assert( list != NULL );
-    assert( idx < list->used_itm_num );
+    FCT_ASSERT( list != NULL );
+    FCT_ASSERT( idx < list->used_itm_num );
     return list->itm_list[idx];
 }
 
@@ -795,7 +807,7 @@ fct_nlist__at(fct_nlist_t const *list, size_t idx)
 static void
 fct_nlist__append(fct_nlist_t *list, void *itm)
 {
-    assert( list != NULL );
+    FCT_ASSERT( list != NULL );
     /* If we ran out of room, then the last increment should be equal to the
     available space, in this case we need to grow a little more. If this
     list started as size 0, then we should encounter the same effect as
@@ -808,7 +820,7 @@ fct_nlist__append(fct_nlist_t *list, void *itm)
         list->itm_list = (void**)realloc(
                              list->itm_list, sizeof(void*)*list->avail_itm_num
                          );
-        assert( list->itm_list != NULL && "memory check");
+        FCT_ASSERT( list->itm_list != NULL && "memory check");
     }
 
     list->itm_list[list->used_itm_num] = itm;
@@ -860,9 +872,9 @@ fctchk_new(int is_pass,
 {
     fctchk_t *chk = NULL;
 
-    assert( cndtn != NULL );
-    assert( file != NULL );
-    assert( lineno > 0 );
+    FCT_ASSERT( cndtn != NULL );
+    FCT_ASSERT( file != NULL );
+    FCT_ASSERT( lineno > 0 );
 
     chk = (fctchk_t*)calloc(1, sizeof(fctchk_t));
     if ( chk == NULL )
@@ -986,7 +998,7 @@ finally:
 static void
 fct_test__start_timer(fct_test_t *test)
 {
-    assert( test != NULL );
+    FCT_ASSERT( test != NULL );
     fct_timer__start(&(test->timer));
 }
 
@@ -994,7 +1006,7 @@ fct_test__start_timer(fct_test_t *test)
 static void
 fct_test__stop_timer(fct_test_t *test)
 {
-    assert( test != NULL );
+    FCT_ASSERT( test != NULL );
     fct_timer__stop(&(test->timer));
 }
 
@@ -1002,7 +1014,7 @@ fct_test__stop_timer(fct_test_t *test)
 static double
 fct_test__duration(fct_test_t const *test)
 {
-    assert( test != NULL );
+    FCT_ASSERT( test != NULL );
     return fct_timer__duration(&(test->timer));
 }
 
@@ -1010,7 +1022,7 @@ fct_test__duration(fct_test_t const *test)
 static nbool_t
 fct_test__is_pass(fct_test_t const *test)
 {
-    assert( test != NULL );
+    FCT_ASSERT( test != NULL );
     return fct_nlist__size(&(test->failed_chks)) == 0;
 }
 
@@ -1019,8 +1031,8 @@ static void
 fct_test__add(fct_test_t *test, fctchk_t *chk)
 {
 
-    assert( test != NULL );
-    assert( chk != NULL );
+    FCT_ASSERT( test != NULL );
+    FCT_ASSERT( chk != NULL );
 
     if ( fctchk__is_pass(chk) )
     {
@@ -1036,7 +1048,7 @@ fct_test__add(fct_test_t *test, fctchk_t *chk)
 static size_t
 fct_test__chk_cnt(fct_test_t const *test)
 {
-    assert( test != NULL );
+    FCT_ASSERT( test != NULL );
     return fct_nlist__size(&(test->failed_chks)) \
            + fct_nlist__size(&(test->passed_chks));
 }
@@ -1136,7 +1148,7 @@ fct_ts_new(char const *name)
 {
     fct_ts_t *ts =NULL;
     ts = (fct_ts_t*)calloc(1, sizeof(fct_ts_t));
-    assert( ts != NULL );
+    FCT_ASSERT( ts != NULL );
 
     fctstr_safe_cpy(ts->name, name, FCT_MAX_NAME);
     ts->mode = ts_mode_cnt;
@@ -1149,8 +1161,8 @@ fct_ts_new(char const *name)
 static nbool_t
 fct_ts__is_more_tests(fct_ts_t const *ts)
 {
-    assert( ts != NULL );
-    assert( !fct_ts__is_end(ts) );
+    FCT_ASSERT( ts != NULL );
+    FCT_ASSERT( !fct_ts__is_end(ts) );
     return ts->curr_test_num < ts->total_test_num;
 }
 
@@ -1159,7 +1171,7 @@ fct_ts__is_more_tests(fct_ts_t const *ts)
 static void
 fct_ts__test_begin(fct_ts_t *ts)
 {
-    assert( !fct_ts__is_end(ts) );
+    FCT_ASSERT( !fct_ts__is_end(ts) );
     ++(ts->curr_test_num);
 }
 
@@ -1169,9 +1181,9 @@ generation. */
 static void
 fct_ts__add_test(fct_ts_t *ts, fct_test_t *test)
 {
-    assert( ts != NULL && "invalid arg");
-    assert( test != NULL && "invalid arg");
-    assert( !fct_ts__is_end(ts) );
+    FCT_ASSERT( ts != NULL && "invalid arg");
+    FCT_ASSERT( test != NULL && "invalid arg");
+    FCT_ASSERT( !fct_ts__is_end(ts) );
     fct_nlist__append(&(ts->test_list), test);
 }
 
@@ -1179,8 +1191,8 @@ fct_ts__add_test(fct_ts_t *ts, fct_test_t *test)
 static void
 fct_ts__test_end(fct_ts_t *ts)
 {
-    assert( ts != NULL );
-    assert( fct_ts__is_test_mode(ts) && "not in test mode, can't end!" );
+    FCT_ASSERT( ts != NULL );
+    FCT_ASSERT( fct_ts__is_test_mode(ts) && "not in test mode, can't end!" );
 
     /* After a test has completed, move to teardown mode. */
     ts->mode = ts_mode_teardown;
@@ -1191,9 +1203,9 @@ fct_ts__test_end(fct_ts_t *ts)
 static void
 fct_ts__inc_total_test_num(fct_ts_t *ts)
 {
-    assert( ts != NULL );
-    assert( fct_ts__is_cnt_mode(ts) );
-    assert( !fct_ts__is_end(ts) );
+    FCT_ASSERT( ts != NULL );
+    FCT_ASSERT( fct_ts__is_cnt_mode(ts) );
+    FCT_ASSERT( !fct_ts__is_end(ts) );
     ++(ts->total_test_num);
 }
 
@@ -1203,8 +1215,8 @@ setup mode. You must be already in setup mode for this to work! */
 static void
 fct_ts__setup_end(fct_ts_t *ts)
 {
-    assert( fct_ts__is_setup_mode(ts) );
-    assert( !fct_ts__is_end(ts) );
+    FCT_ASSERT( fct_ts__is_setup_mode(ts) );
+    FCT_ASSERT( !fct_ts__is_end(ts) );
     ts->mode = ts_mode_test;
 }
 
@@ -1214,8 +1226,8 @@ into setup mode (for the next 'iteration'). */
 static void
 fct_ts__teardown_end(fct_ts_t *ts)
 {
-    assert( fct_ts__is_teardown_mode(ts) );
-    assert( !fct_ts__is_end(ts) );
+    FCT_ASSERT( fct_ts__is_teardown_mode(ts) );
+    FCT_ASSERT( !fct_ts__is_end(ts) );
     /* We have to decide if we should keep on testing by moving into tear down
     mode or if we have reached the real end and should be moving into the
     ending mode. */
@@ -1237,9 +1249,9 @@ we can skip right to 'ending'. */
 static void
 fct_ts__cnt_end(fct_ts_t *ts)
 {
-    assert( ts != NULL );
-    assert( fct_ts__is_cnt_mode(ts) );
-    assert( !fct_ts__is_end(ts) );
+    FCT_ASSERT( ts != NULL );
+    FCT_ASSERT( fct_ts__is_cnt_mode(ts) );
+    FCT_ASSERT( !fct_ts__is_end(ts) );
     if (ts->total_test_num == 0  )
     {
         ts->mode = ts_mode_ending;
@@ -1254,10 +1266,10 @@ fct_ts__cnt_end(fct_ts_t *ts)
 static nbool_t
 fct_ts__is_test_cnt(fct_ts_t const *ts, int test_num)
 {
-    assert( ts != NULL );
-    assert( 0 <= test_num );
-    assert( test_num < ts->total_test_num );
-    assert( !fct_ts__is_end(ts) );
+    FCT_ASSERT( ts != NULL );
+    FCT_ASSERT( 0 <= test_num );
+    FCT_ASSERT( test_num < ts->total_test_num );
+    FCT_ASSERT( !fct_ts__is_end(ts) );
 
     /* As we roll through the tests we increment the count. With this
     count we can decide if we need to execute a test or not. */
@@ -1270,8 +1282,8 @@ fct_ts__is_test_cnt(fct_ts_t const *ts, int test_num)
 static size_t
 fct_ts__tst_cnt(fct_ts_t const *ts)
 {
-    assert( ts != NULL );
-    assert(
+    FCT_ASSERT( ts != NULL );
+    FCT_ASSERT(
         fct_ts__is_end(ts)
         && "can't count number of tests executed until the test suite ends"
     );
@@ -1285,8 +1297,8 @@ fct_ts__tst_cnt_passed(fct_ts_t const *ts)
 {
     size_t tally =0;
 
-    assert( ts != NULL );
-    assert( fct_ts__is_end(ts) );
+    FCT_ASSERT( ts != NULL );
+    FCT_ASSERT( fct_ts__is_end(ts) );
 
     FCT_NLIST_FOREACH_BGN(fct_test_t*, test, &(ts->test_list))
     {
@@ -1306,7 +1318,7 @@ fct_ts__chk_cnt(fct_ts_t const *ts)
 {
     size_t tally =0;
 
-    assert( ts != NULL );
+    FCT_ASSERT( ts != NULL );
 
     FCT_NLIST_FOREACH_BGN(fct_test_t *, test, &(ts->test_list))
     {
@@ -1321,7 +1333,7 @@ static double
 fct_ts__duration(fct_ts_t const *ts)
 {
     double tally =0.0;
-    assert( ts != NULL );
+    FCT_ASSERT( ts != NULL );
     FCT_NLIST_FOREACH_BGN(fct_test_t *, test, &(ts->test_list))
     {
         tally += fct_test__duration(test);
@@ -1495,7 +1507,7 @@ finally:
 static int
 fctcl__is_option(fctcl_t const *clo, char const *option)
 {
-    assert( clo != NULL );
+    FCT_ASSERT( clo != NULL );
     if ( option == NULL )
     {
         return 0;
@@ -1567,7 +1579,7 @@ static int
 fct_clp__init(fct_clp_t *clp, fctcl_init_t const *options)
 {
     int ok =0;
-    assert( clp != NULL );
+    FCT_ASSERT( clp != NULL );
     /* It is just much saner to manage a clone of the options. Then we know
     who is in charge of the memory. */
     ok = fct_nlist__init(&(clp->clo_list));
@@ -1664,7 +1676,7 @@ fct_clp__parse(fct_clp_t *clp, int argc, char const *argv[])
                 }
                 else
                 {
-                    assert("undefined action requested");
+                    FCT_ASSERT("undefined action requested");
                 }
                 break;  /* No need to parse this argument further. */
             }
@@ -1721,8 +1733,8 @@ static char const*
 fct_clp__optval2(fct_clp_t *clp, char const *option, char const *default_val)
 {
     fctcl_t const *clo =NULL;
-    assert( clp != NULL );
-    assert( option != NULL );
+    FCT_ASSERT( clp != NULL );
+    FCT_ASSERT( option != NULL );
     clo = fct_clp__get_clo(clp, option);
     if ( clo == NULL || clo->value == NULL)
     {
@@ -1805,7 +1817,7 @@ typedef struct _fct_namespace_t
 static void
 fct_namespace_init(fct_namespace_t *ns)
 {
-    assert( ns != NULL && "invalid argument!");
+    FCT_ASSERT( ns != NULL && "invalid argument!");
     memset(ns, 0, sizeof(fct_namespace_t));
 }
 
@@ -1918,8 +1930,8 @@ static fct_logger_types_t FCT_LOGGER_TYPES[] =
 static void
 fctkern__add_logger(fctkern_t *nk, fct_logger_i *logger_owns)
 {
-    assert(nk != NULL && "invalid arg");
-    assert(logger_owns != NULL && "invalid arg");
+    FCT_ASSERT(nk != NULL && "invalid arg");
+    FCT_ASSERT(logger_owns != NULL && "invalid arg");
     fct_nlist__append(&(nk->logger_list), logger_owns);
 }
 
@@ -1977,9 +1989,9 @@ fctkern__add_prefix_filter(fctkern_t *nk, char const *prefix_filter)
 {
     char *filter =NULL;
     size_t filter_len =0;
-    assert( nk != NULL && "invalid arg" );
-    assert( prefix_filter != NULL && "invalid arg" );
-    assert( strlen(prefix_filter) > 0 && "invalid arg" );
+    FCT_ASSERT( nk != NULL && "invalid arg" );
+    FCT_ASSERT( prefix_filter != NULL && "invalid arg" );
+    FCT_ASSERT( strlen(prefix_filter) > 0 && "invalid arg" );
     /* First we make a copy of the prefix, then we store it away
     in our little list. */
     filter_len = strlen(prefix_filter);
@@ -2011,7 +2023,7 @@ fctkern__final(fctkern_t *nk)
 static int
 fctkern__cl_is(fctkern_t *nk, char const *opt_str)
 {
-    assert( opt_str != NULL );
+    FCT_ASSERT( opt_str != NULL );
     return opt_str[0] != '\0'
            && fct_clp__is(&(nk->cl_parser), opt_str);
 }
@@ -2024,7 +2036,7 @@ to DEF_STR. */
 static char const *
 fctkern__cl_val2(fctkern_t *nk, char const *opt_str, char const *def_str)
 {
-    assert( opt_str != NULL );
+    FCT_ASSERT( opt_str != NULL );
     if ( nk == NULL )
     {
         return NULL;
@@ -2039,9 +2051,9 @@ static fct_logger_i*
 fckern_sel_log(fct_logger_types_t *search, char const *sel_logger)
 {
     fct_logger_types_t *iter;
-    assert(search != NULL);
-    assert(sel_logger != NULL);
-    assert(strlen(sel_logger) > 0);
+    FCT_ASSERT(search != NULL);
+    FCT_ASSERT(sel_logger != NULL);
+    FCT_ASSERT(strlen(sel_logger) > 0);
     for ( iter = search; iter->name != NULL; ++iter)
     {
         if ( fctstr_ieq(iter->name, sel_logger) )
@@ -2059,7 +2071,7 @@ fctkern__cl_parse_config_logger(fctkern_t *nk)
     char const *sel_logger =NULL;
     char const *def_logger =FCT_DEFAULT_LOGGER;
     sel_logger = fctkern__cl_val2(nk, FCT_OPT_LOGGER, def_logger);
-    assert(sel_logger != NULL && "should never be NULL");
+    FCT_ASSERT(sel_logger != NULL && "should never be NULL");
     /* First search the user selected types, then search the
     built-in types. */
     if ( nk->lt_usr != NULL )
@@ -2184,8 +2196,8 @@ of a run. */
 static void
 fctkern__add_ts(fctkern_t *nk, fct_ts_t *ts)
 {
-    assert( nk != NULL );
-    assert( ts != NULL );
+    FCT_ASSERT( nk != NULL );
+    FCT_ASSERT( ts != NULL );
     fct_nlist__append(&(nk->ts_list), ts);
 }
 
@@ -2197,9 +2209,9 @@ fctkern__pass_filter(fctkern_t *nk, char const *test_name)
 {
     size_t prefix_i =0;
     size_t prefix_list_size =0;
-    assert( nk != NULL && "invalid arg");
-    assert( test_name != NULL );
-    assert( strlen(test_name) > 0 );
+    FCT_ASSERT( nk != NULL && "invalid arg");
+    FCT_ASSERT( test_name != NULL );
+    FCT_ASSERT( strlen(test_name) > 0 );
     prefix_list_size = fctkern__filter_cnt(nk);
     /* If there is no filter list, then we return FCT_TRUE always. */
     if ( prefix_list_size == 0 )
@@ -2232,7 +2244,7 @@ static size_t
 fctkern__tst_cnt(fctkern_t const *nk)
 {
     size_t tally =0;
-    assert( nk != NULL );
+    FCT_ASSERT( nk != NULL );
     FCT_NLIST_FOREACH_BGN(fct_ts_t *, ts, &(nk->ts_list))
     {
         tally += fct_ts__tst_cnt(ts);
@@ -2247,7 +2259,7 @@ static size_t
 fctkern__tst_cnt_passed(fctkern_t const *nk)
 {
     size_t tally =0;
-    assert( nk != NULL );
+    FCT_ASSERT( nk != NULL );
 
     FCT_NLIST_FOREACH_BGN(fct_ts_t*, ts, &(nk->ts_list))
     {
@@ -2270,7 +2282,7 @@ static size_t
 fctkern__chk_cnt(fctkern_t const *nk)
 {
     size_t tally =0;
-    assert( nk != NULL );
+    FCT_ASSERT( nk != NULL );
 
     FCT_NLIST_FOREACH_BGN(fct_ts_t *, ts, &(nk->ts_list))
     {
@@ -2289,8 +2301,8 @@ fctkern__chk_cnt(fctkern_t const *nk)
 static void
 fctkern__log_suite_start(fctkern_t *nk, fct_ts_t const *ts)
 {
-    assert( nk != NULL );
-    assert( ts != NULL );
+    FCT_ASSERT( nk != NULL );
+    FCT_ASSERT( ts != NULL );
     FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, &(nk->logger_list))
     {
         fct_logger__on_test_suite_start(logger, ts);
@@ -2302,8 +2314,8 @@ fctkern__log_suite_start(fctkern_t *nk, fct_ts_t const *ts)
 static void
 fctkern__log_suite_end(fctkern_t *nk, fct_ts_t const *ts)
 {
-    assert( nk != NULL );
-    assert( ts != NULL );
+    FCT_ASSERT( nk != NULL );
+    FCT_ASSERT( ts != NULL );
     FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, &(nk->logger_list))
     {
         fct_logger__on_test_suite_end(logger, ts);
@@ -2343,8 +2355,8 @@ a condition). */
 static void
 fctkern__log_chk(fctkern_t *nk, fctchk_t const *chk)
 {
-    assert( nk != NULL );
-    assert( chk != NULL );
+    FCT_ASSERT( nk != NULL );
+    FCT_ASSERT( chk != NULL );
     FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, &(nk->logger_list))
     {
         fct_logger__on_chk(logger, chk);
@@ -2357,8 +2369,8 @@ fctkern__log_chk(fctkern_t *nk, fctchk_t const *chk)
 static void
 fctkern__log_warn(fctkern_t *nk, char const *warn)
 {
-    assert( nk != NULL );
-    assert( warn != NULL );
+    FCT_ASSERT( nk != NULL );
+    FCT_ASSERT( warn != NULL );
     FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, &(nk->logger_list))
     {
         fct_logger__on_warn(logger, warn);
@@ -2371,8 +2383,8 @@ fctkern__log_warn(fctkern_t *nk, char const *warn)
 static void
 fctkern__log_test_start(fctkern_t *nk, fct_test_t const *test)
 {
-    assert( nk != NULL );
-    assert( test != NULL );
+    FCT_ASSERT( nk != NULL );
+    FCT_ASSERT( test != NULL );
     FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, &(nk->logger_list))
     {
         fct_logger__on_test_start(logger, test);
@@ -2384,8 +2396,8 @@ fctkern__log_test_start(fctkern_t *nk, fct_test_t const *test)
 static void
 fctkern__log_test_end(fctkern_t *nk, fct_test_t *test)
 {
-    assert( nk != NULL );
-    assert( test != NULL );
+    FCT_ASSERT( nk != NULL );
+    FCT_ASSERT( test != NULL );
     FCT_NLIST_FOREACH_BGN(fct_logger_i*, logger, &(nk->logger_list))
     {
         fct_logger__on_test_end(logger, test);
@@ -2546,7 +2558,7 @@ standard values. */
 static void
 fct_logger__init(fct_logger_i *logger)
 {
-    assert( logger != NULL );
+    FCT_ASSERT( logger != NULL );
     memcpy(
         &(logger->vtable),
         &fct_logger_default_vtable,
@@ -2659,7 +2671,7 @@ fct_logger_record_failure(fctchk_t const* chk, fct_nlist_t* fail_list)
     /* For now we will truncate the string to some set amount, later
     we can work out a dynamic string object. */
     char *str = (char*)malloc(sizeof(char)*FCT_MAX_LOG_LINE);
-    assert( str != NULL );
+    FCT_ASSERT( str != NULL );
     fct_snprintf(
         str,
         FCT_MAX_LOG_LINE,
@@ -3245,7 +3257,7 @@ functions. */
       fctkern__log_end(fctkern_ptr__);\
       fctkern__end(fctkern_ptr__);\
       fctkern__final(fctkern_ptr__);\
-      assert( !((int)num_failed__ < 0) && "or we got truncated!");\
+      FCT_ASSERT( !((int)num_failed__ < 0) && "or we got truncated!");\
       if ( num_failed__ == fctkern_ptr__->num_expected_failures) {\
           return 0;\
       }\
