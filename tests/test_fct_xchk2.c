@@ -13,13 +13,13 @@ File: test_fct_xchk2
 
 FCT_BGN() {
     FCT_QTEST_BGN(three_names) {
-        char *test_names[] = {
+        const char *test_names[] = {
             "test_1",
             "test_2",
             "test_3",
             NULL
         };
-        char **itr;
+        const char **itr;
         for ( itr = test_names; *itr != NULL; ++itr ) {
             fct_xchk2(
                     *itr,
