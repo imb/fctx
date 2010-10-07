@@ -3223,12 +3223,12 @@ from the program. */
 that lives throughout the lifetime of our program. The
 fctkern_ptr__ makes it easier to abstract out macros.  */
 #define FCT_BGN() \
-int main(int argc, const char* argv[])\
+int main(int argc, char* argv[])\
 {\
    fctkern_t  fctkern__;\
    fctkern_t* fctkern_ptr__ = &fctkern__;\
    FCT_REFERENCE_FUNCS();\
-   if ( !fctkern__init(fctkern_ptr__, argc, argv) ) {\
+   if ( !fctkern__init(fctkern_ptr__, argc, (const char **)argv) ) {\
         (void)fprintf(\
             stderr, "FATAL ERROR: Unable to initialize FCTX Kernel."\
         );\
