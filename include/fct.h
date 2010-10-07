@@ -3388,7 +3388,7 @@ do it by 'stubbing' out the setup/teardown logic. */
 typedef enum
 {
     FCT_TEST_END_FLAG_Default    = 0x0000,
-    FCT_TEST_END_FLAG_ClearFail  = 0x0001,
+    FCT_TEST_END_FLAG_ClearFail  = 0x0001
 } FCT_TEST_END_FLAG;
 
 
