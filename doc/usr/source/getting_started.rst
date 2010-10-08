@@ -32,7 +32,7 @@ What follows an overly simple example of testing.
     {
        fct_chk(strcmp("daka", "durka") !=0 );
     }
-    FCT_TEST_END();
+    FCT_QTEST_END();
 
   /* Every FCT scope has an end. */
   }

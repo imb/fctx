@@ -2,6 +2,12 @@
 FCTX Changes
 ++++++++++++
 
+Whats new in FCTX 1.4.2
+-----------------------
+
+ - FIX: DOC - Updated Getting Started sample to use FCT_QTEST_END.
+   Thanks to RhysU for the fix.
+
 Whats new in FCTX 1.4.1
 -----------------------
 
