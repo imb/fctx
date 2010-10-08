@@ -2,6 +2,12 @@
 FCTX Changes
 ++++++++++++
 
+Whats new in FCTX 1.4.1
+-----------------------
+
+ - FIX: Compiler regression with MSV compilers. FCTX should be back to
+   compiling for the MSVC.
+
 Whats new in FCTX 1.4.0
 -----------------------
 
