@@ -2,6 +2,14 @@
 FCTX Changes
 ++++++++++++
 
+Whats new in FCTX 1.4.3
+-----------------------
+
+ - ENH: Allow user to mutate main's argv (useful for initializing
+   libraries. Thanks to RhysU.
+ - FIX: Warning corrections for GCC 4.3.4, Intell 11.1. Thanks to
+   RhysU.
+
 Whats new in FCTX 1.4.2
 -----------------------
 
