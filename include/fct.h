@@ -3579,7 +3579,7 @@ libraries error checking routines. */
 
 /* This checks the condition and reports the condition as a string
 if it fails. */
-#define fct_chk(_CNDTN_)  fct_xchk((_CNDTN_) ? 1 : 0, #_CNDTN_)
+#define fct_chk(_CNDTN_)  (fct_xchk((_CNDTN_) ? 1 : 0, #_CNDTN_))
 
 #define fct_req(_CNDTN_)  \
     if ( !(fct_xchk((_CNDTN_) ? 1 : 0, #_CNDTN_)) ) { break; }

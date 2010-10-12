@@ -47,6 +47,7 @@ SET(SIMPLE_TESTS test_1suite
 		 test_count
                  test_fctkern
                  test_fct_xchk2
+                 test_fct_chk_conditional
                  test_money
 		 test_multi_old_style
 		 test_quick_test
