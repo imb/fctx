@@ -3033,7 +3033,7 @@ fct_junit_logger__on_test_suite_end(
     printf("\t<testsuite errors=\"%lu\" failures=\"0\" tests=\"%lu\" "
            "name=\"%s\" time=\"%.4f\">\n",
            (unsigned long)   fct_ts__tst_cnt(ts)
-                           - fct_ts__tst_cnt_passed(ts),
+           - fct_ts__tst_cnt_passed(ts),
            (unsigned long) fct_ts__tst_cnt(ts),
            fct_ts__name(ts),
            elasped_time);
@@ -3505,7 +3505,8 @@ _fct_xchk_fn_varg(
     int is_pass,
     char const *format,
     va_list args
-) {
+)
+{
     fctchk_t *chk =NULL;
     chk = fctchk_new(
               is_pass,
@@ -3533,7 +3534,8 @@ finally:
 
 
 static int
-fct_xchk2_fn(const char *condition, int is_pass, char const *format, ...) {
+fct_xchk2_fn(const char *condition, int is_pass, char const *format, ...)
+{
     int r =0;
     va_list args;
     va_start(args, format);
