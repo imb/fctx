@@ -1967,7 +1967,7 @@ fctkern__write_help(fctkern_t *nk, FILE *out)
                   "available are,\n", out);
             for (type_i =0; type_i != 2; ++type_i )
             {
-                for ( itr=types[type_i]; itr->name != NULL; ++itr )
+                for ( itr=types[type_i]; itr && itr->name != NULL; ++itr )
                 {
                     fprintf(out, "   =%s : %s\n", itr->name, itr->desc);
                 }
