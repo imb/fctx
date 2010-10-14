@@ -1631,7 +1631,7 @@ fct_clp__parse(fct_clp_t *clp, int argc, char const *argv[])
         next_token = NULL;
         arg = fctstr_clone(argv[argi]);
 
-#if _MSC_VER > 1300
+#if defined(_MSC_VER) && _MSC_VER > 1300
         token = strtok_s(arg, "=", &next_token);
 #else
         token = strtok(arg, "=");
