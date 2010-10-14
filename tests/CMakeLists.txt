@@ -48,6 +48,7 @@ SET(SIMPLE_TESTS test_1suite
                  test_fctkern
                  test_fct_xchk2
                  test_fct_chk_conditional
+                 test_help_logger
                  test_money
 		 test_multi_old_style
 		 test_quick_test
@@ -106,6 +107,10 @@ FOREACH( PROGRAM ${SIMPLE_TESTS})
   ADD_TEST(run_${PROGRAM}_with_minimal
       ${EXECUTABLE_OUTPUT_PATH}/${PROGRAM} 
       --logger=minimal
+  )
+  ADD_TEST(run_${PROGRAM}_help
+      ${EXECUTABLE_OUTPUT_PATH}/${PROGRAM}
+      --help
   )
   TEST_CPP_VERSION(${PROGRAM})
 ENDFOREACH(PROGRAM)

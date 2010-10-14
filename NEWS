@@ -5,10 +5,15 @@ FCTX Changes
 Whats new in FCTX 1.4.3
 -----------------------
 
+Many thanks to suggestions from RhysU (http://github.com/RhysU) for
+his patches to make FCTX better.
+
  - ENH: Ability to use fct_chk in an if conditional. You can then
    conditionally execute further checks based on the first check.
  - ENH: Allow user to mutate main's argv (useful for initializing
    libraries. Thanks to RhysU.
+ - FIX: Fix to handle simple unit test case (catches segmentation
+   fault).
  - FIX: Warning corrections for GCC 4.3.4, Intell 11.1. Thanks to
    RhysU.
 
