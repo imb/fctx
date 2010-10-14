@@ -211,7 +211,8 @@ custlog_new(void)
 ones use the same name (i.e. "standard" to override the default logger). */
 static fct_logger_types_t custlogs[] =
 {
-    {"custlog", (fct_logger_new_fn)custlog_new,
+    {
+        "custlog", (fct_logger_new_fn)custlog_new,
         "custom logger example, outputs everything!"
     },
     {NULL, (fct_logger_new_fn)NULL, NULL} /* Sentinel */

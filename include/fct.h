@@ -1881,18 +1881,23 @@ static fctcl_init_t FCT_CLP_OPTIONS[] =
     /* Totally unsafe, since we are assuming we can clean out this data,
     what I need to do is have an "initialization" object, full of
     const objects. But for now, this should work. */
-    {FCT_OPT_VERSION,
+    {
+        FCT_OPT_VERSION,
         FCT_OPT_VERSION_SHORT,
         FCTCL_STORE_TRUE,
-        "Displays the FCTX version number and exits."},
-    {FCT_OPT_HELP,
-     FCT_OPT_HELP_SHORT,
-     FCTCL_STORE_TRUE,
-     "Shows this help."},
-    {FCT_OPT_LOGGER,
-     FCT_OPT_LOGGER_SHORT,
-     FCTCL_STORE_VALUE,
-     NULL
+        "Displays the FCTX version number and exits."
+    },
+    {
+        FCT_OPT_HELP,
+        FCT_OPT_HELP_SHORT,
+        FCTCL_STORE_TRUE,
+        "Shows this help."
+    },
+    {
+        FCT_OPT_LOGGER,
+        FCT_OPT_LOGGER_SHORT,
+        FCTCL_STORE_VALUE,
+        NULL
     },
     FCTCL_INIT_NULL /* Sentinel */
 };
@@ -1907,17 +1912,20 @@ struct _fct_logger_types_t
 
 static fct_logger_types_t FCT_LOGGER_TYPES[] =
 {
-    {"standard",
+    {
+        "standard",
         (fct_logger_new_fn)fct_standard_logger_new,
         "the basic fctx logger"
     },
-    {"minimal",
-     (fct_logger_new_fn)fct_minimal_logger_new,
-     "the least amount of logging information."
+    {
+        "minimal",
+        (fct_logger_new_fn)fct_minimal_logger_new,
+        "the least amount of logging information."
     },
-    {"junit",
-     (fct_logger_new_fn)fct_junit_logger_new,
-     "junit compatable xml"
+    {
+        "junit",
+        (fct_logger_new_fn)fct_junit_logger_new,
+        "junit compatable xml"
     },
     {NULL, (fct_logger_new_fn)NULL, NULL} /* Sentinel */
 };
