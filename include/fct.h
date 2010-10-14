@@ -3247,12 +3247,22 @@ int main(int argc, char* argv[])\
         );\
         exit(EXIT_FAILURE);\
    }\
- 
+
+/* Silence Intel complaints about unspecified operand order in user's code */
+#ifndef __INTEL_COMPILER
+# define FCT_END_WARNINGFIX_BGN
+# define FCT_END_WARNINGFIX_END
+#else
+# define FCT_END_WARNINGFIX_BGN _Pragma("warning(push,disable:981)");
+# define FCT_END_WARNINGFIX_END _Pragma("warning(pop)");
+#endif
+
 /* Ends the test suite by returning the number failed. The "chk_cnt" call is
 made in order allow strict compilers to pass when it encounters unreferenced
 functions. */
 #define FCT_END()\
    {\
+      FCT_END_WARNINGFIX_BGN\
       size_t num_failed__ =0;\
       num_failed__ = fctkern__tst_cnt_failed((fctkern_ptr__));\
       fctkern__log_end(fctkern_ptr__);\
@@ -3263,6 +3273,7 @@ functions. */
           return 0;\
       }\
       return (int)num_failed__;\
+      FCT_END_WARNINGFIX_END\
    }\
 }
 
