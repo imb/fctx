@@ -3255,7 +3255,7 @@ int main(int argc, char* argv[])\
         );\
         exit(EXIT_FAILURE);\
    }\
-
+ 
 /* Silence Intel complaints about unspecified operand order in user's code */
 #ifndef __INTEL_COMPILER
 # define FCT_END_WARNINGFIX_BGN

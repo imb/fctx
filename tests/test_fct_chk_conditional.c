@@ -12,18 +12,26 @@ This code is designed to fail. It runs tests to confirm that failure conditions 
 
 #include "fct.h"
 
-FCT_BGN() {
+FCT_BGN()
+{
 
-    FCT_QTEST_BGN(fct_chk_if) {
-        if ( fct_chk(1) ) {
-           fct_chk(1);
+    FCT_QTEST_BGN(fct_chk_if)
+    {
+        if ( fct_chk(1) )
+        {
+            fct_chk(1);
         }
-    } FCT_QTEST_END();
+    }
+    FCT_QTEST_END();
 
-    FCT_QTEST_BGN(fct_xchk_if) {
-        if ( fct_xchk(1, "") ) {
-           fct_chk(1);
+    FCT_QTEST_BGN(fct_xchk_if)
+    {
+        if ( fct_xchk(1, "") )
+        {
+            fct_chk(1);
         }
-    } FCT_QTEST_END();
+    }
+    FCT_QTEST_END();
 
-} FCT_END();
+}
+FCT_END();
