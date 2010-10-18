@@ -3589,8 +3589,21 @@ libraries error checking routines. */
 if it fails. */
 #define fct_chk(_CNDTN_)  (fct_xchk((_CNDTN_) ? 1 : 0, #_CNDTN_))
 
-#define fct_req(_CNDTN_)  \
+#define _fct_req(_CNDTN_)  \
     if ( !(fct_xchk((_CNDTN_) ? 1 : 0, #_CNDTN_)) ) { break; }
+
+
+#define fct_req(_CNDTN_) 				                 \
+    if ( fct_ts__is_test_mode(fctkern_ptr__->ns.ts_curr) ) {             \
+       _fct_req((_CNDTN_));                                              \
+    }                                                                    \
+    else if ( fct_ts__is_setup_mode(fctkern_ptr__->ns.ts_curr)           \
+              || fct_ts__is_teardown_mode(fctkern_ptr__->ns.ts_curr) ) { \
+       printf("in setup/teardown");                                      \
+    } else {                                                             \
+       assert("invalid condition for fct_req!");                         \
+       _fct_req((_CNDTN_));                                         \
+    }
 
 
 #define fct_chk_eq_dbl(V1, V2) \
