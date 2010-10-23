@@ -13,12 +13,14 @@ and invoking the --help option. First reported by RhysU.
 
 #include "fct.h"
 
-FCT_BGN() {
-
-FCT_QTEST_BGN(debug)
+FCT_BGN()
 {
-    fct_chk(1);
-}
-FCT_QTEST_END();
 
-} FCT_END();
+    FCT_QTEST_BGN(debug)
+    {
+        fct_chk(1);
+    }
+    FCT_QTEST_END();
+
+}
+FCT_END();
