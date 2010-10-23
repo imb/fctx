@@ -7,7 +7,7 @@ you should have received as part of this distribution.
 ====================================================================
 File: test_basic.c
 
-Provides a dumping ground for basic tests of fct.
+Test compiling a 'blank' unit test.
 */
 
 #include "fct.h"
