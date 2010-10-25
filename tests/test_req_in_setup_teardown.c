@@ -12,5 +12,19 @@ Tests running fct_req within a setup and teardown.
 
 FCT_BGN() {
 
+    FCT_FIXTURE_SUITE_BGN(check_in_setup) {
+        FCT_SETUP_BGN() {
+        } FCT_SETUP_END();
+
+        FCT_TEARDOWN_BGN() {
+        } FCT_TEARDOWN_END();
+
+        FCT_TEST_BGN(setup_test1) {
+        } FCT_TEST_END();
+
+        FCT_TEST_BGN(setup_test1) {
+        } FCT_TEST_END();
+    } FCT_FIXTURE_SUITE_END();
+
 } FCT_END();
 
