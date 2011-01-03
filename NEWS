@@ -14,7 +14,7 @@ his patches to make FCTX better.
    libraries. Thanks to RhysU.
  - FIX: Fix to handle simple unit test case (catches segmentation
    fault).
- - FIX: Warning corrections for GCC 4.3.4, Intell 11.1. Thanks to
+ - FIX: Warning corrections for GCC 4.3.4, Intel 11.1. Thanks to
    RhysU.
 
 Whats new in FCTX 1.4.2
