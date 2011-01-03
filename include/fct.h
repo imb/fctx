@@ -1068,15 +1068,17 @@ can change from "setup mode", to "test mode" to "tear down" mode.
 These help to indicate what mode are currently in. Think of it as a
 basic FSM.
 
-            if the count was 0                               end
-           +--------->---------------------> ending_mode-----+
-           |                                       ^
-           ^                                       |
-start      |                              [if no more tests]
-  |        |                                       |
-  +-count_mode -> setup_mode -> test_mode -> teardown_mode
-                      ^                           |
-                      +-----------<---------------+
+            if the count was 0                                 end
+           +--------->---------------------> ending_mode-----+-+
+           |                                       ^         |
+           ^                                       |         ^
+start      |                              [if no more tests] |
+  |        |                                       |         |
+  +-count_mode -> setup_mode -> test_mode -> teardown_mode->-+
+                   |  ^                           |          |
+                   |  +-----------<---------------+          |
+                   +----------->---[if fct_req fails]--------+
+
 */
 enum ts_mode
 {
@@ -1085,7 +1087,8 @@ enum ts_mode
     ts_mode_teardown,    /* To ending mode, when no more tests. */
     ts_mode_test,        /* To tear down mode. */
     ts_mode_ending,      /* To ... */
-    ts_mode_end          /* .. The End. */
+    ts_mode_end,         /* .. The End. */
+    ts_mode_abort        /* Abort */
 };
 
 /* Types of states the test could be in. */
@@ -1121,6 +1124,7 @@ struct _fct_ts_t
 #define fct_ts__is_ending_mode(ts)    ((ts)->mode == ts_mode_ending)
 #define fct_ts__is_end(ts)            ((ts)->mode == ts_mode_end)
 #define fct_ts__is_cnt_mode(ts)       ((ts)->mode == ts_mode_cnt)
+#define fct_ts__is_abort_mode(ts)     ((ts)->mode == ts_mode_abort)
 
 /* This cndtn is set when we have iterated through all the tests, and
 there was nothing more to do. */
@@ -1192,8 +1196,6 @@ static void
 fct_ts__test_end(fct_ts_t *ts)
 {
     FCT_ASSERT( ts != NULL );
-    FCT_ASSERT( fct_ts__is_test_mode(ts) && "not in test mode, can't end!" );
-
     /* After a test has completed, move to teardown mode. */
     ts->mode = ts_mode_teardown;
 }
@@ -1215,19 +1217,35 @@ setup mode. You must be already in setup mode for this to work! */
 static void
 fct_ts__setup_end(fct_ts_t *ts)
 {
-    FCT_ASSERT( fct_ts__is_setup_mode(ts) );
-    FCT_ASSERT( !fct_ts__is_end(ts) );
-    ts->mode = ts_mode_test;
+    if ( ts->mode != ts_mode_abort ) {
+        ts->mode = ts_mode_test;
+    }
 }
 
+
+static fct_test_t *
+fct_ts__make_setup_abort_test(fct_ts_t *ts) {
+    char setup_testname[FCT_MAX_LOG_LINE+1] = {'\0'};
+    char const *suitename = fct_ts__name(ts);
+    fct_snprintf(setup_testname, FCT_MAX_LOG_LINE, "setup_%s", suitename);
+    return fct_test_new(setup_testname);
+}
+
+/* Flags a pre-mature abort of a setup (like a failed fct_req). */
+static void
+fct_ts__setup_abort(fct_ts_t *ts) {
+    FCT_ASSERT( ts != NULL );
+    ts->mode = ts_mode_ending;
+}
 
 /* Flags the end of the teardown, which implies we are going to move
 into setup mode (for the next 'iteration'). */
 static void
 fct_ts__teardown_end(fct_ts_t *ts)
 {
-    FCT_ASSERT( fct_ts__is_teardown_mode(ts) );
-    FCT_ASSERT( !fct_ts__is_end(ts) );
+    if ( ts->mode == ts_mode_abort ) {
+        return; /* Because we are aborting . */
+    }
     /* We have to decide if we should keep on testing by moving into tear down
     mode or if we have reached the real end and should be moving into the
     ending mode. */
@@ -3339,12 +3357,13 @@ specification. */
          for (;;)\
          {\
              fctkern_ptr__->ns.test_num = -1;\
-             if ( fct_ts__is_ending_mode(fctkern_ptr__->ns.ts_curr) )\
+             if ( fct_ts__is_ending_mode(fctkern_ptr__->ns.ts_curr) \
+                  || fct_ts__is_abort_mode(fctkern_ptr__->ns.ts_curr) )\
              {\
                _fct_cmt("flag the test suite as complete.");\
                fct_ts__end(fctkern_ptr__->ns.ts_curr);\
                break;\
-             }\
+             }
 
 
 
@@ -3396,7 +3415,7 @@ do it by 'stubbing' out the setup/teardown logic. */
    FCT_SETUP_BGN() {_fct_cmt("stubbed"); } FCT_SETUP_END()\
    FCT_TEARDOWN_BGN() {_fct_cmt("stubbed");} FCT_TEARDOWN_END()\
 
-#define FCT_SUITE_END() } FCT_FIXTURE_SUITE_END()
+#define FCT_SUITE_END() } FCT_FIXTURE_SUITE_ENDFCT_FIXTURE_SUITE_END()
 
 #define FCT_SUITE_BGN_IF(_CONDITION_, _NAME_) \
     FCT_FIXTURE_SUITE_BGN_IF(_CONDITION_, (_NAME_)) {\
@@ -3593,13 +3612,23 @@ if it fails. */
     if ( !(fct_xchk((_CNDTN_) ? 1 : 0, #_CNDTN_)) ) { break; }
 
 
+/* When in test mode, construct a mock test object for fct_xchk to operate
+with. If we fail a setup up, then we go directly to a teardown mode. */
 #define fct_req(_CNDTN_) 				                                 \
     if ( fct_ts__is_test_mode(fctkern_ptr__->ns.ts_curr) ) {             \
        _fct_req((_CNDTN_));                                              \
     }                                                                    \
     else if ( fct_ts__is_setup_mode(fctkern_ptr__->ns.ts_curr)           \
               || fct_ts__is_teardown_mode(fctkern_ptr__->ns.ts_curr) ) { \
-       printf("in setup/teardown");                                      \
+       fctkern_ptr__->ns.curr_test = fct_ts__make_setup_abort_test(      \
+            fctkern_ptr__->ns.ts_curr                                    \
+            );                                                           \
+       if ( !(fct_xchk((_CNDTN_) ? 1 : 0, #_CNDTN_)) ) {                 \
+           fct_ts__setup_abort(fctkern_ptr__->ns.ts_curr);               \
+           fct_ts__add_test(                                             \
+                fctkern_ptr__->ns.ts_curr, fctkern_ptr__->ns.curr_test   \
+                );                                                       \
+       }                                                                 \
     } else {                                                             \
        assert("invalid condition for fct_req!");                         \
        _fct_req((_CNDTN_));                                              \
