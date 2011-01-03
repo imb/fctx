@@ -2,11 +2,11 @@
 FCTX Changes
 ++++++++++++
 
-Whats new in FCTX 1.4.3
+Whats new in FCTX 1.4.2
 -----------------------
 
-Many thanks to suggestions from RhysU (http://github.com/RhysU) for
-his patches to make FCTX better.
+Many thanks to suggestions from Rhys Ulerich (http://github.com/RhysU)
+for his patches to make FCTX better.
 
  - ENH: Ability to use fct_chk in an if conditional. You can then
    conditionally execute further checks based on the first check.
@@ -16,10 +16,6 @@ his patches to make FCTX better.
    fault).
  - FIX: Warning corrections for GCC 4.3.4, Intel 11.1. Thanks to
    RhysU.
-
-Whats new in FCTX 1.4.2
------------------------
-
  - FIX: DOC - Updated Getting Started sample to use FCT_QTEST_END.
    Thanks to RhysU for the fix.
 
