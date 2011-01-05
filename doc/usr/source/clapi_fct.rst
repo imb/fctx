@@ -198,7 +198,7 @@ Types
 .. c:type:: fctcl_init_t
 
    Use this structure to initialize your options. The structure is usually
-   initialized as part of a listing of command line options. Each filed is
+   initialized as part of a listing of command line options. Each field is
    described below.
 
    .. c:member:: char const * long_opt
