@@ -1224,7 +1224,7 @@ fct_ts__setup_end(fct_ts_t *ts)
 
 
 static fct_test_t *
-fct_ts__make_setup_abort_test(fct_ts_t *ts) {
+fct_ts__make_abort_test(fct_ts_t *ts) {
     char setup_testname[FCT_MAX_LOG_LINE+1] = {'\0'};
     char const *suitename = fct_ts__name(ts);
     fct_snprintf(setup_testname, FCT_MAX_LOG_LINE, "setup_%s", suitename);
@@ -2047,7 +2047,7 @@ fctkern__final(fctkern_t *nk)
 
 
 static int
-ffFctkern__cl_is(fctkern_t *nk, char const *opt_str)
+fctkern__cl_is(fctkern_t *nk, char const *opt_str)
 {
     FCT_ASSERT( opt_str != NULL );
     return opt_str[0] != '\0'
@@ -3217,7 +3217,7 @@ they are needed, but at runtime, only the cheap, first call is made. */
             (void)fct_ts__add_test(NULL, NULL);\
             (void)fct_ts__test_end(NULL);\
             (void)fct_ts__inc_total_test_num(NULL);\
-            (void)fct_ts__make_setup_abort_test(NULL);\
+            (void)fct_ts__make_abort_test(NULL);\
             (void)fct_ts__setup_abort(NULL);\
             (void)fct_ts__setup_end(NULL);\
             (void)fct_ts__teardown_end(NULL);\
@@ -3417,7 +3417,7 @@ do it by 'stubbing' out the setup/teardown logic. */
    FCT_SETUP_BGN() {_fct_cmt("stubbed"); } FCT_SETUP_END()\
    FCT_TEARDOWN_BGN() {_fct_cmt("stubbed");} FCT_TEARDOWN_END()\
 
-#define FCT_SUITE_END() } FCT_FIXTURE_SUITE_ENDFCT_FIXTURE_SUITE_END()
+#define FCT_SUITE_END() } FCT_FIXTURE_SUITE_END()
 
 #define FCT_SUITE_BGN_IF(_CONDITION_, _NAME_) \
     FCT_FIXTURE_SUITE_BGN_IF(_CONDITION_, (_NAME_)) {\
@@ -3622,7 +3622,7 @@ with. If we fail a setup up, then we go directly to a teardown mode. */
     }                                                                    \
     else if ( fct_ts__is_setup_mode(fctkern_ptr__->ns.ts_curr)           \
               || fct_ts__is_teardown_mode(fctkern_ptr__->ns.ts_curr) ) { \
-       fctkern_ptr__->ns.curr_test = fct_ts__make_setup_abort_test(      \
+       fctkern_ptr__->ns.curr_test = fct_ts__make_abort_test(            \
             fctkern_ptr__->ns.ts_curr                                    \
             );                                                           \
        if ( !(fct_xchk((_CNDTN_) ? 1 : 0, #_CNDTN_)) ) {                 \

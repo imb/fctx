@@ -10,6 +10,8 @@ File: test_req_in_setup_teardown.c
 Tests running fct_req within a setup and teardown.
 */
 
+#include "fct.h"
+
 FCT_BGN() {
 
 } FCT_END();
