@@ -1235,7 +1235,7 @@ fct_ts__make_setup_abort_test(fct_ts_t *ts) {
 static void
 fct_ts__setup_abort(fct_ts_t *ts) {
     FCT_ASSERT( ts != NULL );
-    ts->mode = ts_mode_ending;
+    ts->mode = ts_mode_abort;
 }
 
 /* Flags the end of the teardown, which implies we are going to move
@@ -2047,7 +2047,7 @@ fctkern__final(fctkern_t *nk)
 
 
 static int
-fctkern__cl_is(fctkern_t *nk, char const *opt_str)
+ffFctkern__cl_is(fctkern_t *nk, char const *opt_str)
 {
     FCT_ASSERT( opt_str != NULL );
     return opt_str[0] != '\0'
@@ -3217,6 +3217,8 @@ they are needed, but at runtime, only the cheap, first call is made. */
             (void)fct_ts__add_test(NULL, NULL);\
             (void)fct_ts__test_end(NULL);\
             (void)fct_ts__inc_total_test_num(NULL);\
+            (void)fct_ts__make_setup_abort_test(NULL);\
+            (void)fct_ts__setup_abort(NULL);\
             (void)fct_ts__setup_end(NULL);\
             (void)fct_ts__teardown_end(NULL);\
             (void)fct_ts__cnt_end(NULL);\
