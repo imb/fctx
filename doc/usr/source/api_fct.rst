@@ -418,7 +418,7 @@ These are used to verify that a condition is true. They are executed within
              
     in the above example, the second check should generate a test error.
 
-.. c:function:: fct_xchk(condition_str, condition, format_str, ...)
+.. c:function:: fct_xchk2(condition_str, condition, format_str, ...)
 
     *New in FCTX 1.4.1*. Works like fct_xchk, but allows you to supply a
     value for the check condition.
