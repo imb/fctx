@@ -429,3 +429,6 @@ These are used to verify that a condition is true. They are executed within
     cause a test to fail.  This differs from :c:func:`fct_chk` in so far as a
     false state causes the test block to abort.
 
+    *Starting with FCTX 1.5* :c:func:`fct_req` will work within a
+    :c:func:`FCT_SETUP_BGN`/:c:func:`FCT_SETUP_END` block. If 
+    a :c:func:`fct_req` call fails, the entire test suite will be aborted.
