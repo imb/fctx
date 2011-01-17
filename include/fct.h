@@ -2,7 +2,7 @@
 ====================================================================
 Copyright (c) 2008 Ian Blumel.  All rights reserved.
 
-FCT (Fast C Test) Unit Testing Framework
+FCTX (Fast C Test) Unit Testing Framework
 
 Copyright (c) 2008, Ian Blumel (ian.blumel@gmail.com)
 All rights reserved.
@@ -58,8 +58,8 @@ with a standard logger. */
 #endif /* !FCT_DEFAULT_LOGGER */
 
 #define FCT_VERSION_MAJOR 1
-#define FCT_VERSION_MINOR 4
-#define FCT_VERSION_MICRO 2
+#define FCT_VERSION_MINOR 5
+#define FCT_VERSION_MICRO 0
 
 #define _FCT_QUOTEME(x) #x
 #define FCT_QUOTEME(x) _FCT_QUOTEME(x)
