@@ -2,6 +2,17 @@
 FCTX Changes
 ++++++++++++
 
+Whats new in FCTX 1.5.0
+.......................
+
+This release focused on a rework of the fct_req check to allow it to
+abort a test suite if a setup or teardown check fails. This involved
+some disruptive work to the test suite structure, and warrants a
+release on its own. The change should be backwards compatible.
+
+ - ENH: fct_req will now abort a test suite if it fails in a setup and
+   teardown block. 
+
 Whats new in FCTX 1.4.2
 -----------------------
 
