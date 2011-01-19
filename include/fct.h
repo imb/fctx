@@ -3627,7 +3627,7 @@ if it fails. */
 
 /* When in test mode, construct a mock test object for fct_xchk to operate
 with. If we fail a setup up, then we go directly to a teardown mode. */
-#define fct_req(_CNDTN_) 				                                 \
+#define fct_req(_CNDTN_) 				                 \
     if ( fct_ts__is_test_mode(fctkern_ptr__->ns.ts_curr) ) {             \
        _fct_req((_CNDTN_));                                              \
     }                                                                    \
