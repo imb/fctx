@@ -2,8 +2,15 @@
 FCTX Changes
 ++++++++++++
 
+Whats new in FCTX 1.6.0
+-----------------------
+
+ - ENH: New fct_chk_ex will check that a C++ exception is generated within 
+   a code block. Only in C++. 
+
+
 Whats new in FCTX 1.5.0
-.......................
+-----------------------
 
 This release focused on a rework of the fct_req check to allow it to
 abort a test suite if a setup or teardown check fails. This involved

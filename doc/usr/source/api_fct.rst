@@ -432,3 +432,12 @@ These are used to verify that a condition is true. They are executed within
     *Starting with FCTX 1.5* :c:func:`fct_req` will work within a
     :c:func:`FCT_SETUP_BGN`/:c:func:`FCT_SETUP_END` block. If 
     a :c:func:`fct_req` call fails, the entire test suite will be aborted.
+
+C++ Only Checks
+---------------
+
+.. c:function:: fct_chk_ex(exception, CODE_BLOCK) 
+
+    *New in FCTX 1.6*. Checks for the given *exception* with in the   
+    *CODE_BLOCK*. The *CODE_BLOCK* could be 1 or more lines.
+      

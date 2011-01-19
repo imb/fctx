@@ -187,3 +187,7 @@ TEST_COMMAND_LINE(noflag_novalue 0 0)
 TEST_COMMAND_LINE(noflag_value   0 1)
 TEST_COMMAND_LINE(flag_novalue   1 0)
 TEST_COMMAND_LINE(flag_value     1 1)
+
+# C++ Only 
+add_executable(test_chk_ex test_chk_ex.cxx)
+add_test(test_chk_ex ${EXECUTABLE_OUTPUT_PATH}/test_chk_ex)

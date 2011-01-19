@@ -3812,6 +3812,23 @@ _fct_chk_full_str(char const *s)
         (V2)\
         )
 
+#define fct_chk_ex(EXCEPTION, CODE)   \
+   {                                  \
+      bool pass_chk_ex = false;       \
+      try {                           \
+          CODE;                       \
+          pass_chk_ex = false;        \
+      } catch ( EXCEPTION ) {         \
+          pass_chk_ex = true;         \
+      } catch ( ... ) {               \
+          pass_chk_ex = false;        \
+      }                               \
+      fct_xchk(                       \
+	pass_chk_ex,                  \
+        "%s exception not generated", \
+        #EXCEPTION                    \
+      );                              \
+   }                                  \
 
 /*
 ---------------------------------------------------------
