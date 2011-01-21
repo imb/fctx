@@ -46,6 +46,7 @@ SET(SIMPLE_TESTS test_1suite
                  test_chk_types
 		 test_count
                  test_fctkern
+                 test_fct_bgn_func
                  test_fct_xchk2
                  test_fct_chk_conditional
                  test_help_logger

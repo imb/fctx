@@ -7,6 +7,8 @@ Whats new in FCTX 1.6.0
 
  - ENH: New fct_chk_ex will check that a C++ exception is generated within 
    a code block. Only in C++. 
+ - ENH: Add new FCT_BGN_FN/FCT_END_FN to bootstrap the test framework
+   without using "main".
 
 
 Whats new in FCTX 1.5.0

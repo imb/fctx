@@ -12,13 +12,41 @@ Initialize/Finalize
 
 .. c:function:: FCT_BGN()
 
-	Initializes your test framework. Every test program needs to begin with
-	this declaration.
+        Initializes your test framework. Every test program needs to
+        begin with this declaration.
 
 .. c:function:: FCT_END()
 
-	Finalizes your test framwork. Every test program neesd to end with this
-	declaration.
+        Finalizes your test framework. Every test program neesd to end
+        with this declaration.
+
+.. c:function:: FCT_BGN_FN(fname)
+
+        *New in 1.6*. Allows you to start unit tests with a function,
+        *fname*, other than the standard main. 
+
+        .. code-block:: c 
+   
+            FCT_BGN_FN(myentry) {
+                FCT_QTEST_BGN(test_func) {
+                    fct_chk(1);
+                } FCT_QTEST_END();
+            } FCT_END_FN();
+
+            int
+            main(int argc, char *argv[]) {
+                return myentry(argc, argv);
+            }
+
+        The function needs to get the standard *argc* and *argv* values.
+        In the example above we are simplying forwarding *argc* and
+        *argv*, but you could create your own argc and argv. Keep in
+        mind that you must mimic the program name.
+
+.. c:function:: FCT_END_FN()
+
+        *New in 1.6*. Finalize your test framework started via
+        c:func:`FCT_BGN_FN`.
 
 .. c:function:: FCT_EXPECTED_FAILURES(num_failed)
 

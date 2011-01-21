@@ -944,7 +944,7 @@ struct _fct_test_t
 /* Clears the failed tests ... partly for internal testing. */
 #define fct_test__clear_failed(test) \
     fct_nlist__clear(test->failed_chks, (fct_nlist_on_del_t)fctchk__del);\
-
+ 
 
 static void
 fct_test__del(fct_test_t *test)
@@ -1217,14 +1217,16 @@ setup mode. You must be already in setup mode for this to work! */
 static void
 fct_ts__setup_end(fct_ts_t *ts)
 {
-    if ( ts->mode != ts_mode_abort ) {
+    if ( ts->mode != ts_mode_abort )
+    {
         ts->mode = ts_mode_test;
     }
 }
 
 
 static fct_test_t *
-fct_ts__make_abort_test(fct_ts_t *ts) {
+fct_ts__make_abort_test(fct_ts_t *ts)
+{
     char setup_testname[FCT_MAX_LOG_LINE+1] = {'\0'};
     char const *suitename = fct_ts__name(ts);
     fct_snprintf(setup_testname, FCT_MAX_LOG_LINE, "setup_%s", suitename);
@@ -1233,7 +1235,8 @@ fct_ts__make_abort_test(fct_ts_t *ts) {
 
 /* Flags a pre-mature abort of a setup (like a failed fct_req). */
 static void
-fct_ts__setup_abort(fct_ts_t *ts) {
+fct_ts__setup_abort(fct_ts_t *ts)
+{
     FCT_ASSERT( ts != NULL );
     ts->mode = ts_mode_abort;
 }
@@ -1243,7 +1246,8 @@ into setup mode (for the next 'iteration'). */
 static void
 fct_ts__teardown_end(fct_ts_t *ts)
 {
-    if ( ts->mode == ts_mode_abort ) {
+    if ( ts->mode == ts_mode_abort )
+    {
         return; /* Because we are aborting . */
     }
     /* We have to decide if we should keep on testing by moving into tear down
@@ -3260,11 +3264,8 @@ from the program. */
 #define FCT_EXPECTED_FAILURES(_NUM_FAILS_) \
     ((fctkern_ptr__->num_expected_failures = (_NUM_FAILS_)))
 
-/* This defines our start. The fctkern__ is a kernal object
-that lives throughout the lifetime of our program. The
-fctkern_ptr__ makes it easier to abstract out macros.  */
-#define FCT_BGN() \
-int main(int argc, char* argv[])\
+#define FCT_BGN_FN(_FNNAME_) \
+int _FNNAME_(int argc, char* argv[])\
 {\
    fctkern_t  fctkern__;\
    fctkern_t* fctkern_ptr__ = &fctkern__;\
@@ -3276,6 +3277,13 @@ int main(int argc, char* argv[])\
         exit(EXIT_FAILURE);\
    }\
  
+#define FCT_END_FN() FCT_END()
+
+/* This defines our start. The fctkern__ is a kernal object
+that lives throughout the lifetime of our program. The
+fctkern_ptr__ makes it easier to abstract out macros.  */
+#define FCT_BGN() FCT_BGN_FN(main)
+
 /* Silence Intel complaints about unspecified operand order in user's code */
 #ifndef __INTEL_COMPILER
 # define FCT_END_WARNINGFIX_BGN
@@ -3406,7 +3414,7 @@ specification. */
     FCT_FIXTURE_SUITE_END();\
     fctkern_ptr__->ns.ts_is_skip_suite =0;\
     fctkern_ptr__->ns.ts_skip_cndtn =NULL;\
-
+ 
 #define FCT_SETUP_BGN()\
    if ( fct_ts__is_setup_mode(fctkern_ptr__->ns.ts_curr) ) {
 
@@ -3415,7 +3423,7 @@ specification. */
 
 #define FCT_TEARDOWN_BGN() \
    if ( fct_ts__is_teardown_mode(fctkern_ptr__->ns.ts_curr) ) {\
-
+ 
 #define FCT_TEARDOWN_END() \
    fct_ts__teardown_end(fctkern_ptr__->ns.ts_curr); \
    continue; \
@@ -3427,14 +3435,14 @@ do it by 'stubbing' out the setup/teardown logic. */
    FCT_FIXTURE_SUITE_BGN(Name) {\
    FCT_SETUP_BGN() {_fct_cmt("stubbed"); } FCT_SETUP_END()\
    FCT_TEARDOWN_BGN() {_fct_cmt("stubbed");} FCT_TEARDOWN_END()\
-
+ 
 #define FCT_SUITE_END() } FCT_FIXTURE_SUITE_END()
 
 #define FCT_SUITE_BGN_IF(_CONDITION_, _NAME_) \
     FCT_FIXTURE_SUITE_BGN_IF(_CONDITION_, (_NAME_)) {\
     FCT_SETUP_BGN() {_fct_cmt("stubbed"); } FCT_SETUP_END()\
     FCT_TEARDOWN_BGN() {_fct_cmt("stubbed");} FCT_TEARDOWN_END()\
-
+ 
 #define FCT_SUITE_END_IF() } FCT_FIXTURE_SUITE_END_IF()
 
 typedef enum
@@ -3448,7 +3456,7 @@ typedef enum
     fctkern_ptr__->ns.test_is_skip = !(_CONDITION_);\
     fctkern_ptr__->ns.test_skip_cndtn = #_CONDITION_;\
     FCT_TEST_BGN(_NAME_) {\
-
+ 
 #define FCT_TEST_END_IF() \
     } FCT_TEST_END();\
     fctkern_ptr__->ns.test_is_skip = 0;\
@@ -3512,7 +3520,7 @@ object (should be rare). */
                continue;\
             }\
          }\
-
+ 
 
 
 /*
@@ -3829,7 +3837,7 @@ _fct_chk_full_str(char const *s)
         #EXCEPTION                    \
       );                              \
    }                                  \
-
+ 
 /*
 ---------------------------------------------------------
 GUT CHECK MACROS
@@ -3912,7 +3920,7 @@ The basic idea is that there is one test per test suite.
 #define FCT_QTEST_BGN(NAME) \
 	FCT_SUITE_BGN(NAME) {\
 		FCT_TEST_BGN(NAME) {\
-
+ 
 #define FCT_QTEST_END() \
 		} FCT_TEST_END();\
 	} FCT_SUITE_END();
@@ -3921,7 +3929,7 @@ The basic idea is that there is one test per test suite.
 #define FCT_QTEST_BGN_IF(_CONDITION_, _NAME_) \
 	FCT_SUITE_BGN(_NAME_) {\
 		FCT_TEST_BGN_IF(_CONDITION_, _NAME_) {\
-
+ 
 #define FCT_QTEST_END_IF() \
 		} FCT_TEST_END_IF();\
 	} FCT_SUITE_END();
