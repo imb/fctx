@@ -12,7 +12,8 @@ Test compiling a 'blank' unit test.
 
 #include "fct.h"
 
-FCT_BGN() {
+FCT_BGN()
+{
 
 } FCT_END();
 
