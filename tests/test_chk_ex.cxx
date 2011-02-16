@@ -11,7 +11,7 @@ File: test_chk_ex.cxx
 #include "fct.h"
 
 class err_t {};
-class sub_err_t : err_t {};
+class sub_err_t : public err_t {};
 class other_err_t {};
 
 static void throw_err() {
@@ -29,14 +29,14 @@ static void throw_other_err() {
 static void not_going_to_throw() {
   int j = 2+1;
   char buf[32];
-  sprintf(buf, "j=%d", j);
+  fct_snprintf(buf, sizeof(buf), "j=%d", j);
 }
 
 FCT_BGN()
 {
     FCT_QTEST_BGN(throw_err) {
        fct_chk_ex(
-           err_t, 
+           err_t&, 
            throw_err()
        );
     } FCT_QTEST_END();
@@ -44,7 +44,7 @@ FCT_BGN()
 
     FCT_QTEST_BGN(throw_and_catch_sub_err) {
        fct_chk_ex(
-           sub_err_t, 
+           sub_err_t&, 
            throw_sub_err()
        );
     } FCT_QTEST_END();
@@ -53,7 +53,7 @@ FCT_BGN()
        /* This is checking for an exception of type "sub_err_t", but
        doesn't get it. Should fail! */
        fct_chk_ex(
-           sub_err_t,
+           sub_err_t&,
            throw_other_err()
        );
     } FCT_QTEST_END();
@@ -62,7 +62,7 @@ FCT_BGN()
        /* This is expecting the function to throw an error, but it
        doesn't. */
        fct_chk_ex(
-           err_t,
+           err_t&,
            not_going_to_throw();
        );
     } FCT_QTEST_END();
