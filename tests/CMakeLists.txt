@@ -59,6 +59,7 @@ SET(SIMPLE_TESTS test_1suite
                  test_chk
                  test_empty
                  test_req_in_setup_teardown
+                 test_start_other_than_main
 	)	
 FOREACH( PROGRAM ${SIMPLE_TESTS}) 
 	ADD_EXECUTABLE(${PROGRAM} ${PROGRAM}.c)

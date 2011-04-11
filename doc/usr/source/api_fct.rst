@@ -15,11 +15,6 @@ Initialize/Finalize
         Initializes your test framework. Every test program needs to
         begin with this declaration.
 
-.. c:function:: FCT_END()
-
-        Finalizes your test framework. Every test program neesd to end
-        with this declaration.
-
 .. c:function:: FCT_BGN_FN(fname)
 
         *New in 1.6*. Allows you to start unit tests with a function,
@@ -43,6 +38,39 @@ Initialize/Finalize
         *argv*, but you could create your own argc and argv. Keep in
         mind that you must mimic the program name.
 
+.. c:function:: FCT_INIT(argc, argv)
+ 
+        *New in 1.6*. Provides the ability to initialize FCTX within a
+        function other than main.
+
+        .. code-block:: c
+            
+            int
+            _start_test(int argc, char *argv[]) {
+                FCT_INIT(argc, argv);
+
+                FCT_QTEST_BGN(test_with_my_own_func) {
+                    fct_chk(1);
+                } FCT_QTEST_END();
+
+                FCT_FINAL();
+                return FCT_NUM_FAILED();
+            }
+
+            int
+            main(int argc, char *argv[]) {
+                return _start_test(argc, argv);
+            }
+
+        The initialization needs to recieve the standard *argc* and
+        *argv* in order to initialize FCT. TO clean up use the
+        c:func:`FCT_FINAL`.
+
+.. c:function:: FCT_END()
+
+        Finalizes your test framework. Every test program neesd to end
+        with this declaration.
+
 .. c:function:: FCT_END_FN()
 
         *New in 1.6*. Finalize your test framework started via
@@ -54,6 +82,16 @@ Initialize/Finalize
         occurring properly. If the actual number of failed tests matches the
         expected *num_failed*, this macro will cause the program to return 0
         instead of a non-zero value.
+
+.. c:function:: FCT_FINAL() 
+
+        *New in 1.6*.  Closes a :c:func:`FCT_INIT` block.
+
+.. c:function:: FCT_NUM_FAILED()
+
+        *New in 1.6*. After a :c:func:`FCT_FINAL` this will have the
+        number of failed tests.
+
 
 Test Suites
 -----------
