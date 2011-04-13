@@ -9,6 +9,8 @@ Whats new in FCTX 1.6.0
    a code block. Only in C++. 
  - ENH: Add new FCT_BGN_FN/FCT_END_FN to bootstrap the test framework
    without using "main".
+ - ENH: Add new FCT_INIT, FCT_FINAL, and FCT_NUM_FAILED to allow you
+   to initialize and finalize FCTX within your own custom function.
 
 
 Whats new in FCTX 1.5.0
