@@ -3263,7 +3263,6 @@ they are needed, but at runtime, only the cheap, first call is made. */
 
 #define FCT_INIT(_ARGC_, _ARGV_)                                    \
    fctkern_t  fctkern__;                                            \
-   size_t num_failed__ =0;                                          \
    fctkern_t* fctkern_ptr__ = &fctkern__;                           \
    FCT_REFERENCE_FUNCS();                                           \
    if ( !fctkern__init(fctkern_ptr__, argc, (const char **)argv) ) {\
@@ -3281,7 +3280,8 @@ they are needed, but at runtime, only the cheap, first call is made. */
    fctkern__log_end(fctkern_ptr__);                                \
    fctkern__end(fctkern_ptr__);                                    \
    fctkern__final(fctkern_ptr__);                                  \
-   FCT_ASSERT( !((int)num_failed__ < 0) && "or we got truncated!");\
+   FCT_ASSERT( !((int)fctkern_ptr__->ns.num_total_failed < 0)      \
+               && "or we got truncated!");                         \
    if ( fctkern_ptr__->ns.num_total_failed ==                      \
         fctkern_ptr__->num_expected_failures) {                    \
        fctkern_ptr__->ns.num_total_failed = 0;                     \

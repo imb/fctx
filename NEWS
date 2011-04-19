@@ -2,6 +2,12 @@
 FCTX Changes
 ++++++++++++
 
+Whats new in FCTX 1.6.1
+-----------------------
+
+ - FIX: Removes unreferenced variable, and fixes a /W4 warning with
+   MSVC.
+
 Whats new in FCTX 1.6.0
 -----------------------
 
