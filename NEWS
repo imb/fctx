@@ -2,6 +2,12 @@
 FCTX Changes
 ++++++++++++
 
+Whats new in FCTX 1.6.1
+-----------------------
+
+ - FIX: Minor fix regarding an unused variable when compiling with 
+   high warning levels.
+
 Whats new in FCTX 1.6.0
 -----------------------
 
