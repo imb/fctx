@@ -22,10 +22,10 @@ FCT_BGN_FN(function_entry)
 FCT_END_FN();
 
 
-int main(int argc, char *argv[])
+int main(int argCount, char *argVariables[])
 {
     /* We could supply our own argc, argv, but for testing purposes
     supplying the standard ones are OK. */
-    return function_entry(argc, argv);
+    return function_entry(argCount, argVariables);
 }
 

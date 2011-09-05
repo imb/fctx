@@ -11,8 +11,8 @@ File: test_start_other_than_main.c
 #include "fct.h"
 
 int
-_start_test(int argc, char *argv[]) {
-    FCT_INIT(argc, argv);
+_start_test(int argCount, char *argVariables[]) {
+    FCT_INIT(argCount, argVariables);
 
     FCT_QTEST_BGN(test_with_my_own_func) {
         fct_chk(1);
@@ -23,6 +23,6 @@ _start_test(int argc, char *argv[]) {
 }
 
 int
-main(int argc, char *argv[]) {
-    return _start_test(argc, argv);
+main(int argCount, char *argVariables[]) {
+    return _start_test(argCount, argVariables);
 }

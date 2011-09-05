@@ -7,6 +7,8 @@ Whats new in FCTX 1.6.1
 
  - FIX: Minor fix regarding an unused variable when compiling with 
    high warning levels.
+ - FIX: FCT_INIT removes hard coded argc/argv dependency. Previously
+   you had to use those variables or it wouldn't compile.
 
 Whats new in FCTX 1.6.0
 -----------------------

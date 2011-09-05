@@ -3261,16 +3261,16 @@ they are needed, but at runtime, only the cheap, first call is made. */
     }
 
 
-#define FCT_INIT(_ARGC_, _ARGV_)                                    \
-   fctkern_t  fctkern__;                                            \
-   fctkern_t* fctkern_ptr__ = &fctkern__;                           \
-   FCT_REFERENCE_FUNCS();                                           \
-   if ( !fctkern__init(fctkern_ptr__, argc, (const char **)argv) ) {\
-        (void)fprintf(                                              \
-            stderr, "FATAL ERROR: Unable to initialize FCTX Kernel."\
-        );                                                          \
-        exit(EXIT_FAILURE);                                         \
-   }                                                                \
+#define FCT_INIT(_ARGC_, _ARGV_)                                            \
+   fctkern_t  fctkern__;                                                    \
+   fctkern_t* fctkern_ptr__ = &fctkern__;                                   \
+   FCT_REFERENCE_FUNCS();                                                   \
+   if ( !fctkern__init(fctkern_ptr__, (_ARGC_), (const char **)(_ARGV_)) ) {\
+        (void)fprintf(                                                      \
+            stderr, "FATAL ERROR: Unable to initialize FCTX Kernel."        \
+        );                                                                  \
+        exit(EXIT_FAILURE);                                                 \
+   }                                                                        \
 
 
 #define FCT_FINAL()                                                \
