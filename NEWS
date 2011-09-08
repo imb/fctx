@@ -9,6 +9,8 @@ Whats new in FCTX 1.6.1
    MSVC.
  - FIX: FCT_INIT removes hard coded argc/argv dependency. Previously
    you had to use those variables or it wouldn't compile.
+ - FIX: Cast FCT_NUM_FAILED to int to avoid 64 bit warning about
+   down casting. This cast is safe.
 
 Whats new in FCTX 1.6.0
 -----------------------

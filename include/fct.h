@@ -3326,12 +3326,12 @@ fctkern_ptr__ makes it easier to abstract out macros.  */
 /* Ends the test suite by returning the number failed. The "chk_cnt" call is
 made in order allow strict compilers to pass when it encounters unreferenced
 functions. */
-#define FCT_END()             \
-   {                          \
-      FCT_END_WARNINGFIX_BGN  \
-      FCT_FINAL();            \
-      return FCT_NUM_FAILED();\
-      FCT_END_WARNINGFIX_END  \
+#define FCT_END()                   \
+   {                                \
+      FCT_END_WARNINGFIX_BGN        \
+      FCT_FINAL();                  \
+      return (int) FCT_NUM_FAILED();\
+      FCT_END_WARNINGFIX_END        \
    }\
 }
 
