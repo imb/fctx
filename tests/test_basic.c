@@ -69,11 +69,11 @@ FCT_BGN()
         FCT_TEST_BGN(fixture__smoke_test_again)
         {
             fct_chk(1);
+            fct_chk(a == 1);
+            fct_chk(b == 2);
+            fct_chk(c == 3);
         }
         FCT_TEST_END();
-
-
-
     }
     FCT_FIXTURE_SUITE_END()
 
