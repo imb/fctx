@@ -14,7 +14,7 @@ Provides a dumping ground for basic tests of fct.
 
 FCT_BGN()
 {
-    int count =0;	/* Use this to confirm the quick tests execute. */
+    int count =0;   /* Use this to confirm the quick tests execute. */
 
     FCT_QTEST_BGN(quick)
     {
