@@ -1445,22 +1445,10 @@ fctcl__del(fctcl_t *clo)
     {
         return;
     }
-    if ( clo->long_opt )
-    {
-        free(clo->long_opt);
-    }
-    if ( clo->short_opt)
-    {
-        free(clo->short_opt);
-    }
-    if ( clo->value )
-    {
-        free(clo->value);
-    }
-    if ( clo->help )
-    {
-        free(clo->help);
-    }
+    free(clo->long_opt);
+    free(clo->short_opt);
+    free(clo->value);
+    free(clo->help);
     free(clo);
 }
 
