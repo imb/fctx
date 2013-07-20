@@ -176,9 +176,9 @@ fct_logger__on_warn(fct_logger_i *logger, char const *warn);
 really only want to bother with this when we are "unwinding" the macros
 for debugging purposes. */
 #if defined(FCT_CONF_UNWIND)
-#	define _fct_cmt(string)		{char*_=string;}
+#   define _fct_cmt(string)     {char*_=string;}
 #else
-#	define _fct_cmt(string)
+#   define _fct_cmt(string)
 #endif
 
 /*
@@ -195,7 +195,7 @@ static int fct_stderr_pipe[2];
 static int fct_saved_stdout;
 static int fct_saved_stderr;
 
-/* Platform indepedent pipe functions. TODO: Look to figure this out in a way
+/* Platform independent pipe functions. TODO: Look to figure this out in a way
 that follows the ISO C++ conformant naming convention. */
 #if defined(WIN32)
 #    include <io.h>
@@ -254,7 +254,7 @@ fct_switch_std_to_std(FILE *out, int fileno_, int save_handle)
 
 
 /* Utility for truncated, safe string copies. The NUM
-should be the length of DST plus the null-termintor. */
+should be the length of DST plus the null-terminator. */
 static void
 fctstr_safe_cpy(char *dst, char const *src, size_t num)
 {
@@ -277,7 +277,7 @@ fct_vsnprintf(char *buffer,
               va_list args)
 {
     int count =0;
-    /* Older microsoft compilers where not ANSI compliant with this
+    /* Older Microsoft compilers where not ANSI compliant with this
     function and you had to use _vsnprintf. I will assume that newer
     Microsoft Compilers start implementing vsnprintf. */
 #if defined(_MSC_VER) && (_MSC_VER < 1400)
@@ -291,7 +291,7 @@ fct_vsnprintf(char *buffer,
 }
 
 
-/* Isolate the snprintf implemenation. */
+/* Isolate the snprintf implementation. */
 static int
 fct_snprintf(char *buffer, size_t buffer_len, char const *format, ...)
 {
@@ -440,7 +440,7 @@ fctstr_ieq(char const *s1, char const *s2)
 }
 
 
-/* Returns 1 if the STR contains the CHECK_INCL substring. NULL's
+/* Returns 1 if the STR contains the CHECK_INCL substring. NULLs
 are handled, and NULL always INCLUDES NULL. This check is case
 sensitive. If two strings point to the same place they are
 included. */
@@ -502,7 +502,7 @@ fctstr_startswith(char const *str, char const *check)
 }
 
 
-/* Case insenstive variant of fctstr_startswith. */
+/* Case insensitive variant of fctstr_startswith. */
 static int
 fctstr_istartswith(char const *str, char const *check)
 {
@@ -547,7 +547,7 @@ fctstr_endswith(char const *str, char const *check)
             return 0; /* Found a case where they are not equal. */
         }
     }
-    /* Exahausted check against string, can only be true. */
+    /* Exhausted check against string, can only be true. */
     return 1;
 }
 
@@ -579,7 +579,7 @@ fctstr_iendswith(char const *str, char const *check)
             return 0; /* Found a case where they are not equal. */
         }
     }
-    /* Exahausted check against string, can only be true. */
+    /* Exhausted check against string, can only be true. */
     return 1;
 }
 
@@ -926,7 +926,7 @@ list of failed and passed checks.
 
 struct _fct_test_t
 {
-    /* List of failed and passed "checks" (fctchk_t). Two seperate
+    /* List of failed and passed "checks" (fctchk_t). Two separate
     lists make it faster to determine how many checks passed and how
     many checks failed. */
     fct_nlist_t failed_chks;
@@ -1445,22 +1445,10 @@ fctcl__del(fctcl_t *clo)
     {
         return;
     }
-    if ( clo->long_opt )
-    {
-        free(clo->long_opt);
-    }
-    if ( clo->short_opt)
-    {
-        free(clo->short_opt);
-    }
-    if ( clo->value )
-    {
-        free(clo->value);
-    }
-    if ( clo->help )
-    {
-        free(clo->help);
-    }
+    free(clo->long_opt);
+    free(clo->short_opt);
+    free(clo->value);
+    free(clo->help);
     free(clo);
 }
 
@@ -1849,7 +1837,7 @@ fct_namespace_init(fct_namespace_t *ns)
 
 /*
 --------------------------------------------------------
-FCT KERNAL
+FCT KERNEL
 --------------------------------------------------------
 
 The "fctkern" is a singleton that is defined throughout the
@@ -1950,13 +1938,13 @@ static fct_logger_types_t FCT_LOGGER_TYPES[] =
     {
         "junit",
         (fct_logger_new_fn)fct_junit_logger_new,
-        "junit compatable xml"
+        "junit compatible xml"
     },
     {NULL, (fct_logger_new_fn)NULL, NULL} /* Sentinel */
 };
 
 
-/* Returns the number of filters defined for the fct kernal. */
+/* Returns the number of filters defined for the fct kernel. */
 #define fctkern__filter_cnt(_NK_) (fct_nlist__size(&((_NK_)->prefix_list)))
 
 
@@ -2064,7 +2052,7 @@ fctkern__cl_is(fctkern_t *nk, char const *opt_str)
 
 /* Returns the command line value given by OPT_STR. If OPT_STR was not defined
 at the command line, DEF_STR is returned (you can use NULL for the DEF_STR).
-The result returned should not be mofidied, and MAY even be the same pointer
+The result returned should not be modified, and MAY even be the same pointer
 to DEF_STR. */
 static char const *
 fctkern__cl_val2(fctkern_t *nk, char const *opt_str, char const *def_str)
@@ -2695,7 +2683,7 @@ fct_logger__on_warn(fct_logger_i *logger, char const *msg)
 }
 
 
-/* Commmon routine to record strings representing failures. The
+/* Common routine to record strings representing failures. The
 chk should be a failure before we call this, and the list is a list
 of char*'s that will eventually be free'd by the logger. */
 static void
@@ -2847,7 +2835,7 @@ struct _fct_standard_logger_t
 #define FCT_STANDARD_LOGGER_MAX_LINE 68
 
 
-/* When a failure occurrs, we will record the details so we can display
+/* When a failure occurs, we will record the details so we can display
 them when the log "finishes" up. */
 static void
 fct_standard_logger__on_chk(
@@ -3254,7 +3242,7 @@ they are needed, but at runtime, only the cheap, first call is made. */
             (void)fctkern__cl_val2(NULL, NULL, NULL);\
             fctkern__log_suite_skip(NULL, NULL, NULL);\
             (void)fct_clp__is_param(NULL,NULL);\
-	    _fct_cmt("should never construct an object");\
+            _fct_cmt("should never construct an object");\
             (void)fct_test_new(NULL);\
             (void)fct_ts__chk_cnt(NULL);\
         }\
@@ -3271,7 +3259,7 @@ they are needed, but at runtime, only the cheap, first call is made. */
         );                                                                  \
         exit(EXIT_FAILURE);                                                 \
    }                                                                        \
-
+ 
 
 #define FCT_FINAL()                                                \
    fctkern_ptr__->ns.num_total_failed = fctkern__tst_cnt_failed(   \
@@ -3286,12 +3274,12 @@ they are needed, but at runtime, only the cheap, first call is made. */
         fctkern_ptr__->num_expected_failures) {                    \
        fctkern_ptr__->ns.num_total_failed = 0;                     \
    }                                                               \
-   
+ 
 
 
 #define FCT_NUM_FAILED()       \
     fctkern_ptr__->ns.num_total_failed \
-    
+ 
 
 
 /* Typically used internally only, this mentions to FCTX that you EXPECT
@@ -3305,10 +3293,10 @@ from the program. */
     int _FNNAME_(int argc, char* argv[])\
     {                                   \
         FCT_INIT(argc, argv)
- 
+
 #define FCT_END_FN() FCT_END()
 
-/* This defines our start. The fctkern__ is a kernal object
+/* This defines our start. The fctkern__ is a kernel object
 that lives throughout the lifetime of our program. The
 fctkern_ptr__ makes it easier to abstract out macros.  */
 #define FCT_BGN() FCT_BGN_FN(main)
@@ -3657,7 +3645,7 @@ if it fails. */
 
 /* When in test mode, construct a mock test object for fct_xchk to operate
 with. If we fail a setup up, then we go directly to a teardown mode. */
-#define fct_req(_CNDTN_) 				                 \
+#define fct_req(_CNDTN_)                                 \
     if ( fct_ts__is_test_mode(fctkern_ptr__->ns.ts_curr) ) {             \
        _fct_req((_CNDTN_));                                              \
     }                                                                    \
@@ -3780,14 +3768,14 @@ _fct_chk_full_str(char const *s)
 
 #define fct_chk_excl_str(STR, CHECK_EXCLUDE) \
     fct_xchk(!fctstr_incl((STR), (CHECK_EXCLUDE)),\
-	  "fct_chk_excl_str: '%s' is included in '%s'",\
-	  (STR),\
+      "fct_chk_excl_str: '%s' is included in '%s'",\
+      (STR),\
           (CHECK_EXCLUDE)\
-	  )
+      )
 
 #define fct_chk_excl_istr(ISTR, ICHECK_EXCLUDE) \
     fct_xchk(!fctstr_iincl((ISTR), (ICHECK_EXCLUDE)),\
-	  "fct_chk_excl_istr (case insensitive): '%s' is "\
+      "fct_chk_excl_istr (case insensitive): '%s' is "\
           "included in'%s'",\
           (ISTR),\
           (ICHECK_EXCLUDE)\
@@ -3796,18 +3784,18 @@ _fct_chk_full_str(char const *s)
 #define fct_chk_incl_str(STR, CHECK_INCLUDE) \
     fct_xchk(fctstr_incl((STR), (CHECK_INCLUDE)),\
           "fct_chk_incl_str: '%s' does not include '%s'",\
-	      (STR),\
+          (STR),\
           (CHECK_INCLUDE)\
-	  )
+      )
 
 
 #define fct_chk_incl_istr(ISTR, ICHECK_INCLUDE) \
     fct_xchk(fctstr_iincl((ISTR), (ICHECK_INCLUDE)),\
           "fct_chk_incl_istr (case insensitive): '%s' does "\
           "not include '%s'",\
-	      (ISTR),\
+          (ISTR),\
           (ICHECK_INCLUDE)\
-	  )
+      )
 
 
 #define fct_chk_startswith_str(STR, CHECK)\
@@ -3854,7 +3842,7 @@ _fct_chk_full_str(char const *s)
           pass_chk_ex = false;        \
       }                               \
       fct_xchk(                       \
-	pass_chk_ex,                  \
+    pass_chk_ex,                  \
         "%s exception not generated", \
         #EXCEPTION                    \
       );                              \
@@ -3901,16 +3889,16 @@ file to define your test suite.  */
 
 
 #define FCTMF_FIXTURE_SUITE_BGN(NAME) \
-	void NAME (fctkern_t *fctkern_ptr__) {\
+    void NAME (fctkern_t *fctkern_ptr__) {\
         FCT_REFERENCE_FUNCS();\
         FCT_FIXTURE_SUITE_BGN( NAME ) {
 
 #define FCTMF_FIXTURE_SUITE_END() \
-		} FCT_FIXTURE_SUITE_END();\
-	}
+        } FCT_FIXTURE_SUITE_END();\
+    }
 
 #define FCTMF_SUITE_BGN(NAME) \
-	void NAME (fctkern_t *fctkern_ptr__) {\
+    void NAME (fctkern_t *fctkern_ptr__) {\
         FCT_REFERENCE_FUNCS();\
         FCT_SUITE_BGN( NAME ) {
 #define FCTMF_SUITE_END() \
@@ -3940,20 +3928,20 @@ The basic idea is that there is one test per test suite.
 */
 
 #define FCT_QTEST_BGN(NAME) \
-	FCT_SUITE_BGN(NAME) {\
-		FCT_TEST_BGN(NAME) {\
+    FCT_SUITE_BGN(NAME) {\
+        FCT_TEST_BGN(NAME) {\
  
 #define FCT_QTEST_END() \
-		} FCT_TEST_END();\
-	} FCT_SUITE_END();
+        } FCT_TEST_END();\
+    } FCT_SUITE_END();
 
 
 #define FCT_QTEST_BGN_IF(_CONDITION_, _NAME_) \
-	FCT_SUITE_BGN(_NAME_) {\
-		FCT_TEST_BGN_IF(_CONDITION_, _NAME_) {\
+    FCT_SUITE_BGN(_NAME_) {\
+        FCT_TEST_BGN_IF(_CONDITION_, _NAME_) {\
  
 #define FCT_QTEST_END_IF() \
-		} FCT_TEST_END_IF();\
-	} FCT_SUITE_END();
+        } FCT_TEST_END_IF();\
+    } FCT_SUITE_END();
 
 #endif /* !FCT_INCLUDED__IMB */

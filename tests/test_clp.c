@@ -23,14 +23,18 @@ fctcl_init_t options[] =
         grow a "fctcl_init_t" object with constants, it will
         do to quiet down C++. It turns out that you never delete
         this data, so it is OK to cast it to a char*. */
-    {"--help",
+    {
+        "--help",
         "-h",
         FCTCL_STORE_TRUE,
-        "Shows this message"},
-    {"--output",
-     NULL,
-     FCTCL_STORE_VALUE,
-     "Name of file to store output."},
+        "Shows this message"
+    },
+    {
+        "--output",
+        NULL,
+        FCTCL_STORE_VALUE,
+        "Name of file to store output."
+    },
     FCTCL_INIT_NULL /* Sentinel. */
 };
 
