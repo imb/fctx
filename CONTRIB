@@ -1,2 +1,1 @@
-
-* Raedwulf: Discovered that we may erroneously truncate 64 bit pointer.
+See https://github.com/imb/fctx/graphs/contributors.
