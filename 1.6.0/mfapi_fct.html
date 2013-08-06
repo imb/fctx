@@ -1,0 +1,295 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>FCTMF: Multi-file API &mdash; FCTX User Documenation 1.6.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.6.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="FCTX User Documenation 1.6.0 documentation" href="index.html" />
+    <link rel="next" title="fctstr: String API" href="strapi_fct.html" />
+    <link rel="prev" title="fctcl: Command Line API" href="clapi_fct.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="strapi_fct.html" title="fctstr: String API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="clapi_fct.html" title="fctcl: Command Line API"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">FCTX User Documenation 1.6.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">FCTMF: Multi-file API</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#multi-file-setup">Multi-File Setup</a></li>
+<li><a class="reference internal" href="#note-for-mvc-compilers">Note for MVC Compilers</a></li>
+<li><a class="reference internal" href="#multi-file-test-suites">Multi-File Test Suites</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="clapi_fct.html"
+                        title="previous chapter">fctcl: Command Line API</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="strapi_fct.html"
+                        title="next chapter">fctstr: String API</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/mfapi_fct.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-FCTMF">
+<span id="fctmf-multi-file-api"></span><h1>FCTMF: Multi-file API<a class="headerlink" href="#module-FCTMF" title="Permalink to this headline">¶</a></h1>
+<div class="versionadded">
+<p><span>New in version 1.1: </span>The FCTX Multi-File (FCTMF) supersedes the older &#8220;include method&#8221;
+described in version 1.0.</p>
+</div>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>When you start unit testing with FCTX you will find that at some point
+holding all your tests in one file can become unwieldy. The Multi-File api
+(FCTMF) attempts to provide a minimal barrier to writing unit tests that span
+multiple files.</p>
+<p>The idea is to have one file that starts up tests defined in each of the other
+files. The process of registration is a one step &#8220;call&#8221; into the other files.</p>
+</div>
+<div class="section" id="multi-file-setup">
+<h2>Multi-File Setup<a class="headerlink" href="#multi-file-setup" title="Permalink to this headline">¶</a></h2>
+<p>Imagine we have two files: <tt class="file docutils literal"><span class="pre">test_main.c</span></tt> and <tt class="file docutils literal"><span class="pre">test_a.c</span></tt>. In
+<tt class="file docutils literal"><span class="pre">test_main.c</span></tt> we will setup and register our test that is defined in
+<tt class="file docutils literal"><span class="pre">test_a.c</span></tt>.</p>
+<p>Lets look at <tt class="file docutils literal"><span class="pre">test_main.c</span></tt>,</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cm">/* file: test_main.c */</span>
+
+<span class="cp">#include &quot;fct.h&quot;</span>
+
+<span class="n">FCT_BGN</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">FCTMF_SUITE_CALL</span><span class="p">(</span><span class="n">test_a_feature</span><span class="p">);</span>
+<span class="p">}</span> <span class="n">FCT_END</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>there now we have set it up to call into the test suite called &#8220;test_a_feature&#8221;
+defined in <tt class="file docutils literal"><span class="pre">test_a.c</span></tt>.  Lets look at the contents of <tt class="file docutils literal"><span class="pre">test_a.c</span></tt>.</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cm">/* file: test_a.c */</span>
+
+<span class="cp">#include &quot;fct.h&quot;</span>
+
+<span class="n">FCTMF_SUITE_BGN</span><span class="p">(</span><span class="n">test_a_feature</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="n">FCT_TEST_BGN</span><span class="p">(</span><span class="n">sanity_check</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fct_chk</span><span class="p">(</span> <span class="n">a_feature__sanity_check</span><span class="p">()</span> <span class="p">);</span>
+    <span class="p">}</span> <span class="n">FCT_TEST_END</span><span class="p">();</span>
+
+<span class="p">}</span> <span class="n">FCTMF_SUITE_END</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>this will register a test suite called &#8220;test_a_feature&#8221; and execute a test
+called &#8220;sanity_check&#8221;.</p>
+<p>If you wanted to use a test suite with fixtures (setup/teardown), you would do
+the following,</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cm">/* file: test_a.c */</span>
+
+<span class="cp">#include &quot;fct.h&quot;</span>
+
+<span class="k">static</span> <span class="kt">a_object_t</span> <span class="o">*</span><span class="n">obj</span><span class="p">;</span>
+
+<span class="n">FCTMF_FIXTURE_SUITE_BGN</span><span class="p">(</span><span class="n">test_a_feature</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="n">FCT_SETUP_BGN</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">a_object_new</span><span class="p">();</span>
+    <span class="p">}</span> <span class="n">FCT_SETUP_END</span><span class="p">();</span>
+
+    <span class="n">FCT_TEARDOWN_BGN</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">a_object__del</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+        <span class="n">obj</span> <span class="o">=</span><span class="nb">NULL</span><span class="p">;</span>
+    <span class="p">}</span> <span class="n">FCT_TEARDOWN_END</span><span class="p">();</span>
+
+    <span class="n">FCT_TEST_BGN</span><span class="p">(</span><span class="n">sanity_check</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fct_chk</span><span class="p">(</span> <span class="n">a_object__sanity_check</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="p">);</span>
+    <span class="p">}</span> <span class="n">FCT_TEST_END</span><span class="p">()</span>
+
+<span class="p">}</span> <span class="n">FCTMF_FIXTURE_SUITE_END</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>the only difference here being the introduction of &#8220;FIXTURE&#8221; into scope
+statements as well as the SETUP and TEARDOWN fixtures themselves.</p>
+<p>The key thing to also notice is that all the testing, checking, setup and
+teardown macros follow the existing <a class="reference internal" href="api_fct.html#module-FCT" title="FCT: Framework, test suites, tests and checks. (Unix, Windows)"><tt class="xref py py-mod docutils literal"><span class="pre">FCT</span></tt></a> module.</p>
+</div>
+<div class="section" id="note-for-mvc-compilers">
+<h2>Note for MVC Compilers<a class="headerlink" href="#note-for-mvc-compilers" title="Permalink to this headline">¶</a></h2>
+<p>Using the FCTMF API with warning level 4 will produce the following:</p>
+<div class="highlight-python"><pre>warning C4210: nonstandard extension used : function given file scope</pre>
+</div>
+<p>so far testing both with MVC and GCC FCTMF has yet to fail, except for this
+warning level above.</p>
+<p>So what&#8217;s happening here?</p>
+<p>The FCTMF_SUITE_CALL uses the following little trick whereby,</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">FCTMF_SUITE_CALL</span><span class="p">(</span><span class="n">my_test_suite</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>becomes,</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="kt">void</span> <span class="nf">my_test_suite</span><span class="p">(</span><span class="kt">fctkern_t</span> <span class="o">*</span><span class="n">fk</span><span class="p">);</span>
+<span class="n">my_test_suite</span><span class="p">(</span><span class="n">fctkern_ptr__</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>where we make a &#8220;variable&#8221; and &#8220;run it&#8221;, and let the linker sort it out all in
+the end.</p>
+<p>The goal here was to prevent you from having to repeatedly &#8220;register&#8221; your test
+suite in order for you get up and running. To stay at warning level 4, but
+quite the compiler, you can do the following,</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cp">#if defined(_MSC_VER)</span>
+<span class="cp">#   pragma warning(push, 3)</span>
+<span class="cp">#endif </span><span class="cm">/* _MSC_VER */</span><span class="cp"></span>
+    <span class="n">FCTMF_SUITE_CALL</span><span class="p">(</span><span class="n">my_test_suite</span><span class="p">);</span>
+    <span class="n">FCTMF_SUITE_CALL</span><span class="p">(</span><span class="n">test_fixture_suite2</span><span class="p">);</span>
+<span class="cp">#if defined(_MSC_VER)</span>
+<span class="cp">#   pragma warning(pop)</span>
+<span class="cp">#endif </span><span class="cm">/* _MSC_VER */</span><span class="cp"></span>
+</pre></div>
+</div>
+<p>and you will be able to continue to use /W4 with MVC as well as GCC.</p>
+</div>
+<div class="section" id="multi-file-test-suites">
+<h2>Multi-File Test Suites<a class="headerlink" href="#multi-file-test-suites" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="FCTMF_SUITE_CALL">
+<tt class="descname">FCTMF_SUITE_CALL</tt><big>(</big>name<big>)</big><a class="headerlink" href="#FCTMF_SUITE_CALL" title="Permalink to this definition">¶</a></dt>
+<dd><p>This launches the test suite defined by <em>name</em>. You would place this
+call between the <a class="reference internal" href="api_fct.html#FCT_BGN" title="FCT_BGN"><tt class="xref c c-func docutils literal"><span class="pre">FCT_BGN()</span></tt></a> and <a class="reference internal" href="api_fct.html#FCT_END" title="FCT_END"><tt class="xref c c-func docutils literal"><span class="pre">FCT_END()</span></tt></a> scope. This
+simply calls off to another file, and it does not prevent you from
+having other tests within the <a class="reference internal" href="api_fct.html#FCT_BGN" title="FCT_BGN"><tt class="xref c c-func docutils literal"><span class="pre">FCT_BGN()</span></tt></a> and <a class="reference internal" href="api_fct.html#FCT_END" title="FCT_END"><tt class="xref c c-func docutils literal"><span class="pre">FCT_END()</span></tt></a>
+scope.</p>
+<p>For Visual Studio 6 compilers, you will need to use the
+<a class="reference internal" href="#FCTMF_SUITE_DEF" title="FCTMF_SUITE_DEF"><tt class="xref c c-func docutils literal"><span class="pre">FCTMF_SUITE_DEF()</span></tt></a> function.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCTMF_FIXTURE_SUITE_BGN">
+<tt class="descname">FCTMF_FIXTURE_SUITE_BGN</tt><big>(</big>name<big>)</big><a class="headerlink" href="#FCTMF_FIXTURE_SUITE_BGN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Following the xtest convention, every test suite needs to start with a
+SUITE_BGN function. In by using the FIXTURE variants you are indicating
+that you wish to install a SETUP and TEARDOWN fixture via the
+<a class="reference internal" href="api_fct.html#FCT_SETUP_BGN" title="FCT_SETUP_BGN"><tt class="xref c c-func docutils literal"><span class="pre">FCT_SETUP_BGN()</span></tt></a> and <a class="reference internal" href="api_fct.html#FCT_SETUP_END" title="FCT_SETUP_END"><tt class="xref c c-func docutils literal"><span class="pre">FCT_SETUP_END()</span></tt></a> and
+<a class="reference internal" href="api_fct.html#FCT_TEARDOWN_BGN" title="FCT_TEARDOWN_BGN"><tt class="xref c c-func docutils literal"><span class="pre">FCT_TEARDOWN_BGN()</span></tt></a> and <a class="reference internal" href="api_fct.html#FCT_TEARDOWN_END" title="FCT_TEARDOWN_END"><tt class="xref c c-func docutils literal"><span class="pre">FCT_TEARDOWN_END()</span></tt></a> functions.</p>
+<p>See also <a class="reference internal" href="#FCTMF_SUITE_BGN" title="FCTMF_SUITE_BGN"><tt class="xref c c-func docutils literal"><span class="pre">FCTMF_SUITE_BGN()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCTMF_FIXTURE_SUITE_END">
+<tt class="descname">FCTMF_FIXTURE_SUITE_END</tt><big>(</big>name<big>)</big><a class="headerlink" href="#FCTMF_FIXTURE_SUITE_END" title="Permalink to this definition">¶</a></dt>
+<dd><p>This closes a test suite that contains fixtures. If you do not wish to
+specify a setup/teardown you would use the <a class="reference internal" href="api_fct.html#FCT_SUITE_END" title="FCT_SUITE_END"><tt class="xref c c-func docutils literal"><span class="pre">FCT_SUITE_END()</span></tt></a>
+function instead.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCTMF_SUITE_BGN">
+<tt class="descname">FCTMF_SUITE_BGN</tt><big>(</big>name<big>)</big><a class="headerlink" href="#FCTMF_SUITE_BGN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this FCTMF_SUITE variant if you do not want to bother specifying a
+SETUP and TEARDOWN blocks.</p>
+<p>See also <a class="reference internal" href="#FCTMF_FIXTURE_SUITE_BGN" title="FCTMF_FIXTURE_SUITE_BGN"><tt class="xref c c-func docutils literal"><span class="pre">FCTMF_FIXTURE_SUITE_BGN()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCTMF_SUITE_END">
+<tt class="descname">FCTMF_SUITE_END</tt><big>(</big><big>)</big><a class="headerlink" href="#FCTMF_SUITE_END" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes the <a class="reference internal" href="#FCTMF_SUITE_BGN" title="FCTMF_SUITE_BGN"><tt class="xref c c-func docutils literal"><span class="pre">FCTMF_SUITE_BGN()</span></tt></a> function.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCTMF_SUITE_DEF">
+<tt class="descname">FCTMF_SUITE_DEF</tt><big>(</big>name<big>)</big><a class="headerlink" href="#FCTMF_SUITE_DEF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a test suite with the given <em>name</em>. This is only required for
+the Visual Studio 6 compilers (or if you choose to avoid the comments
+in <a class="reference internal" href="#note-for-mvc-compilers">Note for MVC Compilers</a>). This call must be made <em>before</em> the
+<a class="reference internal" href="api_fct.html#FCT_BGN" title="FCT_BGN"><tt class="xref c c-func docutils literal"><span class="pre">FCT_BGN()</span></tt></a> function. The <em>name</em> must be the same as the name in
+<a class="reference internal" href="#FCTMF_SUITE_CALL" title="FCTMF_SUITE_CALL"><tt class="xref c c-func docutils literal"><span class="pre">FCTMF_SUITE_CALL()</span></tt></a> and <a class="reference internal" href="#FCTMF_SUITE_BGN" title="FCTMF_SUITE_BGN"><tt class="xref c c-func docutils literal"><span class="pre">FCTMF_SUITE_BGN()</span></tt></a>.</p>
+</dd></dl>
+
+<script type="text/javascript"> var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www."); document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E")); </script> <script type="text/javascript"> try { var pageTracker = _gat._getTracker("UA-10742433-3"); pageTracker._trackPageview(); } catch(err) {}</script></div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="strapi_fct.html" title="fctstr: String API"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="clapi_fct.html" title="fctcl: Command Line API"
+             >previous</a> |</li>
+        <li><a href="index.html">FCTX User Documenation 1.6.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009, Ian Blumel.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Getting Started &mdash; FCTX User Documenation 1.6.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.6.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="FCTX User Documenation 1.6.0 documentation" href="index.html" />
+    <link rel="next" title="FCTX API" href="api_fct.html" />
+    <link rel="prev" title="FCTX User Documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api_fct.html" title="FCTX API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="FCTX User Documentation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">FCTX User Documenation 1.6.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">FCTX User Documentation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="api_fct.html"
+                        title="next chapter">FCTX API</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/getting_started.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="getting-started">
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<p>To get you started quickly you only need to have the &#8220;fct.h&#8221; header file
+somewhere handy on your system. In the distribution package, it can be found in
+the &#8220;include&#8221; directory.</p>
+<p>What follows an overly simple example of testing.</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cm">/* First include the fct framework. */</span>
+<span class="cp">#include &quot;fct.h&quot;</span>
+
+<span class="cm">/* Include your API. In this case we are going to test strcmp. */</span>
+<span class="cp">#include &lt;string.h&gt;</span>
+
+<span class="cm">/* Now lets define our testing scope. */</span>
+<span class="n">FCT_BGN</span><span class="p">()</span>
+<span class="p">{</span>
+  <span class="cm">/* An actual test case in the test suite. */</span>
+  <span class="n">FCT_QTEST_BGN</span><span class="p">(</span><span class="n">strcmp_eq</span><span class="p">)</span>
+  <span class="p">{</span>
+     <span class="n">fct_chk</span><span class="p">(</span><span class="n">strcmp</span><span class="p">(</span><span class="s">&quot;durka&quot;</span><span class="p">,</span> <span class="s">&quot;durka&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="n">FCT_QTEST_END</span><span class="p">();</span>
+
+
+  <span class="n">FCT_QTEST_BGN</span><span class="p">(</span><span class="n">chk_neq</span><span class="p">)</span>
+  <span class="p">{</span>
+     <span class="n">fct_chk</span><span class="p">(</span><span class="n">strcmp</span><span class="p">(</span><span class="s">&quot;daka&quot;</span><span class="p">,</span> <span class="s">&quot;durka&quot;</span><span class="p">)</span> <span class="o">!=</span><span class="mi">0</span> <span class="p">);</span>
+  <span class="p">}</span>
+  <span class="n">FCT_QTEST_END</span><span class="p">();</span>
+
+<span class="cm">/* Every FCT scope has an end. */</span>
+<span class="p">}</span>
+<span class="n">FCT_END</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Now you can compile the above file and generate a new EXE. If your new
+EXE was called &#8220;test.exe&#8221;, you can run it with a &#8220;filtering prefix&#8221; to
+limit the tests executed, for example:</p>
+<div class="highlight-python"><pre>test strcmp_eq</pre>
+</div>
+<p>would only execute the &#8220;strcmp_eq&#8221; test.</p>
+<p>To define a SETUP/TEARDOWN structure you would do something similar to
+the above tests but this time we would introduce a test suite.</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">FCT_BGN</span><span class="p">()</span>
+<span class="p">{</span>
+   <span class="cm">/* Optionally, define a scope for you data. */</span>
+   <span class="p">{</span>
+      <span class="kt">void</span> <span class="o">*</span><span class="n">data</span> <span class="o">=</span><span class="nb">NULL</span><span class="p">;</span>
+      <span class="n">FCT_FIXTURE_SUITE_BGN</span><span class="p">(</span><span class="n">Fixtures</span><span class="p">)</span>
+      <span class="p">{</span>
+            <span class="n">FCT_SETUP_BGN</span><span class="p">()</span>
+            <span class="p">{</span>
+               <span class="cm">/* Initialize your data before a test is executed. */</span>
+               <span class="n">data</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="mi">10</span><span class="p">));</span>
+            <span class="p">}</span>
+            <span class="n">FCT_SETUP_END</span><span class="p">();</span>
+
+            <span class="n">FCT_TEARDOWN_BGN</span><span class="p">()</span>
+            <span class="p">{</span>
+               <span class="cm">/* Clean up your data after a test is executed. */</span>
+               <span class="n">free</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+               <span class="n">data</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="n">FCT_TEARDOWN_END</span><span class="p">();</span>
+
+            <span class="n">FCT_TEST_BGN</span><span class="p">(</span><span class="n">silly_test_for_null</span><span class="p">)</span>
+            <span class="p">{</span>
+               <span class="n">fct_chk</span><span class="p">(</span> <span class="n">data</span> <span class="o">!=</span> <span class="nb">NULL</span> <span class="p">);</span>
+            <span class="p">}</span>
+            <span class="n">FCT_TEST_END</span><span class="p">();</span>
+
+            <span class="n">FCT_TEST_BGN</span><span class="p">(</span><span class="n">silly_test_for_null__again</span><span class="p">)</span>
+            <span class="p">{</span>
+               <span class="n">fct_chk</span><span class="p">(</span> <span class="n">data</span> <span class="o">!=</span> <span class="nb">NULL</span> <span class="p">);</span>
+            <span class="p">}</span>
+            <span class="n">FCT_TEST_END</span><span class="p">();</span>
+
+      <span class="p">}</span>
+      <span class="n">FCT_FIXTURE_SUITE_END</span><span class="p">();</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+<span class="n">FCT_END</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Afterwards, you can compile and run this test, and the &#8220;data&#8221; will be
+setup and teared down after each test cycle.</p>
+<script type="text/javascript"> var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www."); document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E")); </script> <script type="text/javascript"> try { var pageTracker = _gat._getTracker("UA-10742433-3"); pageTracker._trackPageview(); } catch(err) {}</script></div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api_fct.html" title="FCTX API"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="FCTX User Documentation"
+             >previous</a> |</li>
+        <li><a href="index.html">FCTX User Documenation 1.6.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009, Ian Blumel.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

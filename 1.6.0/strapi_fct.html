@@ -1,0 +1,203 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>fctstr: String API &mdash; FCTX User Documenation 1.6.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.6.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="FCTX User Documenation 1.6.0 documentation" href="index.html" />
+    <link rel="prev" title="FCTMF: Multi-file API" href="mfapi_fct.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="mfapi_fct.html" title="FCTMF: Multi-file API"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">FCTX User Documenation 1.6.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">fctstr: String API</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#string-functions">String Functions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="mfapi_fct.html"
+                        title="previous chapter">FCTMF: Multi-file API</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/strapi_fct.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-fctstr">
+<span id="fctstr-string-api"></span><h1>fctstr: String API<a class="headerlink" href="#module-fctstr" title="Permalink to this headline">¶</a></h1>
+<div class="versionadded">
+<p><span>New in version 1.2: </span>API for string operations that you may encounter during unit testing.</p>
+</div>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Provides an API for common string operations that you may encounter during unit
+testing. This module will grow over time.</p>
+</div>
+<div class="section" id="string-functions">
+<h2>String Functions<a class="headerlink" href="#string-functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="fctstr_clone">
+<tt class="descname">fctstr_clone</tt><big>(</big>s<big>)</big><a class="headerlink" href="#fctstr_clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allocates new memory, and copies the contents of <em>s</em> into the result.
+Callee should use the standard C Runtime Library&#8217;s <em>free</em> function to
+clean up the memory.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fctstr_clone_lower">
+<tt class="descname">fctstr_clone_lower</tt><big>(</big>s<big>)</big><a class="headerlink" href="#fctstr_clone_lower" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.3.</em> Same as <a class="reference internal" href="#fctstr_clone" title="fctstr_clone"><tt class="xref c c-func docutils literal"><span class="pre">fctstr_clone()</span></tt></a>, but returns the
+string, <em>s</em>, as a lower case string.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fctstr_eq">
+<tt class="descname">fctstr_eq</tt><big>(</big>s1, s2<big>)</big><a class="headerlink" href="#fctstr_eq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a non-zero (TRUE) if <em>s1</em> and <em>s2</em> are equal. Unlike the
+standard strcmp function, this function can handle NULL values. This
+function will also quit the moment one of the strings is unequal. If
+<em>s1</em> and <em>s2</em> are NULL, this function will return non-zero (TRUE)
+value. See <a class="reference internal" href="#fctstr_ieq" title="fctstr_ieq"><tt class="xref c c-func docutils literal"><span class="pre">fctstr_ieq()</span></tt></a> for a case-insensitive string compare.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fctstr_endswith">
+<tt class="descname">fctstr_endswith</tt><big>(</big>s, check<big>)</big><a class="headerlink" href="#fctstr_endswith" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.3</em>. Returns true if the string, <em>s</em>, ends with
+the given <em>check</em> string.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fctstr_ieq">
+<tt class="descname">fctstr_ieq</tt><big>(</big>s1, s2<big>)</big><a class="headerlink" href="#fctstr_ieq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a case insensitve string compare, see <a class="reference internal" href="#fctstr_eq" title="fctstr_eq"><tt class="xref c c-func docutils literal"><span class="pre">fctstr_eq()</span></tt></a> for
+more details.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fctstr_iendswith">
+<tt class="descname">fctstr_iendswith</tt><big>(</big>s, check<big>)</big><a class="headerlink" href="#fctstr_iendswith" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.3.</em> Case insensitive variant of
+<a class="reference internal" href="#fctstr_endswith" title="fctstr_endswith"><tt class="xref c c-func docutils literal"><span class="pre">fctstr_endswith()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fctstr_incl">
+<tt class="descname">fctstr_incl</tt><big>(</big>s1, check<big>)</big><a class="headerlink" href="#fctstr_incl" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.3.</em> Returns true if the sub-string, <em>check</em>, can
+be found in the string <em>s1</em>.  This function will change NULL input
+values for a blank string before proceeding to call the standard
+C <em>strstr</em> function.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fctstr_iincl">
+<tt class="descname">fctstr_iincl</tt><big>(</big>s1, check<big>)</big><a class="headerlink" href="#fctstr_iincl" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.3.</em> Case insensitive version of
+<a class="reference internal" href="#fctstr_incl" title="fctstr_incl"><tt class="xref c c-func docutils literal"><span class="pre">fctstr_incl()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fctstr_istartswith">
+<tt class="descname">fctstr_istartswith</tt><big>(</big>s1, check<big>)</big><a class="headerlink" href="#fctstr_istartswith" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.3</em>. Case insensitive variant of
+<a class="reference internal" href="#fctstr_startswith" title="fctstr_startswith"><tt class="xref c c-func docutils literal"><span class="pre">fctstr_startswith()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fctstr_startswith">
+<tt class="descname">fctstr_startswith</tt><big>(</big>s1, check<big>)</big><a class="headerlink" href="#fctstr_startswith" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.3</em>. Returns true (1) if the string, <em>s1</em>, starts
+with the given string, <em>check</em>. This will treat two NULL values
+as equal, and return true (1).</p>
+</dd></dl>
+
+<script type="text/javascript"> var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www."); document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E")); </script> <script type="text/javascript"> try { var pageTracker = _gat._getTracker("UA-10742433-3"); pageTracker._trackPageview(); } catch(err) {}</script></div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="mfapi_fct.html" title="FCTMF: Multi-file API"
+             >previous</a> |</li>
+        <li><a href="index.html">FCTX User Documenation 1.6.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009, Ian Blumel.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

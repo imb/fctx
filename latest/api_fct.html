@@ -1,0 +1,694 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>FCTX API &mdash; FCTX User Documenation 1.6.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.6.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="FCTX User Documenation 1.6.0 documentation" href="index.html" />
+    <link rel="next" title="fctcl: Command Line API" href="clapi_fct.html" />
+    <link rel="prev" title="Getting Started" href="getting_started.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="clapi_fct.html" title="fctcl: Command Line API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="getting_started.html" title="Getting Started"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">FCTX User Documenation 1.6.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">FCTX API</a><ul>
+<li><a class="reference internal" href="#initialize-finalize">Initialize/Finalize</a></li>
+<li><a class="reference internal" href="#test-suites">Test Suites</a></li>
+<li><a class="reference internal" href="#conditional-test-suites">Conditional Test Suites</a></li>
+<li><a class="reference internal" href="#quick-test">Quick Test</a></li>
+<li><a class="reference internal" href="#tests">Tests</a></li>
+<li><a class="reference internal" href="#conditional-tests">Conditional Tests</a></li>
+<li><a class="reference internal" href="#checks">Checks</a></li>
+<li><a class="reference internal" href="#c-only-checks">C++ Only Checks</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="getting_started.html"
+                        title="previous chapter">Getting Started</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="clapi_fct.html"
+                        title="next chapter">fctcl: Command Line API</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/api_fct.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-FCT">
+<span id="fctx-api"></span><h1>FCTX API<a class="headerlink" href="#module-FCT" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="initialize-finalize">
+<h2>Initialize/Finalize<a class="headerlink" href="#initialize-finalize" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="FCT_BGN">
+<tt class="descname">FCT_BGN</tt><big>(</big><big>)</big><a class="headerlink" href="#FCT_BGN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes your test framework. Every test program needs to
+begin with this declaration.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCT_BGN_FN">
+<tt class="descname">FCT_BGN_FN</tt><big>(</big>fname<big>)</big><a class="headerlink" href="#FCT_BGN_FN" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in 1.6</em>. Allows you to start unit tests with a function,
+<em>fname</em>, other than the standard main.</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">FCT_BGN_FN</span><span class="p">(</span><span class="n">myentry</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">FCT_QTEST_BGN</span><span class="p">(</span><span class="n">test_func</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fct_chk</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span> <span class="n">FCT_QTEST_END</span><span class="p">();</span>
+<span class="p">}</span> <span class="n">FCT_END_FN</span><span class="p">();</span>
+
+<span class="kt">int</span>
+<span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">myentry</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The function needs to get the standard <em>argc</em> and <em>argv</em> values.
+In the example above we are simplying forwarding <em>argc</em> and
+<em>argv</em>, but you could create your own argc and argv. Keep in
+mind that you must mimic the program name.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCT_INIT">
+<tt class="descname">FCT_INIT</tt><big>(</big>argc, argv<big>)</big><a class="headerlink" href="#FCT_INIT" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in 1.6</em>. Provides the ability to initialize FCTX within a
+function other than main.</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="kt">int</span>
+<span class="nf">_start_test</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+    <span class="n">FCT_INIT</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">);</span>
+
+    <span class="n">FCT_QTEST_BGN</span><span class="p">(</span><span class="n">test_with_my_own_func</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fct_chk</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span> <span class="n">FCT_QTEST_END</span><span class="p">();</span>
+
+    <span class="n">FCT_FINAL</span><span class="p">();</span>
+    <span class="k">return</span> <span class="n">FCT_NUM_FAILED</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kt">int</span>
+<span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">_start_test</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span> <span class="n">argv</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The initialization needs to recieve the standard <em>argc</em> and
+<em>argv</em> in order to initialize FCT. TO clean up use the
+c:func:<cite>FCT_FINAL</cite>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCT_END">
+<tt class="descname">FCT_END</tt><big>(</big><big>)</big><a class="headerlink" href="#FCT_END" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finalizes your test framework. Every test program neesd to end
+with this declaration.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCT_END_FN">
+<tt class="descname">FCT_END_FN</tt><big>(</big><big>)</big><a class="headerlink" href="#FCT_END_FN" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in 1.6</em>. Finalize your test framework started via
+c:func:<cite>FCT_BGN_FN</cite>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCT_EXPECTED_FAILURES">
+<tt class="descname">FCT_EXPECTED_FAILURES</tt><big>(</big>num_failed<big>)</big><a class="headerlink" href="#FCT_EXPECTED_FAILURES" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in 1.2</em>. Mainly used internally by FCTX to test that failures are
+occurring properly. If the actual number of failed tests matches the
+expected <em>num_failed</em>, this macro will cause the program to return 0
+instead of a non-zero value.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCT_FINAL">
+<tt class="descname">FCT_FINAL</tt><big>(</big><big>)</big><a class="headerlink" href="#FCT_FINAL" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in 1.6</em>.  Closes a <a class="reference internal" href="#FCT_INIT" title="FCT_INIT"><tt class="xref c c-func docutils literal"><span class="pre">FCT_INIT()</span></tt></a> block.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCT_NUM_FAILED">
+<tt class="descname">FCT_NUM_FAILED</tt><big>(</big><big>)</big><a class="headerlink" href="#FCT_NUM_FAILED" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in 1.6</em>. After a <a class="reference internal" href="#FCT_FINAL" title="FCT_FINAL"><tt class="xref c c-func docutils literal"><span class="pre">FCT_FINAL()</span></tt></a> this will have the
+number of failed tests.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="test-suites">
+<h2>Test Suites<a class="headerlink" href="#test-suites" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="FCT_FIXTURE_SUITE_BGN">
+<tt class="descname">FCT_FIXTURE_SUITE_BGN</tt><big>(</big>name<big>)</big><a class="headerlink" href="#FCT_FIXTURE_SUITE_BGN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Using the xtest convention, every test suite starts with a
+SUITE_BGN macro. By using the FIXTURE variants you are indicating
+that you wish to use a SETUP and TEARDOWN fixture via the
+<a class="reference internal" href="#FCT_SETUP_BGN" title="FCT_SETUP_BGN"><tt class="xref c c-func docutils literal"><span class="pre">FCT_SETUP_BGN()</span></tt></a>/<a class="reference internal" href="#FCT_SETUP_END" title="FCT_SETUP_END"><tt class="xref c c-func docutils literal"><span class="pre">FCT_SETUP_END()</span></tt></a> and
+<a class="reference internal" href="#FCT_TEARDOWN_BGN" title="FCT_TEARDOWN_BGN"><tt class="xref c c-func docutils literal"><span class="pre">FCT_TEARDOWN_BGN()</span></tt></a>/<a class="reference internal" href="#FCT_TEARDOWN_END" title="FCT_TEARDOWN_END"><tt class="xref c c-func docutils literal"><span class="pre">FCT_TEARDOWN_END()</span></tt></a> macro blocks.</p>
+<p>See also <a class="reference internal" href="#FCT_SUITE_BGN" title="FCT_SUITE_BGN"><tt class="xref c c-func docutils literal"><span class="pre">FCT_SUITE_BGN()</span></tt></a>, which allows you to skip a setup
+and teardown block.</p>
+<p>The following example shows calling a setup/teardown to allocate memory
+to <em>data</em> structure.</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="p">{</span>
+  <span class="kt">void</span> <span class="o">*</span><span class="n">data</span> <span class="o">=</span><span class="nb">NULL</span><span class="p">;</span>
+  <span class="n">FCT_FIXTURE_SUITE_BGN</span><span class="p">(</span><span class="s">&quot;1Suite&quot;</span><span class="p">)</span>
+  <span class="p">{</span>
+        <span class="n">FCT_SETUP_BGN</span><span class="p">()</span>
+        <span class="p">{</span>
+           <span class="n">data</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="mi">10</span><span class="p">));</span>
+        <span class="p">}</span>
+        <span class="n">FCT_SETUP_END</span><span class="p">();</span>
+
+        <span class="n">FCT_TEARDOWN_BGN</span><span class="p">()</span>
+        <span class="p">{</span>
+           <span class="n">free</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+           <span class="n">data</span> <span class="o">=</span><span class="nb">NULL</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">FCT_TEARDOWN_END</span><span class="p">();</span>
+
+        <span class="n">FCT_TEST_BGN</span><span class="p">(</span><span class="s">&quot;1Test&quot;</span><span class="p">)</span>
+        <span class="p">{</span>
+           <span class="n">fct_chk</span><span class="p">(</span> <span class="n">strcmp</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">,</span> <span class="s">&quot;b&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="p">);</span>
+        <span class="p">}</span>
+        <span class="n">FCT_TEST_END</span><span class="p">();</span>
+
+  <span class="p">}</span>
+  <span class="n">FCT_FIXTURE_SUITE_END</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCT_FIXTURE_SUITE_END">
+<tt class="descname">FCT_FIXTURE_SUITE_END</tt><big>(</big><big>)</big><a class="headerlink" href="#FCT_FIXTURE_SUITE_END" title="Permalink to this definition">¶</a></dt>
+<dd><p>This closes a test suite that contains fixtures. If you do not wish to
+specify a setup/teardown you would use the <a class="reference internal" href="#FCT_SUITE_END" title="FCT_SUITE_END"><tt class="xref c c-func docutils literal"><span class="pre">FCT_SUITE_END()</span></tt></a>
+function instead.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCT_SUITE_BGN">
+<tt class="descname">FCT_SUITE_BGN</tt><big>(</big>name<big>)</big><a class="headerlink" href="#FCT_SUITE_BGN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this FCT_SUITE variant if you do not want to bother specifying a
+SETUP and TEARDOWN blocks.</p>
+<p>See also <a class="reference internal" href="#FCT_FIXTURE_SUITE_BGN" title="FCT_FIXTURE_SUITE_BGN"><tt class="xref c c-func docutils literal"><span class="pre">FCT_FIXTURE_SUITE_BGN()</span></tt></a>.</p>
+<p>The following test suite does not have a setup/teardown method. This
+is generally used for convenience, to group a set of tests under
+one heading (a &#8220;suite&#8221;).</p>
+<div class="highlight-c"><div class="highlight"><pre>  <span class="n">FCT_SUITE_BGN</span><span class="p">(</span><span class="s">&quot;1Suite&quot;</span><span class="p">)</span>
+  <span class="p">{</span>
+        <span class="n">FCT_TEST_BGN</span><span class="p">(</span><span class="s">&quot;1Test&quot;</span><span class="p">)</span>
+        <span class="p">{</span>
+           <span class="n">fct_chk</span><span class="p">(</span> <span class="n">strcmp</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">,</span> <span class="s">&quot;b&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="p">);</span>
+        <span class="p">}</span>
+        <span class="n">FCT_TEST_END</span><span class="p">();</span>
+  <span class="p">}</span>
+  <span class="n">FCT_SUITE_END</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCT_SUITE_END">
+<tt class="descname">FCT_SUITE_END</tt><big>(</big><big>)</big><a class="headerlink" href="#FCT_SUITE_END" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes the FCT_SUITE_BGN macro.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCT_SETUP_BGN">
+<tt class="descname">FCT_SETUP_BGN</tt><big>(</big><big>)</big><a class="headerlink" href="#FCT_SETUP_BGN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens a SETUP block. This block is executed <em>before</em> every test.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCT_SETUP_END">
+<tt class="descname">FCT_SETUP_END</tt><big>(</big><big>)</big><a class="headerlink" href="#FCT_SETUP_END" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes the SETUP block.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCT_TEARDOWN_BGN">
+<tt class="descname">FCT_TEARDOWN_BGN</tt><big>(</big><big>)</big><a class="headerlink" href="#FCT_TEARDOWN_BGN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens up a teardown block. This block is executed <em>after</em> every test.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCT_TEARDOWN_END">
+<tt class="descname">FCT_TEARDOWN_END</tt><big>(</big><big>)</big><a class="headerlink" href="#FCT_TEARDOWN_END" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ends a teardown block.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="conditional-test-suites">
+<h2>Conditional Test Suites<a class="headerlink" href="#conditional-test-suites" title="Permalink to this headline">¶</a></h2>
+<p><em>New in FCTX 1.2</em>. The following macros provide you with the ability to run a
+test suite based on some condition. If the condition is TRUE (non-zero) then
+the test suite and its tests will be executed.</p>
+<dl class="function">
+<dt id="FCT_FIXTURE_SUITE_BGN_IF">
+<tt class="descname">FCT_FIXTURE_SUITE_BGN_IF</tt><big>(</big>condition, name<big>)</big><a class="headerlink" href="#FCT_FIXTURE_SUITE_BGN_IF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as <a class="reference internal" href="#FCT_SUITE_BGN" title="FCT_SUITE_BGN"><tt class="xref c c-func docutils literal"><span class="pre">FCT_SUITE_BGN()</span></tt></a>, but will only run if the <em>condition</em> is
+a non-zero value (TRUE).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCT_FIXTURE_SUITE_END_IF">
+<tt class="descname">FCT_FIXTURE_SUITE_END_IF</tt><big>(</big><big>)</big><a class="headerlink" href="#FCT_FIXTURE_SUITE_END_IF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes the <a class="reference internal" href="#FCT_FIXTURE_SUITE_BGN_IF" title="FCT_FIXTURE_SUITE_BGN_IF"><tt class="xref c c-func docutils literal"><span class="pre">FCT_FIXTURE_SUITE_BGN_IF()</span></tt></a> macro.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCT_SUITE_BGN_IF">
+<tt class="descname">FCT_SUITE_BGN_IF</tt><big>(</big>condition, name<big>)</big><a class="headerlink" href="#FCT_SUITE_BGN_IF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as <a class="reference internal" href="#FCT_SUITE_BGN" title="FCT_SUITE_BGN"><tt class="xref c c-func docutils literal"><span class="pre">FCT_SUITE_BGN()</span></tt></a>, but will only run if the <em>condition</em> is
+a non-zero value (TRUE).</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCT_SUITE_END_IF">
+<tt class="descname">FCT_SUITE_END_IF</tt><big>(</big><big>)</big><a class="headerlink" href="#FCT_SUITE_END_IF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes the <a class="reference internal" href="#FCT_SUITE_BGN_IF" title="FCT_SUITE_BGN_IF"><tt class="xref c c-func docutils literal"><span class="pre">FCT_SUITE_BGN_IF()</span></tt></a> macro.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="quick-test">
+<h2>Quick Test<a class="headerlink" href="#quick-test" title="Permalink to this headline">¶</a></h2>
+<p><em>New in FCTX 1.1</em>. This allows you to write tests without any Test Suite
+infrastructure. For example,</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cm">/* First include the fct framework. */</span>
+<span class="cp">#include &quot;fct.h&quot;</span>
+
+<span class="cm">/* Include your API. In this case we are going to test strcmp. */</span>
+<span class="cp">#include &lt;string.h&gt;</span>
+
+<span class="cm">/* Now lets define our testing scope. */</span>
+<span class="n">FCT_BGN</span><span class="p">()</span>
+<span class="p">{</span>
+  <span class="cm">/* An actual test case in the test suite. */</span>
+  <span class="n">FCT_QTEST_BGN</span><span class="p">(</span><span class="n">strcmp_eq</span><span class="p">)</span>
+  <span class="p">{</span>
+     <span class="n">fct_chk</span><span class="p">(</span><span class="n">strcmp</span><span class="p">(</span><span class="s">&quot;durka&quot;</span><span class="p">,</span> <span class="s">&quot;durka&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="n">FCT_QTEST_END</span><span class="p">();</span>
+
+
+  <span class="n">FCT_QTEST_BGN</span><span class="p">(</span><span class="n">chk_neq</span><span class="p">)</span>
+  <span class="p">{</span>
+     <span class="n">fct_chk</span><span class="p">(</span><span class="n">strcmp</span><span class="p">(</span><span class="s">&quot;daka&quot;</span><span class="p">,</span> <span class="s">&quot;durka&quot;</span><span class="p">)</span> <span class="o">!=</span><span class="mi">0</span> <span class="p">);</span>
+  <span class="p">}</span>
+  <span class="n">FCT_QTEST_END</span><span class="p">();</span>
+
+<span class="cm">/* Every FCT scope has an end. */</span>
+<span class="p">}</span>
+<span class="n">FCT_END</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>The above code block lacks any test suites, and provide a convenient way to get
+of the ground quickly and start writing tests.</p>
+<dl class="function">
+<dt id="FCT_QTEST_BGN">
+<tt class="descname">FCT_QTEST_BGN</tt><big>(</big>name<big>)</big><a class="headerlink" href="#FCT_QTEST_BGN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens the quick test block with the given <em>name</em>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCT_QTEST_END">
+<tt class="descname">FCT_QTEST_END</tt><big>(</big><big>)</big><a class="headerlink" href="#FCT_QTEST_END" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ends the quick test block.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCT_QTEST_BGN_IF">
+<tt class="descname">FCT_QTEST_BGN_IF</tt><big>(</big>condition, name<big>)</big><a class="headerlink" href="#FCT_QTEST_BGN_IF" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.2</em>. Opens the quick test block with the given <em>name</em>. The
+contents of the test block are only executed if the <em>condition</em> is a
+non-zero (TRUE) value.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCT_QTEST_END_IF">
+<tt class="descname">FCT_QTEST_END_IF</tt><big>(</big><big>)</big><a class="headerlink" href="#FCT_QTEST_END_IF" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.2</em>. Ends the conditional quick test block.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="tests">
+<h2>Tests<a class="headerlink" href="#tests" title="Permalink to this headline">¶</a></h2>
+<p>These define a beginning and end of a test block. See also
+<a class="reference internal" href="#FCT_QTEST_BGN" title="FCT_QTEST_BGN"><tt class="xref c c-func docutils literal"><span class="pre">FCT_QTEST_BGN()</span></tt></a> and <a class="reference internal" href="#FCT_QTEST_END" title="FCT_QTEST_END"><tt class="xref c c-func docutils literal"><span class="pre">FCT_QTEST_END()</span></tt></a>.</p>
+<dl class="function">
+<dt id="FCT_TEST_BGN">
+<tt class="descname">FCT_TEST_BGN</tt><big>(</big>name<big>)</big><a class="headerlink" href="#FCT_TEST_BGN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens a test block with the given <em>name</em>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCT_TEST_END">
+<tt class="descname">FCT_TEST_END</tt><big>(</big><big>)</big><a class="headerlink" href="#FCT_TEST_END" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes a test block.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="conditional-tests">
+<h2>Conditional Tests<a class="headerlink" href="#conditional-tests" title="Permalink to this headline">¶</a></h2>
+<p><em>New in FCTX 1.2</em>.  Use these variants to run a test based on a conditional
+value.</p>
+<dl class="function">
+<dt id="FCT_TEST_BGN_IF">
+<tt class="descname">FCT_TEST_BGN_IF</tt><big>(</big>condition, name<big>)</big><a class="headerlink" href="#FCT_TEST_BGN_IF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens a test block with the given <em>name</em>. The test is only executed if the
+<em>condition</em> is a non-zero (TRUE) value.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="FCT_TEST_END_IF">
+<tt class="descname">FCT_TEST_END_IF</tt><big>(</big><big>)</big><a class="headerlink" href="#FCT_TEST_END_IF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes a test block.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="checks">
+<h2>Checks<a class="headerlink" href="#checks" title="Permalink to this headline">¶</a></h2>
+<p>These are used to verify that a condition is true. They are executed within
+<a class="reference internal" href="#FCT_TEST_BGN" title="FCT_TEST_BGN"><tt class="xref c c-func docutils literal"><span class="pre">FCT_TEST_BGN()</span></tt></a>/<a class="reference internal" href="#FCT_TEST_END" title="FCT_TEST_END"><tt class="xref c c-func docutils literal"><span class="pre">FCT_TEST_END()</span></tt></a> blocks.</p>
+<dl class="function">
+<dt id="fct_chk">
+<tt class="descname">fct_chk</tt><big>(</big>condition<big>)</big><a class="headerlink" href="#fct_chk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates the <em>condition</em>, and if it is false will cause the tests to fail.
+Further lines in the test block continue to execute. If you want a check to
+terminate testing, then use the <a class="reference internal" href="#fct_req" title="fct_req"><tt class="xref c c-func docutils literal"><span class="pre">fct_req()</span></tt></a> function instead.</p>
+<p>A feature of this check is that you can provide notes to yourself as in,</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">fct_chk</span><span class="p">(</span> <span class="n">it_works</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="s">&quot;The whoosley wazzle didn&#39;t work!&quot;</span><span class="p">);</span>
+<span class="n">fct_chk</span><span class="p">(</span><span class="o">!</span><span class="s">&quot;TODO: Write tests to confirm that the ish can wish for fish.&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>in both those cases if an error was generated (the second case always will
+fail), you will get a message in the final error log.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fct_chk_empty_str">
+<tt class="descname">fct_chk_empty_str</tt><big>(</big>s<big>)</big><a class="headerlink" href="#fct_chk_empty_str" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.3</em>. Causes a test failure if the string, <em>s</em>, is not
+empty. NULL is considered an empty string.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fct_chk_eq_dbl">
+<tt class="descname">fct_chk_eq_dbl</tt><big>(</big>a, b<big>)</big><a class="headerlink" href="#fct_chk_eq_dbl" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.1</em>. Causes a test failure if <em>a</em> != <em>b</em>. Testing for
+equality is done based on an absolute floating point difference less than
+the <em>DBL_EPISLON</em> defined in the standard &lt;float.h&gt; file.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fct_chk_eq_int">
+<tt class="descname">fct_chk_eq_int</tt><big>(</big>a, b<big>)</big><a class="headerlink" href="#fct_chk_eq_int" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.1</em>. Causes a test failure if <em>a</em> != <em>b</em>. Testing for
+equality is done based on the &#8220;==&#8221; operator. An error message is generated
+showing the values of <em>a</em> and <em>b</em>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fct_chk_eq_istr">
+<tt class="descname">fct_chk_eq_istr</tt><big>(</big>a, b<big>)</big><a class="headerlink" href="#fct_chk_eq_istr" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.1</em>. Causes a test failure if <em>a</em> != <em>b</em> (case-insensitive).
+Testing for equality is done based on first checking for NULL values, then
+making a case-insensitive compare.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fct_chk_eq_str">
+<tt class="descname">fct_chk_eq_str</tt><big>(</big>a, b<big>)</big><a class="headerlink" href="#fct_chk_eq_str" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.1</em>. Causes a test failure if <em>a</em> != <em>b</em>. Testing for
+equality is done based on first checking for NULL values, then making a
+case-sensitive compare.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fct_chk_endswith_str">
+<tt class="descname">fct_chk_endswith_str</tt><big>(</big>s, check<big>)</big><a class="headerlink" href="#fct_chk_endswith_str" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.3</em> Checks that the given string, <em>s</em>, ends with the
+given <em>check</em>. NULL&#8217;s are treated as blank strings.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fct_chk_excl_str">
+<tt class="descname">fct_chk_excl_str</tt><big>(</big>s, check<big>)</big><a class="headerlink" href="#fct_chk_excl_str" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.3</em>. Will cause a test failure when it does find the
+<em>check</em> within the given string, <em>s</em>. NULL is treated as a blank
+string in this case.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fct_chk_excl_istr">
+<tt class="descname">fct_chk_excl_istr</tt><big>(</big>s, check<big>)</big><a class="headerlink" href="#fct_chk_excl_istr" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.3</em>. Case insensitive variant of
+<a class="reference internal" href="#fct_chk_excl_str" title="fct_chk_excl_str"><tt class="xref c c-func docutils literal"><span class="pre">fct_chk_excl_str()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fct_chk_full_str">
+<tt class="descname">fct_chk_full_str</tt><big>(</big>s<big>)</big><a class="headerlink" href="#fct_chk_full_str" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.3</em>. Fails if the string, <em>s</em>, is full. A string with
+whitespace is still considered full.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fct_chk_incl_str">
+<tt class="descname">fct_chk_incl_str</tt><big>(</big>s, check<big>)</big><a class="headerlink" href="#fct_chk_incl_str" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.3</em>. Causes a test failure when it can not find <em>check</em>
+within the given string, <em>s</em>. NULL is treated as a blank string in
+this case, thus if <em>check</em> is NULL, all <em>str</em> will pass. Down in the
+guts of this function, there is a call to the Standard C <em>strstr</em>
+function.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fct_chk_incl_istr">
+<tt class="descname">fct_chk_incl_istr</tt><big>(</big>s, check<big>)</big><a class="headerlink" href="#fct_chk_incl_istr" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.3</em>. This is a case insensitive variant of
+<a class="reference internal" href="#fct_chk_incl_str" title="fct_chk_incl_str"><tt class="xref c c-func docutils literal"><span class="pre">fct_chk_incl_str()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fct_chk_iendswith">
+<tt class="descname">fct_chk_iendswith</tt><big>(</big>s, check<big>)</big><a class="headerlink" href="#fct_chk_iendswith" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.3</em>. This is a cse insensitive variant of
+<tt class="xref c c-func docutils literal"><span class="pre">fct_chk_endswith()</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fct_chk_istartswith_istr">
+<tt class="descname">fct_chk_istartswith_istr</tt><big>(</big>s, check<big>)</big><a class="headerlink" href="#fct_chk_istartswith_istr" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.3</em>. Case insensitive variant of
+<a class="reference internal" href="#fct_chk_startswith_str" title="fct_chk_startswith_str"><tt class="xref c c-func docutils literal"><span class="pre">fct_chk_startswith_str()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fct_chk_startswith_str">
+<tt class="descname">fct_chk_startswith_str</tt><big>(</big>s, check<big>)</big><a class="headerlink" href="#fct_chk_startswith_str" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.3</em>. Will return true if the string, <em>s</em>, starts with
+the given <em>check</em> string. Will output a useful error message
+otherwise.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fct_chk_neq_dbl">
+<tt class="descname">fct_chk_neq_dbl</tt><big>(</big>a, b<big>)</big><a class="headerlink" href="#fct_chk_neq_dbl" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.1</em>. Causes a test failure if <em>a</em> == <em>b</em>. Testing for
+inequality is done based on an absolute floating point difference that is
+NOT less than the <em>DBL_EPISLON</em> defined in the standard &lt;float.h&gt; file.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fct_chk_neq_int">
+<tt class="descname">fct_chk_neq_int</tt><big>(</big>a, b<big>)</big><a class="headerlink" href="#fct_chk_neq_int" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.1</em>. Causes a test failure if <em>a</em> == <em>b</em>. Testing for
+equality is done based on the &#8221;!=&#8221; operator. An error message is generated
+showing the values of <em>a</em> and <em>b</em>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fct_chk_neq_istr">
+<tt class="descname">fct_chk_neq_istr</tt><big>(</big>a, b<big>)</big><a class="headerlink" href="#fct_chk_neq_istr" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.1</em>. Causes a test failure if <em>a</em> == <em>b</em> (case-insensitive).
+Testing for inequality is done based on first checking for NULL, then
+making a case-insensitive compare.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fct_chk_neq_str">
+<tt class="descname">fct_chk_neq_str</tt><big>(</big>a, b<big>)</big><a class="headerlink" href="#fct_chk_neq_str" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.1</em>. Causes a test failure if <em>a</em> == <em>b</em>. Testing for
+inequality is done based on first checking for NULL, then making a
+case-sensitive compare.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fct_xchk">
+<tt class="descname">fct_xchk</tt><big>(</big>condition, format_str, ...<big>)</big><a class="headerlink" href="#fct_xchk" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.1</em>. Evaluates the <em>condition</em>, and if it is false will cause
+the tests to fail.  Further lines in the test block continue to execute.
+The message reported is a function of a printf-style <em>format_str</em>, with
+multiple arguments.</p>
+<p><a class="reference internal" href="#fct_xchk" title="fct_xchk"><tt class="xref c c-func docutils literal"><span class="pre">fct_xchk()</span></tt></a> can be extended to generate your own check functions. For
+example, say you had a structure such as,</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="k">typedef</span> <span class="k">struct</span> <span class="kt">_point_t</span> <span class="p">{</span>
+   <span class="kt">float</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">;</span>
+<span class="p">}</span> <span class="kt">point_t</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>you could define a macro that checks if two points are equal based on some
+epsilon value. Something that looked like this should work,</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cp">#define point_is_eq(p1, p2, ep) \</span>
+<span class="cp">    ((int)(fabs(p1.x - p2.x) &lt; ep)) &amp;&amp;\</span>
+<span class="cp">    ((int)(fabs(p1.y - p2.y) &lt; ep)) &amp;&amp;\</span>
+<span class="cp">    ((int)(fabs(p1.z - p2.z) &lt; ep))</span>
+
+<span class="cp">#define point_chk_eq(p1, p2, ep) \</span>
+<span class="cp">    fct_xchk(\</span>
+<span class="cp">        point_is_eq(p1, p2, ep), \</span>
+<span class="cp">        &quot;failed point_is_equal:\n&lt;Point x=%f y=%f z=%f&gt;&quot;\</span>
+<span class="cp">        &quot; !=\n&lt;Point x=%f y=%f z=%f&gt;&quot;,\</span>
+<span class="cp">        p1.x, p1.y, p1.z, p2.x, p2.y, p2.z\</span>
+<span class="cp">        );</span>
+</pre></div>
+</div>
+<p>now your test case can utilize this to test if two points are equal, and
+you will get a meaningful report if they are not.</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="n">FCT_QTEST_BGN</span><span class="p">(</span><span class="n">chk_my_point</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">point_t</span> <span class="n">point1</span> <span class="o">=</span> <span class="p">{</span><span class="mf">1.f</span><span class="p">,</span> <span class="mf">2.f</span><span class="p">,</span> <span class="mf">3.f</span><span class="p">};</span>
+    <span class="kt">point_t</span> <span class="n">point2</span> <span class="o">=</span> <span class="p">{</span><span class="mf">1.f</span><span class="p">,</span> <span class="mf">2.f</span><span class="p">,</span> <span class="mf">3.f</span><span class="p">};</span>
+    <span class="kt">point_t</span> <span class="n">point3</span> <span class="o">=</span> <span class="p">{</span><span class="mf">10.f</span><span class="p">,</span> <span class="mf">20.f</span><span class="p">,</span> <span class="mf">30.f</span><span class="p">};</span>
+    <span class="n">point_chk_eq</span><span class="p">(</span><span class="n">point1</span><span class="p">,</span> <span class="n">point2</span><span class="p">,</span> <span class="n">DBL_EPSILON</span><span class="p">);</span>
+    <span class="n">point_chk_eq</span><span class="p">(</span><span class="n">point1</span><span class="p">,</span> <span class="n">point3</span><span class="p">,</span> <span class="n">DBL_EPSILON</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="n">FCT_QTEST_END</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>in the above example, the second check should generate a test error.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fct_xchk2">
+<tt class="descname">fct_xchk2</tt><big>(</big>condition_str, condition, format_str, ...<big>)</big><a class="headerlink" href="#fct_xchk2" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.4.1</em>. Works like fct_xchk, but allows you to supply a
+value for the check condition.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fct_req">
+<tt class="descname">fct_req</tt><big>(</big>condition<big>)</big><a class="headerlink" href="#fct_req" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.1</em>. Evaluates the <em>condition</em>, and if it is false it will
+cause a test to fail.  This differs from <a class="reference internal" href="#fct_chk" title="fct_chk"><tt class="xref c c-func docutils literal"><span class="pre">fct_chk()</span></tt></a> in so far as a
+false state causes the test block to abort.</p>
+<p><em>Starting with FCTX 1.5</em> <a class="reference internal" href="#fct_req" title="fct_req"><tt class="xref c c-func docutils literal"><span class="pre">fct_req()</span></tt></a> will work within a
+<a class="reference internal" href="#FCT_SETUP_BGN" title="FCT_SETUP_BGN"><tt class="xref c c-func docutils literal"><span class="pre">FCT_SETUP_BGN()</span></tt></a>/<a class="reference internal" href="#FCT_SETUP_END" title="FCT_SETUP_END"><tt class="xref c c-func docutils literal"><span class="pre">FCT_SETUP_END()</span></tt></a> block. If
+a <a class="reference internal" href="#fct_req" title="fct_req"><tt class="xref c c-func docutils literal"><span class="pre">fct_req()</span></tt></a> call fails, the entire test suite will be aborted.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="c-only-checks">
+<h2>C++ Only Checks<a class="headerlink" href="#c-only-checks" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="fct_chk_ex">
+<tt class="descname">fct_chk_ex</tt><big>(</big>exception, CODE_BLOCK<big>)</big><a class="headerlink" href="#fct_chk_ex" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>New in FCTX 1.6</em>. Checks for the given <em>exception</em> with in the
+<em>CODE_BLOCK</em>. The <em>CODE_BLOCK</em> could be 1 or more lines.</p>
+</dd></dl>
+
+<script type="text/javascript"> var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www."); document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E")); </script> <script type="text/javascript"> try { var pageTracker = _gat._getTracker("UA-10742433-3"); pageTracker._trackPageview(); } catch(err) {}</script></div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="clapi_fct.html" title="fctcl: Command Line API"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="getting_started.html" title="Getting Started"
+             >previous</a> |</li>
+        <li><a href="index.html">FCTX User Documenation 1.6.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009, Ian Blumel.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

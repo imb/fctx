@@ -1,0 +1,433 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>fctcl: Command Line API &mdash; FCTX User Documenation 1.6.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.6.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="FCTX User Documenation 1.6.0 documentation" href="index.html" />
+    <link rel="next" title="FCTMF: Multi-file API" href="mfapi_fct.html" />
+    <link rel="prev" title="FCTX API" href="api_fct.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="mfapi_fct.html" title="FCTMF: Multi-file API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="api_fct.html" title="FCTX API"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">FCTX User Documenation 1.6.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">fctcl: Command Line API</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#built-in-options">Built-in Options</a></li>
+<li><a class="reference internal" href="#customizing-the-command-line">Customizing the Command Line</a></li>
+<li><a class="reference internal" href="#types">Types</a></li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="api_fct.html"
+                        title="previous chapter">FCTX API</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="mfapi_fct.html"
+                        title="next chapter">FCTMF: Multi-file API</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/clapi_fct.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-fctcl">
+<span id="fctcl-command-line-api"></span><h1>fctcl: Command Line API<a class="headerlink" href="#module-fctcl" title="Permalink to this headline">¶</a></h1>
+<div class="versionadded">
+<p><span>New in version 1.2.</span></p>
+</div>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>To help control unit tests at runtime you may want to use command line
+arguments. This modules provides access to a simple command line parser that
+builds into each version FCTX unit testing application.</p>
+</div>
+<div class="section" id="built-in-options">
+<h2>Built-in Options<a class="headerlink" href="#built-in-options" title="Permalink to this headline">¶</a></h2>
+<p>When you build a program with FCTX, you will get a set of pre-built command
+line options. The options are as follows,</p>
+<dl class="cmdoption">
+<dt id="cmdoption-fctx_program.exe-v">
+<tt class="descname">-v</tt><tt class="descclassname"></tt><tt class="descclassname">, </tt><tt class="descname">--version</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-fctx_program.exe-v" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reports the version of FCTX used to build <tt class="docutils literal"><span class="pre">your_test_program.exe</span></tt>.</p>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption-fctx_program.exe-h">
+<tt class="descname">-h</tt><tt class="descclassname"></tt><tt class="descclassname">, </tt><tt class="descname">--help</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-fctx_program.exe-h" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shows the usage for all command line options defined for
+<tt class="docutils literal"><span class="pre">your_test_program.exe</span></tt>.</p>
+</dd></dl>
+
+<p>The following options are reserved, and should not be used by your custom
+command line options.</p>
+<dl class="cmdoption">
+<dt id="cmdoption-fctx_program.exe-l">
+<tt class="descname">-l</tt><tt class="descclassname"></tt><tt class="descclassname">, </tt><tt class="descname">--logger</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-fctx_program.exe-l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the logger to use for the testing session. Options are,</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="83%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Type</th>
+<th class="head">Summary</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>standard</td>
+<td>The standard logger that comes with fctx.</td>
+</tr>
+<tr class="row-odd"><td>minimal</td>
+<td>Displays a series of &#8216;.&#8217; for each test and a &#8220;x&#8221; if there was a failure.</td>
+</tr>
+<tr class="row-even"><td>junit</td>
+<td>Output&#8217;s JUnit compatible xml.</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>to be able to define the type of logger used.</p>
+</dd></dl>
+
+<p>All future pre-built command line options in FCTX will all be prefixed with
+a &#8220;f&#8221;, as in <tt class="docutils literal"><span class="pre">--foption</span></tt>.</p>
+</div>
+<div class="section" id="customizing-the-command-line">
+<h2>Customizing the Command Line<a class="headerlink" href="#customizing-the-command-line" title="Permalink to this headline">¶</a></h2>
+<p>The following steps go over how to set up your own custom command line parser
+and check the results.</p>
+<p>In our example we will test for a &#8220;flag&#8221; option called <tt class="docutils literal"><span class="pre">--use-slow</span></tt>, which
+when present will signal that we can execute the long running unit tests.  You
+could envisage using this option for a nightly run only, while day-to-day work
+would avoid the long running tests.</p>
+<p>First, lets take a look at what we have before we customize the command line
+parser.</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cp">#include &quot;fct.h&quot;</span>
+<span class="n">FCT_BGN</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">use_slow</span> <span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="cm">/* Toggle This Value */</span>
+    <span class="n">FCT_QTEST_BGN</span><span class="p">(</span><span class="n">slow_test</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span> <span class="n">use_slow</span> <span class="p">)</span> <span class="p">{</span>
+            <span class="n">fct_chk</span><span class="p">(</span> <span class="n">run_slow_running_process</span><span class="p">()</span> <span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span> <span class="n">FCT_QTEST_END</span><span class="p">();</span>
+<span class="p">}</span> <span class="n">FCT_END</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>now in order to determine if you want to run the slow tests you need to toggle
+the <em>use_slow</em> variable to true and re-compile. Clearly this is not a desirable
+way to control the execution.</p>
+<p>What follows is how to go about setting up a custom command line option so we
+can check if the <em>use_slow</em> option should be set to true at run-time.</p>
+<p>The first thing we will do is install our command line options. This is a NULL
+terminated list of <a class="reference internal" href="#fctcl_init_t" title="fctcl_init_t"><tt class="xref c c-type docutils literal"><span class="pre">fctcl_init_t</span></tt></a> entries.</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cp">#include &quot;fct.h&quot;</span>
+
+<span class="cm">/* Add our command line options. */</span>
+<span class="k">static</span> <span class="kt">fctcl_init_t</span> <span class="n">my_cl_options</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">{</span><span class="s">&quot;--use-slow&quot;</span><span class="p">,</span>                   <span class="cm">/* long_opt */</span>
+     <span class="nb">NULL</span><span class="p">,</span>                           <span class="cm">/* short_opt (optional) */</span>
+     <span class="n">FCTCL_STORE_TRUE</span><span class="p">,</span>             <span class="cm">/* action */</span>
+     <span class="s">&quot;Runs slow running unit tests&quot;</span>  <span class="cm">/* help */</span>
+     <span class="p">},</span>
+    <span class="n">FCTCL_INIT_NULL</span> <span class="cm">/* Sentinel */</span>
+<span class="p">};</span>
+
+<span class="n">FCT_BGN</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">use_slow</span> <span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="cm">/* Toggle This Value */</span>
+    <span class="n">FCT_QTEST_BGN</span><span class="p">(</span><span class="n">slow_test</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span> <span class="n">use_slow</span> <span class="p">)</span> <span class="p">{</span>
+            <span class="n">fct_chk</span><span class="p">(</span> <span class="n">run_slow_running_process</span><span class="p">()</span> <span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span> <span class="n">FCT_QTEST_END</span><span class="p">();</span>
+<span class="p">}</span> <span class="n">FCT_END</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>The entry we added says: &#8220;if you encounter the long <tt class="docutils literal"><span class="pre">--use-slow</span></tt> option, then
+set a true flag that we can read later.&#8221;</p>
+<p>Next we install the options with the <a class="reference internal" href="#fctcl_install" title="fctcl_install"><tt class="xref c c-func docutils literal"><span class="pre">fctcl_install()</span></tt></a>.</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cp">#include &quot;fct.h&quot;</span>
+
+<span class="cm">/* Add our command line options. */</span>
+<span class="k">static</span> <span class="kt">fctcl_init_t</span> <span class="n">my_cl_options</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">{</span><span class="s">&quot;--use-slow&quot;</span><span class="p">,</span>
+     <span class="nb">NULL</span><span class="p">,</span>
+     <span class="n">FCTCL_STORE_TRUE</span><span class="p">,</span>
+     <span class="s">&quot;Runs slow running unit tests&quot;</span><span class="p">},</span>
+    <span class="n">FCTCL_INIT_NULL</span> <span class="cm">/* Sentinel */</span>
+<span class="p">};</span>
+
+<span class="n">FCT_BGN</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">use_slow</span> <span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+
+    <span class="cm">/* Install the command line options defined above. */</span>
+    <span class="n">fctcl_install</span><span class="p">(</span><span class="n">my_cl_options</span><span class="p">);</span>
+
+    <span class="cm">/* Check if --use-slow was on the command line. */</span>
+    <span class="n">use_slow</span> <span class="o">=</span> <span class="n">fctcl_is</span><span class="p">(</span><span class="s">&quot;--use-slow&quot;</span><span class="p">);</span>
+
+    <span class="n">FCT_QTEST_BGN</span><span class="p">(</span><span class="n">slow_test</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span> <span class="n">use_slow</span> <span class="p">)</span> <span class="p">{</span>
+            <span class="n">fct_chk</span><span class="p">(</span> <span class="n">run_slow_running_process</span><span class="p">()</span> <span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span> <span class="n">FCT_QTEST_END</span><span class="p">();</span>
+<span class="p">}</span> <span class="n">FCT_END</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>After you have installed the options you can now check if a flag is set using
+the <a class="reference internal" href="#fctcl_is" title="fctcl_is"><tt class="xref c c-func docutils literal"><span class="pre">fctcl_is()</span></tt></a> macro. If the user had entered <tt class="docutils literal"><span class="pre">--use-slow</span></tt> at the
+command prompt, then the value of <a class="reference internal" href="#fctcl_is" title="fctcl_is"><tt class="xref c c-func docutils literal"><span class="pre">fctcl_is()</span></tt></a> would return TRUE (1).</p>
+<p>Your last option is to use the <a class="reference internal" href="api_fct.html#FCT_QTEST_BGN_IF" title="FCT_QTEST_BGN_IF"><tt class="xref c c-func docutils literal"><span class="pre">FCT_QTEST_BGN_IF()</span></tt></a> macro.</p>
+<div class="highlight-c"><div class="highlight"><pre><span class="cp">#include &quot;fct.h&quot;</span>
+
+<span class="cm">/* Add our command line options. */</span>
+<span class="k">static</span> <span class="kt">fctcl_init_t</span> <span class="n">my_cl_options</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">{</span><span class="s">&quot;--use-slow&quot;</span><span class="p">,</span>
+     <span class="nb">NULL</span><span class="p">,</span>
+     <span class="n">FCTCL_STORE_TRUE</span><span class="p">,</span>
+     <span class="s">&quot;Runs slow running unit tests&quot;</span><span class="p">},</span>
+    <span class="n">FCTCL_INIT_NULL</span> <span class="cm">/* Sentinel */</span>
+<span class="p">};</span>
+
+<span class="n">FCT_BGN</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">use_slow</span> <span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+
+    <span class="cm">/* Install the command line options defined above. */</span>
+    <span class="n">fctcl_install</span><span class="p">(</span><span class="n">my_cl_options</span><span class="p">);</span>
+
+    <span class="cm">/* Check if --use-slow was on the command line. */</span>
+    <span class="n">use_slow</span> <span class="o">=</span> <span class="n">fctcl_is</span><span class="p">(</span><span class="s">&quot;--use-slow&quot;</span><span class="p">);</span>
+
+    <span class="n">FCT_QTEST_BGN_IF</span><span class="p">(</span><span class="n">use_slow</span><span class="p">,</span> <span class="n">slow_test</span><span class="p">)</span> <span class="p">{</span>
+       <span class="n">fct_chk</span><span class="p">(</span> <span class="n">run_slow_running_process</span><span class="p">()</span> <span class="p">);</span>
+    <span class="p">}</span> <span class="n">FCT_QTEST_END_IF</span><span class="p">();</span>
+<span class="p">}</span> <span class="n">FCT_END</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>This will run the &#8220;slow_test&#8221; if the <em>use_slow</em> variable is TRUE (non-zero).</p>
+</div>
+<div class="section" id="types">
+<h2>Types<a class="headerlink" href="#types" title="Permalink to this headline">¶</a></h2>
+<dl class="type">
+<dt id="fctcl_init_t">
+<tt class="descname">fctcl_init_t</tt><a class="headerlink" href="#fctcl_init_t" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this structure to initialize your options. The structure is usually
+initialized as part of a listing of command line options. Each field is
+described below.</p>
+<dl class="member">
+<dt id="fctcl_init_t.long_opt">
+char const * <tt class="descname">long_opt</tt><a class="headerlink" href="#fctcl_init_t.long_opt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Long option on the command line.</p>
+</dd></dl>
+
+<dl class="member">
+<dt id="fctcl_init_t.short_opt">
+char const * <tt class="descname">short_opt</tt><a class="headerlink" href="#fctcl_init_t.short_opt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Short option on the command line. This can be set to NULL if you do not
+wish to have a short option available.</p>
+</dd></dl>
+
+<dl class="member">
+<dt id="fctcl_init_t.action">
+<a class="reference internal" href="#fctcl_store_t" title="fctcl_store_t">fctcl_store_t</a> <tt class="descname">action</tt><a class="headerlink" href="#fctcl_init_t.action" title="Permalink to this definition">¶</a></dt>
+<dd><p>When a command line option is encountered by the parser this describes
+what the parser should do. If, for example, <a class="reference internal" href="#FCTCL_STORE_TRUE" title="FCTCL_STORE_TRUE"><tt class="xref c c-macro docutils literal"><span class="pre">FCTCL_STORE_TRUE</span></tt></a>
+is used, then a true boolean value (1) is stored. If
+<a class="reference internal" href="#FCTCL_STORE_VALUE" title="FCTCL_STORE_VALUE"><tt class="xref c c-macro docutils literal"><span class="pre">FCTCL_STORE_VALUE</span></tt></a> is used, then a string is stored and can be
+later retrieved.</p>
+</dd></dl>
+
+<dl class="member">
+<dt id="fctcl_init_t.help">
+char const * <tt class="descname">help</tt><a class="headerlink" href="#fctcl_init_t.help" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the help string that is displayed if the command line parser
+encounters a <tt class="docutils literal"><span class="pre">-h</span></tt> or <tt class="docutils literal"><span class="pre">--help</span></tt>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="type">
+<dt id="fctcl_store_t">
+<tt class="descname">fctcl_store_t</tt><a class="headerlink" href="#fctcl_store_t" title="Permalink to this definition">¶</a></dt>
+<dd><p>Describes the action to take if a command line option is recognized by the
+parser. Valid options currently are,</p>
+<dl class="macro">
+<dt id="FCTCL_STORE_UNDEFINED">
+<tt class="descname">FCTCL_STORE_UNDEFINED</tt><a class="headerlink" href="#FCTCL_STORE_UNDEFINED" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do not use. This is the default value when we don&#8217;t have an available
+option.</p>
+</dd></dl>
+
+<dl class="macro">
+<dt id="FCTCL_STORE_TRUE">
+<tt class="descname">FCTCL_STORE_TRUE</tt><a class="headerlink" href="#FCTCL_STORE_TRUE" title="Permalink to this definition">¶</a></dt>
+<dd><p>When present it signals to the command line parser that we store a true
+(1) flag.</p>
+</dd></dl>
+
+<dl class="macro">
+<dt id="FCTCL_STORE_VALUE">
+<tt class="descname">FCTCL_STORE_VALUE</tt><a class="headerlink" href="#FCTCL_STORE_VALUE" title="Permalink to this definition">¶</a></dt>
+<dd><p>When present it signals to the command line parser that we store a
+string value corresponding to the next argument in the parser. For
+instance,</p>
+<blockquote>
+<div><table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Command Line</th>
+<th class="head">Resulting Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>&#8211;use-value=xxx</td>
+<td>xxx</td>
+</tr>
+<tr class="row-odd"><td>&#8211;use-value xxx</td>
+<td>xxx</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>use this if you want to retrieve a value from the command line.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="fctcl_install">
+void <tt class="descname">fctcl_install</tt><big>(</big>cl_options<big>)</big><a class="headerlink" href="#fctcl_install" title="Permalink to this definition">¶</a></dt>
+<dd><p>Installs your <a class="reference internal" href="#fctcl_init_t" title="fctcl_init_t"><tt class="xref c c-type docutils literal"><span class="pre">fctcl_init_t</span></tt></a> NULL terminated array of <em>cl_options</em>
+into the command line parser. The command line is then parsed at this
+moment, and any subsequent queries via <a class="reference internal" href="#fctcl_is" title="fctcl_is"><tt class="xref c c-func docutils literal"><span class="pre">fctcl_is()</span></tt></a> or
+<a class="reference internal" href="#fctcl_val" title="fctcl_val"><tt class="xref c c-func docutils literal"><span class="pre">fctcl_val()</span></tt></a> will return the parse results. See <a class="reference internal" href="#customizing-the-command-line">Customizing
+the Command Line</a> for an example of installing your own command line
+options.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fctcl_is">
+int <tt class="descname">fctcl_is</tt><big>(</big>flag<big>)</big><a class="headerlink" href="#fctcl_is" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns true if the <em>flag</em> has been used. The <em>flag</em> is the either the long
+or short option used during the configuration stage. Use this macro to
+retrieve <a class="reference internal" href="#FCTCL_STORE_TRUE" title="FCTCL_STORE_TRUE"><tt class="xref c c-macro docutils literal"><span class="pre">FCTCL_STORE_TRUE</span></tt></a> command line options.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fctcl_val">
+const char* <tt class="descname">fctcl_val</tt><big>(</big>flag<big>)</big><a class="headerlink" href="#fctcl_val" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a character buffer defined by the <em>flag</em>. It will return NULL if
+<em>flag</em> was not defined at the command line. Use this macro to retrieve
+<a class="reference internal" href="#FCTCL_STORE_VALUE" title="FCTCL_STORE_VALUE"><tt class="xref c c-macro docutils literal"><span class="pre">FCTCL_STORE_VALUE</span></tt></a> command line options.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fctcl_val2">
+const char * <tt class="descname">fctcl_val2</tt><big>(</big>flag, defval<big>)</big><a class="headerlink" href="#fctcl_val2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a character buffer defiend by the <em>flag</em> or the pointer to <em>defval</em>
+if the <em>flag</em> was not defined on the command line. Use this macro to
+retrieve <a class="reference internal" href="#FCTCL_STORE_VALUE" title="FCTCL_STORE_VALUE"><tt class="xref c c-macro docutils literal"><span class="pre">FCTCL_STORE_VALUE</span></tt></a> command line options.</p>
+</dd></dl>
+
+<script type="text/javascript"> var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www."); document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E")); </script> <script type="text/javascript"> try { var pageTracker = _gat._getTracker("UA-10742433-3"); pageTracker._trackPageview(); } catch(err) {}</script></div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="mfapi_fct.html" title="FCTMF: Multi-file API"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="api_fct.html" title="FCTX API"
+             >previous</a> |</li>
+        <li><a href="index.html">FCTX User Documenation 1.6.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2009, Ian Blumel.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>
