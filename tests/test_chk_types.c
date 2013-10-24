@@ -60,6 +60,18 @@ FCT_BGN()
     }
     FCT_QTEST_END();
 
+    FCT_QTEST_BGN(chk_dbl_eqtol)
+    {
+        fct_chk_eqtol_dbl(6123.2313,6123.2313,DBL_EPSILON);
+    }
+    FCT_QTEST_END();
+
+    FCT_QTEST_BGN(chk_dbl_neqtol)
+    {
+        fct_chk_neqtol_dbl(1.11111, 1.1,DBL_EPSILON);
+    }
+    FCT_QTEST_END();
+
     FCT_QTEST_BGN(chk_str_eq)
     {
         fct_chk_eq_str("a", "a");

@@ -342,6 +342,12 @@ These are used to verify that a condition is true. They are executed within
     equality is done based on an absolute floating point difference less than
     the *DBL_EPISLON* defined in the standard <float.h> file.
 
+.. c:function:: fct_chk_eqtol_dbl(a, b, tol) 
+
+    *New in FCTX 1.6.2*. Causes a test failure if *a* != *b*. Testing for
+    equality is done based on an absolute floating point difference less than
+    *tol*.
+
 .. c:function:: fct_chk_eq_int(a, b)
 
     *New in FCTX 1.1*. Causes a test failure if *a* != *b*. Testing for
@@ -415,6 +421,12 @@ These are used to verify that a condition is true. They are executed within
     *New in FCTX 1.1*. Causes a test failure if *a* == *b*. Testing for
     inequality is done based on an absolute floating point difference that is
     NOT less than the *DBL_EPISLON* defined in the standard <float.h> file. 
+
+.. c:function:: fct_chk_neqtol_dbl(a, b, tol) 
+
+    *New in FCTX 1.6.2*. Causes a test failure if *a* == *b*. Testing for
+    inequality is done based on an absolute floating point difference that is
+    NOT less than the *tol*.
 
 .. c:function:: fct_chk_neq_int(a, b)
 

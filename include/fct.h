@@ -3688,6 +3688,30 @@ with. If we fail a setup up, then we go directly to a teardown mode. */
         )
 
 
+#define fct_chk_eqtol_dbl(V1, V2, TOL) \
+    fct_xchk(\
+        ((int)(fabs((V1)-(V2)) < (TOL))),\
+        "chk_eq_dbl: %.*g != %.*g to tol %g",\
+        (DBL_DIG + 2),\
+        (V1),\
+        (DBL_DIG + 2),\
+        (V2),\
+        (TOL)\
+        )
+
+
+#define fct_chk_neqtol_dbl(V1, V2, TOL) \
+    fct_xchk(\
+        ((int)(fabs((V1)-(V2)) >= (TOL))),\
+        "chk_neq_dbl: %.*g == %.*g to tol %g",\
+        (DBL_DIG + 2),\
+        (V1),\
+        (DBL_DIG + 2),\
+        (V2),\
+        (TOL)\
+        )
+
+
 #define fct_chk_eq_str(V1, V2) \
     fct_xchk(fctstr_eq((V1), (V2)),\
           "chk_eq_str: '%s' != '%s'",\
