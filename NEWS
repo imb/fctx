@@ -2,6 +2,11 @@
 FCTX Changes
 ++++++++++++
 
+Whats new in FCTX 1.6.2
+-----------------------
+
+ - ENH: fct_chk_eq_dbl and fct_chk_neq_dbl show more digits on failure.
+
 Whats new in FCTX 1.6.1
 -----------------------
 

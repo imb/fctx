@@ -3669,8 +3669,10 @@ with. If we fail a setup up, then we go directly to a teardown mode. */
 #define fct_chk_eq_dbl(V1, V2) \
     fct_xchk(\
         ((int)(fabs((V1)-(V2)) < DBL_EPSILON)),\
-        "chk_eq_dbl: %f != %f",\
+        "chk_eq_dbl: %.*g != %.*g",\
+        (DBL_DIG + 2),\
         (V1),\
+        (DBL_DIG + 2),\
         (V2)\
         )
 
@@ -3678,8 +3680,10 @@ with. If we fail a setup up, then we go directly to a teardown mode. */
 #define fct_chk_neq_dbl(V1, V2) \
     fct_xchk(\
         ((int)(fabs((V1)-(V2)) >= DBL_EPSILON)),\
-        "chk_neq_dbl: %f == %f",\
+        "chk_neq_dbl: %.*g == %.*g",\
+        (DBL_DIG + 2),\
         (V1),\
+        (DBL_DIG + 2),\
         (V2)\
         )
 
