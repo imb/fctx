@@ -21,8 +21,6 @@ generate unit tests for C and C++ with little or no hassle.
 
 It is just a header, you only need #include.
 
-See http://fctx.wildbearsoftware.com for more information.
-
 ----------
 What's New
 ----------
