@@ -332,9 +332,12 @@ fctstr_clone_lower(char const *s)
     }
     klen = strlen(s)+1;
     k = (char*)malloc(sizeof(char)*klen+1);
-    for ( i=0; i != klen; ++i )
+    if ( k != NULL )
     {
-        k[i] = (char)tolower(s[i]);
+        for ( i=0; i != klen; ++i )
+        {
+            k[i] = (char)tolower(s[i]);
+        }
     }
     return k;
 }
@@ -395,7 +398,7 @@ http://publications.gbdirect.co.uk/c_book/chapter5/character_handling.html
 static int
 fctstr_eq(char const *s1, char const *s2)
 {
-    if ( s1 == s2 )
+    if ( ( s1 == NULL && s2 == NULL ) || s1 == s2 )
     {
         return 1;
     }
@@ -3051,7 +3054,7 @@ fct_junit_logger__on_test_suite_end(
     FCT_SWITCH_STDERR_TO_STDERR();
 
     /* opening testsuite tag */
-    printf("\t<testsuite errors=\"%lu\" failures=\"0\" tests=\"%lu\" "
+    printf("\t<testsuite errors=\"%zu\" failures=\"0\" tests=\"%lu\" "
            "name=\"%s\" time=\"%.4f\">\n",
            (unsigned long)   fct_ts__tst_cnt(ts)
            - fct_ts__tst_cnt_passed(ts),
@@ -3826,6 +3829,22 @@ _fct_chk_full_str(char const *s)
     fct_xchk(\
         ((V1) != (V2)),\
         "chq_neq_int: %d == %d",\
+        (V1),\
+        (V2)\
+        )
+
+#define fct_chk_eq_size_t(V1, V2) \
+    fct_xchk(\
+        ((V1) == (V2)),\
+        "chq_eq_size_t: %zu != %zu",\
+        (V1),\
+        (V2)\
+        )
+
+#define fct_chk_neq_size_t(V1, V2) \
+    fct_xchk(\
+        ((V1) != (V2)),\
+        "chq_neq_size_t: %zu == %zu",\
         (V1),\
         (V2)\
         )

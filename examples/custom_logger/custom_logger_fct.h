@@ -86,21 +86,21 @@ static void
 custlog__on_test_suite_end(fct_logger_i *l, fct_logger_evt_t const *e)
 {
     fct_ts_t const *test_suite = e->ts;
-    int test_cnt = fct_ts__tst_cnt(test_suite);
-    int passed_test_cnt = fct_ts__tst_cnt(test_suite);
-    int failed_test_cnt = test_cnt - passed_test_cnt;
+    size_t test_cnt = fct_ts__tst_cnt(test_suite);
+    size_t passed_test_cnt = fct_ts__tst_cnt(test_suite);
+    size_t failed_test_cnt = test_cnt - passed_test_cnt;
     (void)l;
     printf("on_test_suite_end:\n"
            "    -          name: %s\n"
            "    -      duration: %f ms\n"
-           "    -  tests passed: %d\n"
-           "    -  tests failed: %d\n"
-           "    -        checks: %lu\n",
+           "    -  tests passed: %zu\n"
+           "    -  tests failed: %zu\n"
+           "    -        checks: %zu\n",
            fct_ts__name(test_suite),
            fct_ts__duration(test_suite),
            passed_test_cnt,
            failed_test_cnt,
-           (unsigned long) fct_ts__chk_cnt(test_suite)
+           fct_ts__chk_cnt(test_suite)
           );
 }
 

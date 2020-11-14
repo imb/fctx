@@ -22,7 +22,7 @@ _start_test(int argCount, char *argVariables[])
     FCT_QTEST_END();
 
     FCT_FINAL();
-    return FCT_NUM_FAILED();
+    return (int) FCT_NUM_FAILED();
 }
 
 int
