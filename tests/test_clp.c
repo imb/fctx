@@ -205,13 +205,13 @@ FCT_BGN()
                                       };
             int test_argc =4;
             int is_error =0;
-            int param_cnt =0;
+            size_t param_cnt =0;
 
             fct_clp__parse(&clp, test_argc, test_argv);
             is_error = fct_clp__is_error(&clp);
             fct_chk( !is_error );
             param_cnt = fct_clp__param_cnt(&clp);
-            fct_chk_eq_int( param_cnt, 3);
+            fct_chk_eq_size_t( param_cnt, 3);
 
             fct_chk( fct_clp__is_param(&clp, "parama") );
             fct_chk( !fct_clp__is_param(&clp, "funk") );
