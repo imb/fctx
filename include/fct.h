@@ -3029,6 +3029,15 @@ fct_junit_logger__on_test_suite_start(
     FCT_SWITCH_STDERR_TO_BUFFER();
 }
 
+static void
+fct_junit_sanitize_buffer(int len, char* buffer)
+{
+    for (int i=0; i<len; i++) {
+       if (!isprint(buffer[i]) && !isspace(buffer[i])) {
+           buffer[i] = '#';
+       }
+    }
+}
 
 static void
 fct_junit_logger__on_test_suite_end(
@@ -3111,6 +3120,7 @@ fct_junit_logger__on_test_suite_end(
             printf("\n");
             first_out_line = 0;
         }
+        fct_junit_sanitize_buffer(read_length, std_buffer);
         printf("%.*s", read_length, std_buffer);
     }
     printf("]]>\n\t\t</system-out>\n");
@@ -3124,6 +3134,7 @@ fct_junit_logger__on_test_suite_end(
             printf("\n");
             first_out_line = 0;
         }
+        fct_junit_sanitize_buffer(read_length, std_buffer);
         printf("%.*s", read_length, std_buffer);
     }
     printf("]]>\n\t\t</system-err>\n");
